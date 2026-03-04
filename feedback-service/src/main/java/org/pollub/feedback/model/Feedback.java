@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 
 /**
  * Entity representing a user feedback submission.
@@ -47,7 +48,7 @@ public class Feedback {
     
     @Column(nullable = false)
     @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = DateTimeProvider.getInstance().now();
     
     private LocalDateTime resolvedAt;
 }

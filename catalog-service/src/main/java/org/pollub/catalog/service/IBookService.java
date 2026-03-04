@@ -2,7 +2,7 @@ package org.pollub.catalog.service;
 
 
 import org.pollub.catalog.model.Book;
-import org.pollub.catalog.model.ItemStatus;
+import org.pollub.catalog.model.SearchCriteria;
 import org.pollub.catalog.model.dto.BookAvailabilityDto;
 import org.pollub.catalog.model.dto.BookCreateDto;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,7 @@ public interface IBookService {
     Book updateBook(Long id, BookCreateDto dto);
     void deleteBook(Long id);
     List<Book> findByIsbn(String isbn);
-    Page<Book> searchBooks(String query, ItemStatus status, String publisher, String genres, int page, int size, String sort);
+    Page<Book> searchBooks(SearchCriteria criteria);
     List<String> getTopGenres();
     List<String> getOtherGenres();
     List<String> getAllPublishers();

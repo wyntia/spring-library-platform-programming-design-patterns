@@ -9,19 +9,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+//Lab2 - Factory 3 Method Start
 @Component
 @RequiredArgsConstructor
-//Lab2 - Factory 3 Method Start
-public class UserFactory implements IUserFactory {
+public class AdminUserFactory implements IUserFactory {
     private final PasswordEncoder passwordEncoder;
     private final UidGenerator uidGenerator;
 
-    private final User templateUser = User.builder()
-            .roles(Set.of(Role.ROLE_READER))
+    private final User templateAdmin = User.builder()
+            .roles(Set.of(Role.ROLE_ADMIN))
             .enabled(true)
             .address(UserAddress.builder()
-                    .street("Default Street")
-                    .city("Default City")
+                    .street("Admin Street")
+                    .city("Admin City")
                     .postalCode("00-000")
                     .country("Poland")
                     .buildingNumber("1")
@@ -30,29 +30,29 @@ public class UserFactory implements IUserFactory {
 
     @Override
     public User createUser(User userDto) {
-        //Lab2 - Prototype 3 Start
-        //Lab2 - Builder 4 Start
-        return templateUser.clone().toBuilder()
+        //Lab2 - Prototype Start
+        //Lab2 - Builder Start
+        return templateAdmin.clone().toBuilder()
                 .username(userDto.getEmail())
                 .email(userDto.getEmail().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .readerId(uidGenerator.generateUid())
                 .pesel(userDto.getPesel())
-                .address(userDto.getAddress() != null ? userDto.getAddress() : templateUser.getAddress())
+                .address(userDto.getAddress() != null ? userDto.getAddress() : templateAdmin.getAddress())
                 .phone(userDto.getPhone())
                 .name(userDto.getName())
                 .surname(userDto.getSurname())
                 .mustChangePassword(true)
                 .build();
-        // End Builder 4
-        // End Prototype 3
+        // End Builder
+        // End Prototype
     }
 
     @Override
     public User createUser(String username, String email, String password, String name, String surname) {
-        //Lab2 - Prototype 3 Start
-        //Lab2 - Builder 4 Start
-        return templateUser.clone().toBuilder()
+        //Lab2 - Prototype Start
+        //Lab2 - Builder Start
+        return templateAdmin.clone().toBuilder()
                 .username(username)
                 .email(email.toLowerCase())
                 .password(passwordEncoder.encode(password))
@@ -61,8 +61,8 @@ public class UserFactory implements IUserFactory {
                 .surname(surname)
                 .mustChangePassword(false)
                 .build();
-        // End Builder 4
-        // End Prototype 3
+        // End Builder
+        // End Prototype
     }
 }
 // End Factory 3 Method

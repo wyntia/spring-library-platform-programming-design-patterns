@@ -5,10 +5,10 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.pollub.user.validation.ValidPesel;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,19 +16,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Set;
 
-/**
- * User entity for the user-service.
- * Note: Branch references are stored as IDs only (not full entities)
- * since branches are managed by branch-service.
- */
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User implements UserDetails {
+public class User implements UserDetails, Cloneable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -63,15 +57,9 @@ public class User implements UserDetails {
     @JsonIgnore
     private Set<Role> roles;
 
-    /**
-     * Reference to favourite branch (stored as ID, actual branch data from branch-service)
-     */
     @Column(name = "favourite_branch_id")
     private Long favouriteBranchId;
 
-    /**
-     * Reference to employee branch (stored as ID, actual branch data from branch-service)
-     */
     @Column(name = "employee_branch_id")
     private Long employeeBranchId;
 
@@ -84,7 +72,6 @@ public class User implements UserDetails {
     @Valid
     private UserAddress address;
 
-    @Builder.Default
     @Column(nullable = false)
     private boolean mustChangePassword = true;
 
@@ -114,4 +101,97 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return enabled;
     }
+
+    //Lab2 - Builder 4 Start
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Long id;
+        private String name;
+        private String surname;
+        private String readerId;
+        private String phone;
+        private String username;
+        private String email;
+        private String password;
+        private boolean enabled = true;
+        private Set<Role> roles;
+        private Long favouriteBranchId;
+        private Long employeeBranchId;
+        private String pesel;
+        private UserAddress address;
+        private boolean mustChangePassword = true;
+
+        public Builder id(Long id) { this.id = id; return this; }
+        public Builder name(String name) { this.name = name; return this; }
+        public Builder surname(String surname) { this.surname = surname; return this; }
+        public Builder readerId(String readerId) { this.readerId = readerId; return this; }
+        public Builder phone(String phone) { this.phone = phone; return this; }
+        public Builder username(String username) { this.username = username; return this; }
+        public Builder email(String email) { this.email = email; return this; }
+        public Builder password(String password) { this.password = password; return this; }
+        public Builder enabled(boolean enabled) { this.enabled = enabled; return this; }
+        public Builder roles(Set<Role> roles) { this.roles = roles; return this; }
+        public Builder favouriteBranchId(Long favouriteBranchId) { this.favouriteBranchId = favouriteBranchId; return this; }
+        public Builder employeeBranchId(Long employeeBranchId) { this.employeeBranchId = employeeBranchId; return this; }
+        public Builder pesel(String pesel) { this.pesel = pesel; return this; }
+        public Builder address(UserAddress address) { this.address = address; return this; }
+        public Builder mustChangePassword(boolean mustChangePassword) { this.mustChangePassword = mustChangePassword; return this; }
+
+        public User build() {
+            User user = new User();
+            user.setId(id);
+            user.setName(name);
+            user.setSurname(surname);
+            user.setReaderId(readerId);
+            user.setPhone(phone);
+            user.setUsername(username);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setEnabled(enabled);
+            user.setRoles(roles);
+            user.setFavouriteBranchId(favouriteBranchId);
+            user.setEmployeeBranchId(employeeBranchId);
+            user.setPesel(pesel);
+            user.setAddress(address);
+            user.setMustChangePassword(mustChangePassword);
+            return user;
+        }
+    }
+
+    //Lab2 - Prototype 3 Start
+    @Override
+    public User clone() {
+        try {
+            return (User) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone not supported for User", e);
+        }
+    }
+    // End Prototype 3
+
+    public Builder toBuilder() {
+        return new Builder()
+                .id(this.id)
+                .name(this.name)
+                .surname(this.surname)
+                .readerId(this.readerId)
+                .phone(this.phone)
+                .username(this.username)
+                .email(this.email)
+                .password(this.password)
+                .enabled(this.enabled)
+                .roles(this.roles)
+                .favouriteBranchId(this.favouriteBranchId)
+                .employeeBranchId(this.employeeBranchId)
+                .pesel(this.pesel)
+                .address(this.address)
+                .mustChangePassword(this.mustChangePassword);
+    }
+    // End Builder 4
+
 }

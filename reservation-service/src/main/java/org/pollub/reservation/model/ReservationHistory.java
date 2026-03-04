@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 
 /**
  * Entity representing a reservation.
@@ -18,7 +19,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReservationHistory {
+//Lab2 - Prototype Start
+public class ReservationHistory implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +47,22 @@ public class ReservationHistory {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReservationStatus status;
+
+    // Lab2 - Prototype 2 Start
+    @Override
+    public ReservationHistory clone() {
+        try {
+            ReservationHistory cloned = (ReservationHistory) super.clone();
+            cloned.setId(null);
+            cloned.setReservedAt(DateTimeProvider.getInstance().now());
+            cloned.setExpiresAt(DateTimeProvider.getInstance().now().plusDays(3));
+            cloned.setResolvedAt(null);
+            cloned.setStatus(ReservationStatus.ACTIVE);
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone not supported for ReservationHistory", e);
+        }
+    }
+    // End Prototype 2
+
 }

@@ -3,16 +3,19 @@ package org.pollub.feedback.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.pollub.common.exception.ResourceNotFoundException;
+import org.pollub.feedback.exception.IpAddressBannedException;
 import org.pollub.feedback.exception.RateLimitExceededException;
 import org.pollub.feedback.model.Feedback;
 import org.pollub.feedback.model.FeedbackStatus;
 import org.pollub.feedback.model.dto.FeedbackRequestDto;
 import org.pollub.feedback.repository.IFeedbackRepository;
+import org.pollub.feedback.utils.IpBlacklist;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 import java.util.List;
 
 @Service
@@ -44,12 +47,18 @@ public class FeedbackService implements IFeedbackService {
             throw new RateLimitExceededException();
         }
 
+        // LAB2 - Singleton 2 START
+        if (IpBlacklist.getInstance().isBanned(ipAddress)) {
+            log.warn("Blocked banned IP address: {}", maskIp(ipAddress));
+            throw new IpAddressBannedException(ipAddress);
+        }
+        // LAB2 - Singleton 2 END
         Feedback feedback = Feedback.builder()
                 .category(dto.category())
                 .message(sanitizeMessage(dto.message()))
                 .pageUrl(dto.pageUrl())
                 .ipAddress(ipAddress)
-                .createdAt(LocalDateTime.now())
+                .createdAt(DateTimeProvider.getInstance().now())
                 .status(FeedbackStatus.NEW)
                 .build();
 
@@ -67,7 +76,7 @@ public class FeedbackService implements IFeedbackService {
             return true; // Block if IP cannot be determined (security measure)
         }
 
-        LocalDateTime windowStart = LocalDateTime.now().minusHours(windowHours);
+        LocalDateTime windowStart = DateTimeProvider.getInstance().now().minusHours(windowHours);
         long count = feedbackRepository.countByIpAddressSince(ipAddress, windowStart);
 
         return count >= maxRequestsPerWindow;
@@ -92,7 +101,7 @@ public class FeedbackService implements IFeedbackService {
         feedback.setStatus(newStatus);
 
         if (newStatus == FeedbackStatus.RESOLVED || newStatus == FeedbackStatus.DISMISSED) {
-            feedback.setResolvedAt(LocalDateTime.now());
+            feedback.setResolvedAt(DateTimeProvider.getInstance().now());
         }
 
         return feedbackRepository.save(feedback);
@@ -102,7 +111,7 @@ public class FeedbackService implements IFeedbackService {
     public int[] getRateLimitInfo(String ipAddress) {
         int currentCount = 0;
         if (ipAddress != null && !ipAddress.isBlank()) {
-            LocalDateTime windowStart = LocalDateTime.now().minusHours(windowHours);
+            LocalDateTime windowStart = DateTimeProvider.getInstance().now().minusHours(windowHours);
             currentCount = (int) feedbackRepository.countByIpAddressSince(ipAddress, windowStart);
         }
         return new int[] { currentCount, maxRequestsPerWindow, windowHours };

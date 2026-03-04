@@ -17,7 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +54,7 @@ public class FeedbackController {
         // Add rate limit headers
         int[] rateLimitInfo = feedbackService.getRateLimitInfo(ipAddress);
         int remaining = Math.max(0, rateLimitInfo[1] - rateLimitInfo[0] - 1);
-        long resetTime = LocalDateTime.now().plusHours(rateLimitInfo[2]).toEpochSecond(ZoneOffset.UTC);
+        long resetTime = DateTimeProvider.getInstance().now().plusHours(rateLimitInfo[2]).toEpochSecond(ZoneOffset.UTC);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-RateLimit-Limit", String.valueOf(rateLimitInfo[1]));

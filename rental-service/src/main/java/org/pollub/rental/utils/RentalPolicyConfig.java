@@ -14,10 +14,8 @@ public class RentalPolicyConfig implements IRentalPolicy {
     @Value("${rental.policy.maxItemsPerUser:5}")
     private int maxItemsPerUser;
 
-
     @Override
     public boolean canUserRentItem(Long userId) {
         return rentalHistoryRepository.countByUserIdAndStatus(userId, RentalStatus.RENTED) < maxItemsPerUser;
-
     }
 }

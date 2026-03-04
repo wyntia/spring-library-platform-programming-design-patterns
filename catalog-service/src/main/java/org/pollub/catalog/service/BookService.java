@@ -3,10 +3,12 @@ package org.pollub.catalog.service;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.pollub.catalog.cache.CatalogCacheManager;
+import org.pollub.catalog.factory.SortStrategyFactory;
 import org.pollub.catalog.model.Book;
 import org.pollub.catalog.model.BranchInventory;
 import org.pollub.catalog.model.CopyStatus;
-import org.pollub.catalog.model.ItemStatus;
+import org.pollub.catalog.model.SearchCriteria;
 import org.pollub.catalog.model.dto.BookAvailabilityDto;
 import org.pollub.catalog.model.dto.BookCreateDto;
 import org.pollub.catalog.repository.IBranchInventoryRepository;
@@ -20,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -112,40 +113,45 @@ public class BookService implements IBookService {
     }
 
     @Override
-    public Page<Book> searchBooks(String query, ItemStatus status, String publisher, String genres, int page, int size, String sort) {
+    public Page<Book> searchBooks(SearchCriteria criteria) {
 
-        Sort sortSpec;
-        if ("TITLE_ASC".equals(sort)) {
-            sortSpec = Sort.by("title").ascending();
-        } else if ("TITLE_DESC".equals(sort)) {
-            sortSpec = Sort.by("title").descending();
-        } else if ("AUTHOR_ASC".equals(sort)) {
-            sortSpec = Sort.by("author").ascending();
-        } else if ("AUTHOR_DESC".equals(sort)) {
-            sortSpec = Sort.by("author").descending();
-        } else {
-            sortSpec = Sort.by("id").ascending();
-        }
+        //Lab2 - Simple Factory 2 Start
+        Sort sortSpec = SortStrategyFactory.createSort(criteria.getSort());
+        // End Simple Factory 2
 
-        Pageable pageable = PageRequest.of(page, size, sortSpec);
+        Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(), sortSpec);
 
-        String queryParam = (query != null && !query.isBlank()) ? query : null;
-        String publisherParam = (publisher != null && !publisher.isBlank()) ? publisher : null;
-        String genresParam = (genres != null && !genres.isEmpty()) ? genres : null;
+        String queryParam = (criteria.getQuery() != null && !criteria.getQuery().isBlank()) ? criteria.getQuery() : null;
+        String publisherParam = (criteria.getPublisher() != null && !criteria.getPublisher().isBlank()) ? criteria.getPublisher() : null;
+        String genresParam = (criteria.getGenres() != null && !criteria.getGenres().isEmpty()) ? criteria.getGenres() : null;
 
-        // Note: Status filtering is now based on inventory, not book entity
-        // For now, we search without status filter and filter post-query if needed
         return bookRepository.searchBooksWithoutStatus(queryParam, publisherParam, genresParam, pageable);
     }
 
     @Override
     public List<String> getTopGenres() {
-        return bookRepository.findTop4Genres();
+        //Lab2 - Singleton 3 Start
+        List<String> cached = CatalogCacheManager.INSTANCE.get("topGenres", List.class);
+        if (cached != null) {
+            return cached;
+        }
+        List<String> genres = bookRepository.findTop4Genres();
+        CatalogCacheManager.INSTANCE.put("topGenres", genres);
+        // End Singleton 3
+        return genres;
     }
 
     @Override
     public List<String> getOtherGenres() {
-        return bookRepository.findOtherGenres();
+        //Lab2 - Singleton 3 Start
+        List<String> cached = CatalogCacheManager.INSTANCE.get("otherGenres", List.class);
+        if (cached != null) {
+            return cached;
+        }
+        List<String> genres = bookRepository.findOtherGenres();
+        CatalogCacheManager.INSTANCE.put("otherGenres", genres);
+        // End 3 Singleton
+        return genres;
     }
 
     @Override
