@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@Service("baseBranchService")
 @Transactional
 @RequiredArgsConstructor
-public class BranchService {
+public class BranchService implements IBranchService {
     
     private final BranchRepository branchRepository;
     private final UserServiceClient userServiceClient;

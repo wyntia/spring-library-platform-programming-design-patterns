@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
+@Service("baseBookService")
 @Transactional
 @RequiredArgsConstructor
 public class BookService implements IBookService {

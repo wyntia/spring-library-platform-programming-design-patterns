@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.pollub.branch.model.LibraryBranch;
 import org.pollub.branch.model.dto.BranchCreateDto;
-import org.pollub.branch.service.BranchService;
+import org.pollub.branch.service.IBranchService;
 import org.pollub.common.dto.BranchDto;
 import org.pollub.common.dto.UserDto;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BranchController {
     
-    private final BranchService branchService;
+    private final IBranchService branchService;
     
     @GetMapping
     public ResponseEntity<List<BranchDto>> getAllBranches() {
