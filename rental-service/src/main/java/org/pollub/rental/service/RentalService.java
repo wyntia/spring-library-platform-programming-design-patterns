@@ -13,7 +13,7 @@ import org.pollub.rental.utils.IRentalValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 import java.util.List;
 
 @Service
@@ -49,9 +49,9 @@ public class RentalService implements IRentalService {
                 .userId(userId)
                 .branchId(branchId)
                 .status(RentalStatus.RENTED)
-                .rentedAt(LocalDateTime.now())
+                .rentedAt(DateTimeProvider.getInstance().now())
                 .isExtended(false)
-                .dueDate(LocalDateTime.now().plusDays(DAYS_TO_RENT))
+                .dueDate(DateTimeProvider.getInstance().now().plusDays(DAYS_TO_RENT))
                 .build();
         
         try{
@@ -70,7 +70,7 @@ public class RentalService implements IRentalService {
     public void returnItem(Long itemId, Long branchId) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
 
-        rentalHistory.setReturnedAt(LocalDateTime.now());
+        rentalHistory.setReturnedAt(DateTimeProvider.getInstance().now());
         rentalHistory.setStatus(
                 RentalStatus.RETURNED
         );

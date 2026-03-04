@@ -16,7 +16,7 @@ import org.pollub.user.model.Role;
 import org.pollub.user.model.User;
 import org.pollub.user.model.UserAddress;
 import org.pollub.user.repository.IUserRepository;
-import org.pollub.user.service.utils.UserFactory;
+import org.pollub.user.service.utils.IUserFactory;
 import org.pollub.user.service.utils.UserValidator;
 import org.pollub.user.util.PasswordGenerator;
 import org.springframework.data.domain.PageRequest;
@@ -34,7 +34,9 @@ public class UserService implements  IUserService {
     
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserFactory userFactory;
+    //Lab2 - Factory Method Start
+    private final IUserFactory userFactory;
+    // End Factory Method
     private final UserValidator userValidator;
     private final BranchServiceClient branchServiceClient;
 

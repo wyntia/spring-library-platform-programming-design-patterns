@@ -15,6 +15,7 @@ import org.pollub.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 import java.util.List;
 
 /**
@@ -151,7 +152,7 @@ public class BranchInventoryService implements IBranchInventoryService {
         inventory.setReservedByUserId(
                 reservationCatalogRequestDto.getUserId()
         );
-        inventory.setReservedAt(LocalDateTime.now());
+        inventory.setReservedAt(DateTimeProvider.getInstance().now());
         inventory.setReservationExpiresAt(
                 reservationCatalogRequestDto.getExpiresAt()
         );
@@ -194,7 +195,7 @@ public class BranchInventoryService implements IBranchInventoryService {
 
         LocalDateTime newDueDate = inventory.getDueDate() != null 
                 ? inventory.getDueDate().plusDays(additionalDays)
-                : LocalDateTime.now().plusDays(additionalDays);
+                : DateTimeProvider.getInstance().now().plusDays(additionalDays);
         
         inventory.setDueDate(newDueDate);
         inventory.setRentExtended(true);
@@ -257,7 +258,7 @@ public class BranchInventoryService implements IBranchInventoryService {
     @Transactional
     public BranchInventory addInventory(Long itemId, Long branchId) {
         log.info("Adding inventory for item {} at branch {}", itemId, branchId);
-        
+
         if (inventoryRepository.existsByItemIdAndBranchId(itemId, branchId)) {
             throw new IllegalStateException("Inventory already exists for item " + itemId + " at branch " + branchId);
         }

@@ -2,6 +2,7 @@ package org.pollub.reservation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.pollub.common.dto.ItemDto;
 import org.pollub.common.dto.ReservationItemDto;
 import org.pollub.reservation.client.CatalogServiceClient;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 import java.util.List;
 
 @Service
@@ -24,11 +25,12 @@ import java.util.List;
 @Slf4j
 public class ReservationService implements  IReservationService {
     
-    private static final int RESERVATION_DAYS = 3;
     private static final int MAX_ACTIVE_RESERVATIONS = 3;
     
     private final ReservationRepository reservationRepository;
     private final CatalogServiceClient catalogServiceClient;
+
+    private final ReservationHistory templateReservation = new ReservationHistory();
 
     @Override
     @Transactional
@@ -39,15 +41,13 @@ public class ReservationService implements  IReservationService {
             throw new IllegalStateException("User has reached the maximum number of active reservations");
         }
 
-        // Create reservation
-        ReservationHistory reservation = ReservationHistory.builder()
-                .itemId(dto.getItemId())
-                .branchId(dto.getBranchId())
-                .userId(userId)
-                .reservedAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusDays(RESERVATION_DAYS))
-                .status(ReservationStatus.ACTIVE)
-                .build();
+        //Lab2 - Prototype 2 Start
+        // Create reservation from template clone with default values set in constructor
+        ReservationHistory reservation = templateReservation.clone();
+        reservation.setItemId(dto.getItemId());
+        reservation.setBranchId(dto.getBranchId());
+        reservation.setUserId(userId);
+        // End Prototype 2
 
         try {
             reservationRepository.save(reservation);
@@ -110,7 +110,7 @@ public class ReservationService implements  IReservationService {
             );
         }
         reservation.setStatus(ReservationStatus.CANCELLED);
-        reservation.setResolvedAt(LocalDateTime.now());
+        reservation.setResolvedAt(DateTimeProvider.getInstance().now());
         reservationRepository.save(reservation);
 
         catalogServiceClient.updateStatus(
@@ -141,11 +141,11 @@ public class ReservationService implements  IReservationService {
     @Transactional
     public void cleanupExpiredReservations() {
         List<ReservationHistory> expired = reservationRepository
-                .findByExpiresAtBeforeAndStatus(LocalDateTime.now(), ReservationStatus.ACTIVE);
+                .findByExpiresAtBeforeAndStatus(DateTimeProvider.getInstance().now(), ReservationStatus.ACTIVE);
 
         for (ReservationHistory reservation : expired) {
             reservation.setStatus(ReservationStatus.EXPIRED);
-            reservation.setResolvedAt(LocalDateTime.now());
+            reservation.setResolvedAt(DateTimeProvider.getInstance().now());
             reservationRepository.save(reservation);
 
 
@@ -166,7 +166,7 @@ public class ReservationService implements  IReservationService {
         reservationRepository.findByItemIdAndBranchIdAndUserIdAndStatus(itemId, branchId, userId, ReservationStatus.ACTIVE)
                 .ifPresent(reservation -> {
                     reservation.setStatus(ReservationStatus.FULFILLED);
-                    reservation.setResolvedAt(LocalDateTime.now());
+                    reservation.setResolvedAt(DateTimeProvider.getInstance().now());
                     reservationRepository.save(reservation);
                     log.info("Reservation {} fulfilled for itemId: {}, branchId: {}, userId: {}", 
                             reservation.getId(), itemId, branchId, userId);

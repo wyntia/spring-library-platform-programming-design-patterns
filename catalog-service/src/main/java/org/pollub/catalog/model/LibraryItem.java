@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 
 /**
  * Base class for all library items (Books, Movies, etc.)
@@ -19,7 +20,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public abstract class LibraryItem {
+//Lab2 - Prototype Start
+public abstract class LibraryItem implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,7 +50,7 @@ public abstract class LibraryItem {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = DateTimeProvider.getInstance().now();
     }
 
     /**
@@ -62,4 +64,18 @@ public abstract class LibraryItem {
      * Get the rental duration in days for this item type
      */
     public abstract int getRentalDurationDays();
+
+    @Override
+    public LibraryItem clone() {
+        try {
+            LibraryItem cloned = (LibraryItem) super.clone();
+            cloned.setId(null); // Reset ID for new entity
+            cloned.setCreatedAt(null); // Will be set by @PrePersist
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone not supported for LibraryItem", e);
+        }
+    }
 }
+// End Prototype
+

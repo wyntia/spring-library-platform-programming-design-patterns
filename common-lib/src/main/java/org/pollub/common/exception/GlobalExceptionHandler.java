@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,42 +17,52 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                buildResponse(
-                        HttpStatus.CONFLICT,
-                        ex.getMessage()
-                )
+                ApiResponse.builder()
+                        .status(HttpStatus.CONFLICT.value())
+                        .error(ex.getMessage())
+                        .build()
+                        .toMap()
         );
-
+        // End Builder 2
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                buildResponse(
-                        HttpStatus.NOT_FOUND,
-                        ex.getMessage()
-                )
+                ApiResponse.builder()
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .error(ex.getMessage())
+                        .build()
+                        .toMap()
         );
+        // End Builder 2
     }
 
     @ExceptionHandler(DisabledUserException.class)
     public ResponseEntity<Map<String, Object>> handleDisabledUser(DisabledUserException ex) {
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(buildResponse(
-                        HttpStatus.FORBIDDEN,
-                        ex.getMessage()
-                ));
-
+                .body(ApiResponse.builder()
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .error(ex.getMessage())
+                        .build()
+                        .toMap());
+        // End Builder 2
     }
 
     @ExceptionHandler(FavouriteLibraryNotSetException.class)
     public ResponseEntity<Map<String, Object>> handleFavouriteLibraryNotSet(FavouriteLibraryNotSetException ex) {
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildResponse(
-                        HttpStatus.NOT_FOUND,
-                        ex.getMessage()
-                ));
+                .body(ApiResponse.builder()
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .error(ex.getMessage())
+                        .build()
+                        .toMap());
+        // End Builder 2
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -61,77 +70,59 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex
     ) {
         Map<String, String> fieldErrors = new HashMap<>();
-
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 fieldErrors.put(error.getField(), error.getDefaultMessage())
         );
 
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(buildResponse(
-                        HttpStatus.BAD_REQUEST,
-                        "Validation failed",
-                        fieldErrors
-                ));
+                .body(ApiResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error("Validation failed")
+                        .details(fieldErrors)
+                        .build()
+                        .toMap());
+        // End Builder 2
     }
-
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(
             IllegalArgumentException ex
     ) {
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(buildResponse(
-                        HttpStatus.BAD_REQUEST,
-                        ex.getMessage()
-                ));
+                .body(ApiResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error(ex.getMessage())
+                        .build()
+                        .toMap());
+        // End Builder 2
     }
-
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDenied(
             AccessDeniedException ex
     ) {
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(buildResponse(
-                        HttpStatus.FORBIDDEN,
-                        "Access denied"
-                ));
+                .body(ApiResponse.builder()
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .error("Access denied")
+                        .build()
+                        .toMap());
+        // End Builder 2
     }
-
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex) {
         log.error(ex.getMessage(), ex);
+        //Lab2 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Internal server error" + (ex.getMessage() != null ? ": " + ex.getMessage() : "")
-                ));
-    }
-
-
-
-    private Map<String, Object> buildResponse(
-            HttpStatus status,
-            String message
-    ) {
-        return buildResponse(status, message, null);
-    }
-
-    private Map<String, Object> buildResponse(
-            HttpStatus status,
-            String message,
-            Object details
-    ) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("statustest", status.value());
-        response.put("error", message);
-
-        if (details != null) {
-            response.put("details", details);
-        }
-
-        return response;
+                .body(ApiResponse.builder()
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .error("Internal server error" + (ex.getMessage() != null ? ": " + ex.getMessage() : ""))
+                        .build()
+                        .toMap());
+        // End Builder 2
     }
 }

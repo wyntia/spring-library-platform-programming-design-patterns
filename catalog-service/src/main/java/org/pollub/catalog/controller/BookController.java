@@ -6,6 +6,7 @@ import org.pollub.catalog.model.Book;
 import org.pollub.catalog.model.ItemStatus;
 import org.pollub.catalog.model.dto.BookAvailabilityDto;
 import org.pollub.catalog.model.dto.BookCreateDto;
+import org.pollub.catalog.model.SearchCriteria;
 import org.pollub.catalog.service.IBookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,9 +99,21 @@ public class BookController {
         if (size > 16) {
             size = 16;
         }
-        this.log.debug("Searching books with query: {}, status: {}, publisher: {}, genres: {}, page: {}, size: {}, sort: {}",
-                query, status, publisher, genres, page, size, sort);
-        return ResponseEntity.ok(bookService.searchBooks(query, status, publisher, genres, page, size, sort));
+
+        //Lab2 - Builder 3 Start
+        SearchCriteria criteria = SearchCriteria.builder()
+                .query(query)
+                .status(status)
+                .publisher(publisher)
+                .genres(genres)
+                .page(page)
+                .size(size)
+                .sort(sort)
+                .build();
+        // End Builder 3
+
+        this.log.debug("Searching books with criteria: {}", criteria);
+        return ResponseEntity.ok(bookService.searchBooks(criteria));
     }
     @GetMapping("/genres")
     public ResponseEntity<List<String>> getTopGenres() {

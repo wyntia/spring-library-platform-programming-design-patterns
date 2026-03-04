@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import org.pollub.common.config.DateTimeProvider;
 
 @Entity
 @Table(name = "movie_discs")
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+//Lab2 - Prototype Start
 public class MovieDisc extends LibraryItem {
     
     @Column(nullable = false)
@@ -45,11 +47,18 @@ public class MovieDisc extends LibraryItem {
     @Deprecated
     public LocalDateTime calculateDueTime() {
         // Deprecated: use BranchInventory for tracking due dates
-        return LocalDateTime.now().plusDays(7);
+        return DateTimeProvider.getInstance().now().plusDays(7);
     }
     
     @Override
     public int getRentalDurationDays() {
         return 7;
     }
+
+    @Override
+    public MovieDisc clone() {
+        return (MovieDisc) super.clone();
+    }
 }
+// End Prototype
+

@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BranchInventory {
+public class BranchInventory{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,4 +59,6 @@ public class BranchInventory {
 
     @Column(name = "reservation_expires_at")
     private LocalDateTime reservationExpiresAt;
+
 }
+
