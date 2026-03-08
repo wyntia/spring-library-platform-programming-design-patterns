@@ -23,6 +23,17 @@ import java.util.List;
 @Transactional
 @Slf4j
 public class FeedbackService implements IFeedbackService {
+        // --- Notification decorator ---
+        private final notification.NotificationComponent notificationSender =
+                new notification.LoggingNotificationDecorator(
+                    new notification.NotificationTemplateDecorator(
+                        new notification.NotificationGroup() {{
+                            add(new notification.EmailNotification("user@example.com"));
+                            add(new notification.SmsNotification("123-456-789"));
+                        }},
+                        "[Biblioteka Miejska]", "Dziękujemy za korzystanie z naszych usług!"
+                    )
+                );
     
     private final IFeedbackRepository feedbackRepository;
 
@@ -65,6 +76,9 @@ public class FeedbackService implements IFeedbackService {
         Feedback saved = feedbackRepository.save(feedback);
         log.info("Feedback submitted: id={}, category={}",
                 saved.getId(), saved.getCategory());
+
+        // Wysyłka powiadomienia (dekorator + composite)
+        notificationSender.send("Nowe zgłoszenie: " + saved.getMessage());
 
         return saved;
     }
