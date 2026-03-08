@@ -9,6 +9,8 @@ import org.pollub.feedback.model.dto.FeedbackAdminDto;
 import org.pollub.feedback.model.dto.FeedbackRequestDto;
 import org.pollub.feedback.model.dto.FeedbackResponseDto;
 import org.pollub.feedback.service.IFeedbackService;
+import org.pollub.feedback.command.UpdateFeedbackStatusCommand;
+import org.pollub.feedback.command.Command;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -97,8 +99,12 @@ public class FeedbackController {
             @PathVariable Long id,
             @RequestParam FeedbackStatus status
     ) {
-        Feedback updated = feedbackService.updateStatus(id, status);
-        return ResponseEntity.ok(FeedbackAdminDto.fromEntity(updated));
+        //start L5 Command
+        Command<FeedbackAdminDto> command = new UpdateFeedbackStatusCommand(feedbackService, id, status);
+        FeedbackAdminDto dto = command.execute();
+        ResponseEntity<FeedbackAdminDto> response = ResponseEntity.ok(dto);
+        //end L5 Command
+        return response;
     }
 
     /**

@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import org.pollub.common.config.DateTimeProvider;
 import java.util.List;
+import org.pollub.reservation.interpreter.ReservationSearchExpression;
+import org.pollub.reservation.interpreter.StatusReservationExpression;
+import org.pollub.reservation.iterator.ReservationHistoryIterator;
 
 @Service
 @RequiredArgsConstructor
@@ -77,26 +80,29 @@ public class ReservationService implements  IReservationService {
     }
 
     @Override
-    public List<ReservationItemDto> getReservationsByUsername(Long userId) {
-        List<ReservationHistory> reservations = reservationRepository.findByUserIdAndStatusOrderByReservedAtDesc(userId, ReservationStatus.ACTIVE);
+        public List<ReservationItemDto> getReservationsByUsername(Long userId) {
+        List<ReservationHistory> allReservations = reservationRepository.findByUserId(userId);
+        //start L5 Interpreter
+        ReservationSearchExpression expr = new StatusReservationExpression(ReservationStatus.ACTIVE);
+        List<ReservationHistory> reservations = expr.interpret(allReservations);
+        //end L5 Interpreter
 
         List<Long> itemIds = reservations.stream()
-                .map(ReservationHistory::getItemId)
-                .distinct()
-                .toList();
+            .map(ReservationHistory::getItemId)
+            .distinct()
+            .toList();
 
         List<ReservationItemDto.Item> items = catalogServiceClient.getItemsInfo(itemIds);
         return reservations.stream()
-                .map(reservation -> {
-                    ReservationItemDto.Item item = items.stream()
-                            .filter(i -> i.getId().equals(reservation.getItemId()))
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalStateException("Item info not found for itemId: " + reservation.getItemId()));
-                    return toReservationItemDto(reservation, item);
-                })
-                .toList();
-
-    }
+            .map(reservation -> {
+                ReservationItemDto.Item item = items.stream()
+                    .filter(i -> i.getId().equals(reservation.getItemId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Item info not found for itemId: " + reservation.getItemId()));
+                return toReservationItemDto(reservation, item);
+            })
+            .toList();
+        }
 
     @Override
     @Transactional
@@ -141,22 +147,21 @@ public class ReservationService implements  IReservationService {
     @Transactional
     public void cleanupExpiredReservations() {
         List<ReservationHistory> expired = reservationRepository
-                .findByExpiresAtBeforeAndStatus(DateTimeProvider.getInstance().now(), ReservationStatus.ACTIVE);
-
-        for (ReservationHistory reservation : expired) {
+            .findByExpiresAtBeforeAndStatus(DateTimeProvider.getInstance().now(), ReservationStatus.ACTIVE);
+        //start L5 Iterator
+        ReservationHistoryIterator iterator = new ReservationHistoryIterator(expired);
+        while (iterator.hasNext()) {
+            ReservationHistory reservation = iterator.next();
             reservation.setStatus(ReservationStatus.EXPIRED);
             reservation.setResolvedAt(DateTimeProvider.getInstance().now());
             reservationRepository.save(reservation);
-
-
             catalogServiceClient.updateStatus(
-                    reservation.getItemId(),
-                    reservation.getBranchId(),
-                    "AVAILABLE"
+                reservation.getItemId(),
+                reservation.getBranchId(),
+                "AVAILABLE"
             );
-
         }
-
+        //end L5 Iterator
         log.info("Processed {} expired reservations", expired.size());
     }
 

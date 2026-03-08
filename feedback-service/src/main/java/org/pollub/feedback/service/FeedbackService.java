@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import org.pollub.common.config.DateTimeProvider;
 import java.util.List;
+import org.pollub.feedback.interpreter.FeedbackSearchExpression;
+import org.pollub.feedback.interpreter.StatusExpression;
 
 @Service
 @RequiredArgsConstructor
@@ -88,7 +90,12 @@ public class FeedbackService implements IFeedbackService {
 
     @Override
     public List<Feedback> getFeedbacksByStatus(FeedbackStatus status) {
-        return feedbackRepository.findByStatusOrderByCreatedAtDesc(status);
+        //start L5 Interpreter
+        List<Feedback> allFeedbacks = feedbackRepository.findAllByOrderByCreatedAtDesc();
+        FeedbackSearchExpression expr = new StatusExpression(status);
+        List<Feedback> filtered = expr.interpret(allFeedbacks);
+        //end L5 Interpreter
+        return filtered;
     }
 
     @Override

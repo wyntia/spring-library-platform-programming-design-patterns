@@ -8,6 +8,10 @@ import org.pollub.catalog.model.dto.BookAvailabilityDto;
 import org.pollub.catalog.model.dto.BookCreateDto;
 import org.pollub.catalog.model.SearchCriteria;
 import org.pollub.catalog.service.IBookService;
+import org.pollub.catalog.command.CreateBookCommand;
+import org.pollub.catalog.command.UpdateBookCommand;
+import org.pollub.catalog.command.DeleteBookCommand;
+import org.pollub.catalog.command.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookController {
     private final IBookService bookService;
+    //start L5 Mediator
+    private final org.pollub.catalog.mediator.BookMediator bookMediator;
+    //end L5 Mediator
     private final Logger log = LoggerFactory.getLogger(BookController.class);
 
     @GetMapping
@@ -43,11 +50,17 @@ public class BookController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<Book> createBook(@Valid @RequestBody BookCreateDto dto) {
-        return ResponseEntity.ok(bookService.createBook(dto));
+        //start L5 Mediator
+        Book book = bookMediator.createBook(dto);
+        ResponseEntity<Book> response = ResponseEntity.ok(book);
+        //end L5 Mediator
+        return response;
     }
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBook(@PathVariable Long id) {
-        return ResponseEntity.ok(bookService.findById(id));
+        //start L5 Mediator
+        return ResponseEntity.ok(bookMediator.findBookById(id));
+        //end L5 Mediator
     }
 
     @GetMapping("/author/{author}")
@@ -76,14 +89,21 @@ public class BookController {
             @PathVariable Long id,
             @Valid @RequestBody BookCreateDto dto
     ) {
-        return ResponseEntity.ok(bookService.updateBook(id, dto));
+        //start L5 Mediator
+        Book book = bookMediator.updateBook(id, dto);
+        ResponseEntity<Book> response = ResponseEntity.ok(book);
+        //end L5 Mediator
+        return response;
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
-        return ResponseEntity.ok("Book deleted");
+        //start L5 Mediator
+        bookMediator.deleteBook(id);
+        ResponseEntity<String> response = ResponseEntity.ok("Book deleted");
+        //end L5 Mediator
+        return response;
     }
 
     @GetMapping("/search")
@@ -113,7 +133,9 @@ public class BookController {
         //Lab1 - Builder 3 End
 
         this.log.debug("Searching books with criteria: {}", criteria);
-        return ResponseEntity.ok(bookService.searchBooks(criteria));
+        //start L5 Mediator
+        return ResponseEntity.ok(bookMediator.searchBooks(criteria));
+        //end L5 Mediator
     }
     @GetMapping("/genres")
     public ResponseEntity<List<String>> getTopGenres() {
@@ -141,7 +163,9 @@ public class BookController {
         if (limit > 20) {
             limit = 20;
         }
-        return ResponseEntity.ok(bookService.getRecentBooks(limit));
+        //start L5 Mediator
+        return ResponseEntity.ok(bookMediator.getRecentBooks(limit));
+        //end L5 Mediator
     }
 
     @GetMapping("/popular")
@@ -150,15 +174,17 @@ public class BookController {
         if (limit > 20) {
             limit = 20;
         }
-        return ResponseEntity.ok(bookService.getPopularBooks(limit));
+        //start L5 Mediator
+        return ResponseEntity.ok(bookMediator.getPopularBooks(limit));
+        //end L5 Mediator
     }
 
     @GetMapping("/{id}/availability")
-    public ResponseEntity<
-            BookAvailabilityDto
-            > getBookAvailability(
+    public ResponseEntity<BookAvailabilityDto> getBookAvailability(
             @PathVariable Long id) {
-        return ResponseEntity.ok(bookService.getBookAvailability(id));
+        //start L5 Mediator
+        return ResponseEntity.ok(bookMediator.getBookAvailability(id));
+        //end L5 Mediator
     }
 
 

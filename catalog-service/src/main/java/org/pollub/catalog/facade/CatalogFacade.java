@@ -1,6 +1,7 @@
 package org.pollub.catalog.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.pollub.catalog.mediator.ItemMediator;
 import org.pollub.catalog.model.Book;
 import org.pollub.catalog.model.BranchInventory;
 import org.pollub.catalog.model.LibraryItem;
@@ -24,30 +25,40 @@ import java.util.Map;
 @RequiredArgsConstructor
 //Lab1 - Facade 1 Method Start
 public class CatalogFacade {
-
+    //start L5 Mediator
+    private final ItemMediator itemMediator;
+    //end L5 Mediator
     private final ICatalogService catalogService;
     private final IBranchInventoryService branchInventoryService;
 
     public List<ItemDto> getAllItems() {
-        return catalogService.findAll().stream()
+        //start L5 Mediator
+        return itemMediator.findAll().stream()
                 .map(this::toDto)
                 .toList();
+        //end L5 Mediator
     }
 
     public ItemDto getItemById(Long id) {
-        return toDto(catalogService.findById(id));
+        //start L5 Mediator
+        return toDto(itemMediator.findById(id));
+            //end L5 Mediator
     }
 
     public List<ItemDto> getAvailableItems() {
-        return catalogService.findAvailable().stream()
+        //start L5 Mediator
+        return itemMediator.findAvailable().stream()
                 .map(this::toDto)
                 .toList();
+        //end L5 Mediator
     }
 
     public List<ItemDto> getRentedItems() {
-        return catalogService.findRented().stream()
+        // start L5 Mediator
+        return itemMediator.findRented().stream()
                 .map(this::toDto)
                 .toList();
+        // end L5 Mediator
     }
 
     /**
@@ -59,7 +70,9 @@ public class CatalogFacade {
 
         return rentedInventory.stream()
                 .map(inventory -> {
-                    LibraryItem item = catalogService.findById(inventory.getItemId());
+                    // start L5 Mediator
+                    LibraryItem item = itemMediator.findById(inventory.getItemId());
+                    // end L5 Mediator
                     ItemDto dto = toDto(item);
 
                     dto.setDueDate(inventory.getDueDate());
@@ -71,27 +84,36 @@ public class CatalogFacade {
     }
 
     public List<ItemDto> getItemsByBranch(Long branchId) {
-        return catalogService.findByBranchId(branchId).stream()
+        // start L5 Mediator
+        return itemMediator.findByBranchId(branchId).stream()
                 .map(this::toDto)
                 .toList();
+        // end L5 Mediator
     }
 
     public List<ItemDto> getAvailableByBranch(Long branchId) {
-        return catalogService.findAvailableByBranch(branchId).stream()
+        // start L5 Mediator
+        return itemMediator.findAvailableByBranch(branchId).stream()
                 .map(this::toDto)
                 .toList();
+        // end L5 Mediator
     }
 
     public List<ItemDto> searchItems(String query) {
-        return catalogService.searchItems(query).stream()
+        // start L5 Mediator
+        return itemMediator.searchItems(query).stream()
                 .map(this::toDto)
                 .toList();
+        // end L5 Mediator
     }
 
     public List<ItemDto> getBestsellers() {
-        return catalogService.findBestsellers().stream()
+        // start L5 Mediator
+        return itemMediator.findBestsellers().stream()
                 .map(this::toDto)
                 .toList();
+
+            // end L5 Mediator
     }
 
     public List<BranchInventoryDto> getItemInventory(Long itemId) {
@@ -109,11 +131,15 @@ public class CatalogFacade {
 
 
     public void deleteItem(Long id) {
-        catalogService.deleteItem(id);
+        //start L5 Mediator
+        itemMediator.deleteItem(id);
+            //end L5 Mediator
     }
 
     public Map<Long, HistoryCatalogResponse> getHistoryCatalogData(List<Long> itemIds) {
-        return catalogService.getHistoryCatalogDataByItemIds(itemIds);
+        // start L5 Mediator
+        return itemMediator.getHistoryCatalogDataByItemIds(itemIds);
+            // end L5 Mediator
     }
 
 

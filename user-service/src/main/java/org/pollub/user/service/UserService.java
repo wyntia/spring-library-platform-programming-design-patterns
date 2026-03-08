@@ -26,6 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import org.pollub.user.interpreter.UserSearchExpression;
+import org.pollub.user.interpreter.UsernameExpression;
+import org.pollub.user.interpreter.EmailExpression;
+import org.pollub.user.interpreter.NameExpression;
+import org.pollub.user.interpreter.SurnameExpression;
+import org.pollub.user.interpreter.AndUserExpression;
 import java.util.Set;
 
 @Slf4j
@@ -65,7 +71,18 @@ public class UserService implements  IUserService {
         if (query == null || query.trim().isEmpty()) {
             return List.of();
         }
-        return userRepository.searchUsers(query.trim(), PageRequest.of(0, 50));
+        //start L5 Interpreter
+        List<User> allUsers = userRepository.findAll();
+        List<UserSearchExpression> expressions = List.of(
+                new UsernameExpression(query),
+                new EmailExpression(query),
+                new NameExpression(query),
+                new SurnameExpression(query)
+        );
+        UserSearchExpression andExpr = new AndUserExpression(expressions);
+        List<User> filtered = andExpr.interpret(allUsers);
+        //end L5 Interpreter
+        return filtered;
     }
 
     @Transactional
