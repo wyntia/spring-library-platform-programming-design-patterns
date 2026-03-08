@@ -7,6 +7,8 @@ import org.pollub.catalog.model.dto.ReservationCatalogRequestDto;
 import org.pollub.catalog.model.dto.UpdateInventoryStatusRequest;
 import org.pollub.catalog.service.IBranchInventoryService;
 import org.pollub.catalog.service.ICatalogService;
+import org.pollub.catalog.command.ReserveItemCommand;
+import org.pollub.catalog.command.Command;
 import org.pollub.common.dto.ReservationItemDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +24,17 @@ public class ItemReservationController {
     private final IBranchInventoryService branchInventoryService;
 
     @PutMapping("/{itemId}/reserve")
-    public ResponseEntity<BranchInventoryDto> markAsReserved(
+        public ResponseEntity<BranchInventoryDto> markAsReserved(
             @PathVariable Long itemId,
             @RequestBody ReservationCatalogRequestDto reservationCatalogRequestDto
-    ) {
-        BranchInventoryDto branchInventory = branchInventoryService.reserveCopy(
-                itemId,
-                reservationCatalogRequestDto
-        );
-        return ResponseEntity.ok(branchInventory);
-    }
+        ) {
+        //start L5 Command
+        Command<BranchInventoryDto> command = new ReserveItemCommand(branchInventoryService, itemId, reservationCatalogRequestDto);
+        BranchInventoryDto branchInventory = command.execute();
+        ResponseEntity<BranchInventoryDto> response = ResponseEntity.ok(branchInventory);
+        //end L5 Command
+        return response;
+        }
 
     // POST for getting because of possible large list of IDs
     @PostMapping("/info/batch")

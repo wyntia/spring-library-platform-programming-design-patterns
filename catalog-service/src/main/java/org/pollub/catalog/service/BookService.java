@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.pollub.catalog.flyweight.SortFlyweightFactory;
+import org.pollub.catalog.iterator.BranchInventoryIterator;
 import org.pollub.catalog.model.Book;
 import org.pollub.catalog.model.BranchInventory;
 import org.pollub.catalog.model.CopyStatus;
@@ -19,6 +20,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.util.*;
+
+import org.pollub.catalog.iterator.BookIterator;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -36,7 +40,15 @@ public class BookService implements IBookService {
 
     @Override
     public List<Book> findAll() {
-        return bookRepository.findAll();
+        List<Book> books = bookRepository.findAll();
+        //start L5 Iterator
+        BookIterator iterator = new BookIterator(books);
+        while (iterator.hasNext()) {
+            Book book = iterator.next();
+            System.out.println("Znaleziono książkę: " + book.getTitle() + " (Autor: " + book.getAuthor() + ")");
+        }
+        //end L5 Iterator
+        return books;
     }
 
     @Override
@@ -166,42 +178,38 @@ public class BookService implements IBookService {
     @Override
     public BookAvailabilityDto getBookAvailability(Long id) {
         Book book = findById(id);
-        
-        // Get inventory info for this book
         List<BranchInventory> inventories = inventoryRepository.findByItemId(id);
-        
-        // Find any rented copy to show days until due
+        //start L5 Iterator
+        BranchInventoryIterator iterator = new BranchInventoryIterator(inventories);
         Integer daysUntilDue = null;
-        BranchInventory rentedCopy = inventories.stream()
-                .filter(inv -> inv.getStatus() == CopyStatus.RENTED && inv.getDueDate() != null)
-                .findFirst()
-                .orElse(null);
-        
+        Set<Long> availableBranches = new HashSet<>();
+        BranchInventory rentedCopy = null;
+        while (iterator.hasNext()) {
+            BranchInventory inv = iterator.next();
+            if (inv.getStatus() == CopyStatus.AVAILABLE) {
+            availableBranches.add(inv.getBranchId());
+            }
+            if (rentedCopy == null && inv.getStatus() == CopyStatus.RENTED && inv.getDueDate() != null) {
+            rentedCopy = inv;
+            }
+        }
         if (rentedCopy != null && rentedCopy.getDueDate() != null) {
-            long days = ChronoUnit.DAYS.between(
-                    java.time.LocalDate.now(), 
-                    rentedCopy.getDueDate().toLocalDate()
+            long days = java.time.temporal.ChronoUnit.DAYS.between(
+                java.time.LocalDate.now(),
+                rentedCopy.getDueDate().toLocalDate()
             );
             daysUntilDue = (int) Math.max(0, days);
         }
-        
-        // Get available branches
-        Set<Long> availableBranches = inventories.stream()
-                .filter(inv -> inv.getStatus() == CopyStatus.AVAILABLE)
-                .map(BranchInventory::getBranchId)
-                .collect(Collectors.toSet());
-        
-        // Compute overall status
         String overallStatus = availableBranches.isEmpty() ? "UNAVAILABLE" : "AVAILABLE";
-
+        //end L5 Iterator
         return BookAvailabilityDto.builder()
-                .id(book.getId())
-                .title(book.getTitle())
-                .author(book.getAuthor())
-                .status(overallStatus)
-                .imageUrl(book.getImageUrl())
-                .daysUntilDue(daysUntilDue)
-                .availableAtBranches(availableBranches)
-                .build();
+            .id(book.getId())
+            .title(book.getTitle())
+            .author(book.getAuthor())
+            .status(overallStatus)
+            .imageUrl(book.getImageUrl())
+            .daysUntilDue(daysUntilDue)
+            .availableAtBranches(availableBranches)
+            .build();
     }
 }

@@ -7,6 +7,7 @@ import org.pollub.branch.model.dto.BranchCreateDto;
 import org.pollub.branch.repository.BranchRepository;
 import org.pollub.common.dto.UserDto;
 import org.pollub.common.exception.ResourceNotFoundException;
+import org.pollub.branch.mediator.BranchMediator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,9 @@ public class BranchService implements IBranchService {
     
     private final BranchRepository branchRepository;
     private final UserServiceClient userServiceClient;
+    //start L5 Mediator
+    private final BranchMediator branchMediator;
+    //end L5 Mediator
     
     public List<LibraryBranch> getAllBranches() {
         return branchRepository.findAll();
@@ -42,32 +46,15 @@ public class BranchService implements IBranchService {
     }
     
     public LibraryBranch createBranch(BranchCreateDto dto) {
-        LibraryBranch branch = LibraryBranch.builder()
-                .branchNumber(dto.getBranchNumber())
-                .name(dto.getName())
-                .city(dto.getCity())
-                .address(dto.getAddress())
-                .latitude(dto.getLatitude())
-                .longitude(dto.getLongitude())
-                .phone(dto.getPhone())
-                .email(dto.getEmail())
-                .openingHours(dto.getOpeningHours())
-                .build();
-        return branchRepository.save(branch);
+        //start L5 Mediator
+        return branchMediator.createBranch(dto);
+        //end L5 Mediator
     }
     
     public LibraryBranch updateBranch(Long id, BranchCreateDto dto) {
-        LibraryBranch branch = getBranchById(id);
-        branch.setBranchNumber(dto.getBranchNumber());
-        branch.setName(dto.getName());
-        branch.setCity(dto.getCity());
-        branch.setAddress(dto.getAddress());
-        branch.setLatitude(dto.getLatitude());
-        branch.setLongitude(dto.getLongitude());
-        branch.setPhone(dto.getPhone());
-        branch.setEmail(dto.getEmail());
-        branch.setOpeningHours(dto.getOpeningHours());
-        return branchRepository.save(branch);
+        //start L5 Mediator
+        return branchMediator.updateBranch(id, dto);
+        //end L5 Mediator
     }
     
     public void deleteBranch(Long id) {
@@ -81,9 +68,9 @@ public class BranchService implements IBranchService {
      * Get employees assigned to this branch from user-service
      */
     public List<UserDto> getBranchEmployees(Long branchId) {
-        // Verify branch exists
-        getBranchById(branchId);
-        return userServiceClient.getEmployeesByBranch(branchId);
+        //start L5 Mediator
+        return branchMediator.getBranchEmployees(branchId);
+        //end L5 Mediator
     }
 
     /**
