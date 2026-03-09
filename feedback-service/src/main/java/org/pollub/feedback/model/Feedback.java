@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import org.pollub.common.config.DateTimeProvider;
+import org.pollub.feedback.visitor.FeedbackVisitor;
 
 /**
  * Entity representing a user feedback submission.
@@ -51,4 +52,11 @@ public class Feedback {
     private LocalDateTime createdAt = DateTimeProvider.getInstance().now();
     
     private LocalDateTime resolvedAt;
+
+    /**
+     * Accept method for the Visitor pattern to perform operations on the entity.
+     */
+    public void accept(FeedbackVisitor visitor) {
+        visitor.visit(this); // start L6 Visitor
+    }
 }

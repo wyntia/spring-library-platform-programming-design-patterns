@@ -10,6 +10,7 @@ import org.pollub.catalog.model.dto.BranchInventoryDto;
 import org.pollub.catalog.model.dto.HistoryCatalogResponse;
 import org.pollub.catalog.service.IBranchInventoryService;
 import org.pollub.catalog.service.ICatalogService;
+import org.pollub.catalog.visitor.ItemDtoMappingVisitor;
 import org.pollub.common.dto.ItemDto;
 import org.springframework.stereotype.Component;
 
@@ -144,29 +145,11 @@ public class CatalogFacade {
 
 
     private ItemDto toDto(LibraryItem item) {
-        List<Long> availableBranches = branchInventoryService.getAvailableBranchIds(item.getId());
-        String overallStatus = availableBranches.isEmpty() ? "UNAVAILABLE" : "AVAILABLE";
-
-        ItemDto.ItemDtoBuilder builder = ItemDto.builder()
-                .id(item.getId())
-                .title(item.getTitle())
-                .description(item.getDescription())
-                .imageUrl(item.getImageUrl())
-                .itemType(item.getItemType().name())
-                .status(overallStatus)
-                .releaseYear(item.getReleaseYear())
-                .isBestseller(item.getIsBestseller());
-
-        if (item instanceof Book book) {
-            builder.author(book.getAuthor())
-                   .isbn(book.getIsbn())
-                   .pageCount(book.getPageCount());
-        } else if (item instanceof MovieDisc movie) {
-            builder.director(movie.getDirector())
-                   .durationMinutes(movie.getDuration());
-        }
-
-        return builder.build();
+        // start L6 Visitor pattern refactor
+        ItemDtoMappingVisitor visitor = new ItemDtoMappingVisitor(branchInventoryService);
+        item.accept(visitor);
+        return visitor.getResult();
+        // end L6 Visitor pattern refactor
     }
 
     private BranchInventoryDto toBranchInventoryDto(BranchInventory inventory) {

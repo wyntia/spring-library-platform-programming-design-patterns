@@ -2,7 +2,6 @@ package org.pollub.feedback.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.pollub.feedback.model.Feedback;
 import org.pollub.feedback.model.FeedbackStatus;
 import org.pollub.feedback.model.dto.FeedbackAdminDto;
@@ -11,6 +10,8 @@ import org.pollub.feedback.model.dto.FeedbackResponseDto;
 import org.pollub.feedback.service.IFeedbackService;
 import org.pollub.feedback.command.UpdateFeedbackStatusCommand;
 import org.pollub.feedback.command.Command;
+import org.pollub.feedback.strategy.IpIdentificationStrategy;
+import org.pollub.feedback.strategy.ProxyHeaderIpStrategy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -26,34 +27,29 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/feedback")
-@RequiredArgsConstructor
 public class FeedbackController {
 
     private final IFeedbackService feedbackService;
+    private final IpIdentificationStrategy ipStrategy; // L6 Strategy Pattern
 
-    /**
-     * Trusted proxy IP addresses. Only trust X-Forwarded-For from these IPs.
-     */
-    @Value("${app.trusted-proxies:}")
-    private Set<String> trustedProxies;
+    // L6 Strategy Pattern - Constructor injection of strategy with configuration for trusted proxies
+    public FeedbackController(IFeedbackService feedbackService,
+                              @Value("${app.trusted-proxies:}") Set<String> trustedProxies) {
+        this.feedbackService = feedbackService;
+        this.ipStrategy = new ProxyHeaderIpStrategy(trustedProxies); // L6 Strategy initialization
+    }
 
-    /**
-     * Submit feedback - accessible to everyone (anonymous or authenticated).
-     * Rate limited by IP address.
-     */
     @PostMapping
     public ResponseEntity<FeedbackResponseDto> submitFeedback(
             @Valid @RequestBody FeedbackRequestDto dto,
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletRequest request
     ) {
-
-        // Get client IP (with trusted proxy validation)
-        String ipAddress = getClientIp(request);
+        //L6 Strategy Pattern - Identify IP using the selected strategy
+        String ipAddress = ipStrategy.identify(request);
 
         Feedback saved = feedbackService.submitFeedback(dto, ipAddress);
 
-        // Add rate limit headers
         int[] rateLimitInfo = feedbackService.getRateLimitInfo(ipAddress);
         int remaining = Math.max(0, rateLimitInfo[1] - rateLimitInfo[0] - 1);
         long resetTime = DateTimeProvider.getInstance().now().plusHours(rateLimitInfo[2]).toEpochSecond(ZoneOffset.UTC);
@@ -68,10 +64,6 @@ public class FeedbackController {
                 .body(FeedbackResponseDto.success(saved.getId()));
     }
 
-    /**
-     * Get all feedbacks - admin/librarian only.
-     * Returns sanitized DTOs without sensitive user data.
-     */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<List<FeedbackAdminDto>> getAllFeedbacks(
@@ -81,7 +73,6 @@ public class FeedbackController {
                 ? feedbackService.getFeedbacksByStatus(status)
                 : feedbackService.getAllFeedbacks();
 
-        // Convert to admin DTOs to hide sensitive data
         List<FeedbackAdminDto> dtos = feedbacks.stream()
                 .map(FeedbackAdminDto::fromEntity)
                 .toList();
@@ -89,60 +80,16 @@ public class FeedbackController {
         return ResponseEntity.ok(dtos);
     }
 
-    /**
-     * Update feedback status - admin/librarian only.
-     * Returns sanitized DTO.
-     */
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<FeedbackAdminDto> updateStatus(
             @PathVariable Long id,
             @RequestParam FeedbackStatus status
     ) {
-        //start L5 Command
+        // start L5 Command
         Command<FeedbackAdminDto> command = new UpdateFeedbackStatusCommand(feedbackService, id, status);
         FeedbackAdminDto dto = command.execute();
-        ResponseEntity<FeedbackAdminDto> response = ResponseEntity.ok(dto);
-        //end L5 Command
-        return response;
-    }
-
-    /**
-     * Extract client IP address with trusted proxy validation.
-     * Only trusts X-Forwarded-For header if request comes from a trusted proxy.
-     */
-    private String getClientIp(HttpServletRequest request) {
-        String remoteAddr = request.getRemoteAddr();
-
-        // Only check proxy headers if request comes from trusted proxy
-        if (trustedProxies != null && !trustedProxies.isEmpty() && trustedProxies.contains(remoteAddr)) {
-            String xForwardedFor = request.getHeader("X-Forwarded-For");
-            if (xForwardedFor != null && !xForwardedFor.isBlank()) {
-                // Take the first IP in the chain (original client)
-                String clientIp = xForwardedFor.split(",")[0].trim();
-                if (isValidIp(clientIp)) {
-                    return clientIp;
-                }
-            }
-
-            String xRealIp = request.getHeader("X-Real-IP");
-            if (xRealIp != null && !xRealIp.isBlank() && isValidIp(xRealIp.trim())) {
-                return xRealIp.trim();
-            }
-        }
-
-        return remoteAddr;
-    }
-
-    /**
-     * Basic IP address validation.
-     */
-    private boolean isValidIp(String ip) {
-        if (ip == null || ip.isBlank()) return false;
-        // IPv4 pattern
-        if (ip.matches("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$")) return true;
-        // IPv6 pattern (simplified)
-        if (ip.contains(":") && ip.length() <= 45) return true;
-        return false;
+        // end L5 Command
+        return ResponseEntity.ok(dto);
     }
 }

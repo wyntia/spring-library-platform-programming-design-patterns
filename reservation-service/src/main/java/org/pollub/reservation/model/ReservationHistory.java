@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import org.pollub.common.config.DateTimeProvider;
+import org.pollub.reservation.state.ActiveReservationState;
+import org.pollub.reservation.state.ReservationState;
+import org.pollub.reservation.state.ReservationStateFactory;
 
 /**
  * Entity representing a reservation.
@@ -16,7 +19,6 @@ import org.pollub.common.config.DateTimeProvider;
 @Entity
 @Table(name = "reservation_history")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 //Lab1 - Prototype Start
@@ -47,6 +49,43 @@ public class ReservationHistory implements Cloneable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ReservationStatus status;
+
+    //L6 State Pattern - transient because state is derived from status
+    @Transient
+    private ReservationState state;
+
+    //L6 State Pattern methods
+
+    public ReservationHistory() {
+        this.status = ReservationStatus.ACTIVE;
+        this.reservedAt = DateTimeProvider.getInstance().now();
+        this.expiresAt = this.reservedAt.plusDays(3);
+        this.state = ReservationStateFactory.createState(this.status);
+    }
+
+    @PostLoad
+    public void initState() {
+        this.state = ReservationStateFactory.createState(this.status);
+    }
+
+    /**
+     * Get the current state object based on status
+     */
+    public ReservationState getState() {
+        if (state == null) {
+            state = ReservationStateFactory.createState(this.status);
+        }
+        return state;
+    }
+
+    /**
+     * Set state and update status accordingly
+     */
+
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+        this.state = ReservationStateFactory.createState(status);
+    }
 
     //Lab1 - Prototype 2 Start
     @Override

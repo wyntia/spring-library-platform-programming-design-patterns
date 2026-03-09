@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+
+import org.pollub.catalog.visitor.LibraryItemVisitor;
 import org.pollub.common.config.DateTimeProvider;
 
 /**
@@ -76,6 +78,9 @@ public abstract class LibraryItem implements Cloneable {
             throw new RuntimeException("Clone not supported for LibraryItem", e);
         }
     }
+
+    //L6 Visitor Design Pattern - accept method for visitor
+    public abstract void accept(LibraryItemVisitor visitor);
 }
 //Lab1 End Prototype
 

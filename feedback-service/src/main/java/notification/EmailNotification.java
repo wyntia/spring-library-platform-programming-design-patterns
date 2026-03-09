@@ -11,5 +11,10 @@ public class EmailNotification implements NotificationComponent {
     public void send(String message) {
         System.out.println("Wysyłam e-mail do: " + email + " | Treść: " + message);
     }
+
+    @Override
+    public void accept(NotificationVisitor visitor) {
+        visitor.visitEmail(this); // L6 Visitor double dispatch
+    }
 }
 //end L3 Composite

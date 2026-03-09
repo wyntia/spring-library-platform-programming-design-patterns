@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+
+import org.pollub.catalog.visitor.LibraryItemVisitor;
 import org.pollub.common.config.DateTimeProvider;
 
 @Entity
@@ -58,6 +60,12 @@ public class MovieDisc extends LibraryItem {
     @Override
     public MovieDisc clone() {
         return (MovieDisc) super.clone();
+    }
+
+    //L6 Visitor pattern - accept method for visitor
+    @Override
+    public void accept(LibraryItemVisitor visitor) {
+        visitor.visit(this);
     }
 }
 //Lab1 End Prototype

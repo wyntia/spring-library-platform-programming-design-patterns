@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+import org.pollub.rental.state.RentalState;
+import org.pollub.rental.state.RentalStateFactory;
+import org.pollub.rental.state.RentedState;
+
 //Lab1 - Builder Start
 /**
  * Entity representing a completed rental transaction.
@@ -42,6 +46,10 @@ public class RentalHistory {
     @Column(name = "status", nullable = false)
     private RentalStatus status;
 
+    // L6 State Pattern - current runtime state (nie zapisujemy w DB)
+    @Transient
+    private RentalState state;
+
     public RentalHistory() {}
 
     private RentalHistory(Builder builder) {
@@ -54,6 +62,8 @@ public class RentalHistory {
         this.returnedAt = builder.returnedAt;
         this.isExtended = builder.isExtended;
         this.status = builder.status;
+        // stan spójny z enum
+        this.state = RentalStateFactory.createState(this.status);
     }
 
     public static Builder builder() {
@@ -80,7 +90,12 @@ public class RentalHistory {
     public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
     public void setReturnedAt(LocalDateTime returnedAt) { this.returnedAt = returnedAt; }
     public void setIsExtended(Boolean isExtended) { this.isExtended = isExtended; }
-    public void setStatus(RentalStatus status) { this.status = status; }
+
+    public void setStatus(RentalStatus status) {
+        this.status = status;
+        // aktualizujemy state po zmianie statusu
+        this.state = RentalStateFactory.createState(status);
+    }
 
     @Override
     public String toString() {
@@ -158,6 +173,42 @@ public class RentalHistory {
 
         public RentalHistory build() {
             return new RentalHistory(this);
+        }
+    }
+
+    // State Pattern methods
+
+    /**
+     * Get the current state object based on status.
+     */
+    public RentalState getState() {
+        if (state == null) {
+            state = RentalStateFactory.createState(this.status);
+        }
+        return state;
+    }
+
+    /**
+     * Set state and update status accordingly.
+     */
+    public void setState(RentalState newState) {
+        this.state = newState;
+        updateStatusFromState();
+    }
+
+    /**
+     * Update status enum based on current state.
+     */
+    private void updateStatusFromState() {
+        if (state != null) {
+            String stateName = state.getStateName();
+            try {
+                this.status = RentalStatus.valueOf(stateName);
+            } catch (IllegalArgumentException e) {
+                // fallback: jeśli coś się rozjedzie, ustaw domyślne RENTED
+                this.status = RentalStatus.RENTED;
+                this.state = new RentedState();
+            }
         }
     }
 }
