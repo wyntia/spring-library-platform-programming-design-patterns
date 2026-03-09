@@ -47,4 +47,9 @@ public class UserServiceClient {
             throw new ServiceException("user-service", "Failed to get user " + userId, e);
         }
     }
+    
+        public void updateEmployeeBranch(Long employeeId, Long branchId) {
+            // print for test
+            System.out.println("[UserServiceClient] updateEmployeeBranch: employeeId=" + employeeId + ", branchId=" + branchId);
+        }
 }

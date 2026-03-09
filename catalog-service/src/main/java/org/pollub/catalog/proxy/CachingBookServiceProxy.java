@@ -21,7 +21,6 @@ import java.util.List;
  */
 //Lab1 - Proxy 1 Start
 @Component
-@Primary
 @Slf4j
 public class CachingBookServiceProxy implements IBookService {
 

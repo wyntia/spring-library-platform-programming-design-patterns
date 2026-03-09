@@ -9,18 +9,12 @@ import org.pollub.common.exception.FavouriteLibraryNotSetException;
 import org.pollub.common.exception.ResourceNotFoundException;
 import org.pollub.common.exception.UserNotFoundException;
 import org.pollub.user.client.IBranchServiceClient;
-import org.pollub.user.dto.ApiTextResponse;
-import org.pollub.user.dto.ChangePasswordDto;
-import org.pollub.user.dto.ResetPasswordRequestDto;
-import org.pollub.user.dto.ResetPasswordResponseDto;
+import org.pollub.user.dto.*;
+import org.pollub.user.mediator.UserRegistrationMediator;
 import org.pollub.user.model.Role;
 import org.pollub.user.model.User;
 import org.pollub.user.model.UserAddress;
 import org.pollub.user.repository.IUserRepository;
-import org.pollub.user.service.utils.IUserFactory;
-import org.pollub.user.service.utils.UserValidator;
-import org.pollub.user.util.PasswordGenerator;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,14 +31,13 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService implements  IUserService {
-    
+public class UserService implements IUserService {
+
+    private final UserRegistrationMediator userRegistrationMediator;
+
     private final IUserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
-    //Lab1 - Factory Method Start
-    private final IUserFactory userFactory;
-    //Lab1 End Factory Method
-    private final UserValidator userValidator;
     private final IBranchServiceClient branchServiceClient;
     private final IPasswordGenerator passwordGenerator;
 
@@ -58,11 +51,12 @@ public class UserService implements  IUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
     }
 
+    @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        return userRepository.findByEmail(email).orElse(null);
     }
 
+    @Override
     public List<User> findAll() {
         return userRepository.findAll();
     }
@@ -85,14 +79,16 @@ public class UserService implements  IUserService {
         return filtered;
     }
 
-    @Transactional
+    @Override
     public User createUser(User user) {
-        userValidator.validateNewUser(user);
+        return userRepository.save(user);
+    }
 
-        User createdUser = userFactory.createUser(
-                user
-        );
-        return userRepository.save(createdUser);
+    @Transactional
+    public User registerUser(UserRegistrationDto dto) {
+        //start L5 Mediator
+        return userRegistrationMediator.registerUser(dto);
+        //end L5 Mediator
     }
 
     @Transactional
@@ -120,13 +116,6 @@ public class UserService implements  IUserService {
     }
 
     @Transactional
-    public User updateRoles(Long id, Set<Role> roles) {
-        User user = findById(id);
-        user.setRoles(roles);
-        return userRepository.save(user);
-    }
-
-    @Transactional
     public User updateFavouriteBranch(String username, Long branchId) {
         User user = findByUsername(username);
         user.setFavouriteBranchId(branchId);
@@ -137,6 +126,13 @@ public class UserService implements  IUserService {
     public User updateEmployeeBranch(Long userId, Long branchId) {
         User user = findById(userId);
         user.setEmployeeBranchId(branchId);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateRoles(Long id, Set<Role> roles) {
+        User user = findById(id);
+        user.setRoles(roles);
         return userRepository.save(user);
     }
 
@@ -153,15 +149,15 @@ public class UserService implements  IUserService {
     public BranchDto getEmployeeBranch(String username) {
         User user = findByUsername(username);
         Long branchId = user.getEmployeeBranchId();
-        
+
         if (branchId == null) {
             return null;
         }
-        
+
         return branchServiceClient.getBranchById(branchId)
                 .orElse(null);
     }
-    
+
     /**
      * Get user's favourite branch with full details from branch-service.
      */
@@ -175,22 +171,22 @@ public class UserService implements  IUserService {
                     userId
             );
         }
-        
+
         return branchServiceClient.getBranchById(branchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Biblioteka o id " + branchId + " nie została znaleziona"));
     }
-    
+
     /**
      * Get user's employee branch with full details from branch-service.
      */
     public BranchDto getEmployeeBranchById(Long userId) {
         User user = findById(userId);
         Long branchId = user.getEmployeeBranchId();
-        
+
         if (branchId == null) {
             throw new ResourceNotFoundException("Użytkownik nie jest przypisany do żadnej biblioteki jako pracownik");
         }
-        
+
         return branchServiceClient.getBranchById(branchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Biblioteka o id " + branchId + " nie została znaleziona"));
     }
@@ -227,11 +223,11 @@ public class UserService implements  IUserService {
         User user = userRepository.findByEmail(usernameOrEmail)
                 .or(() -> userRepository.findByUsername(usernameOrEmail.toLowerCase()))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
-        
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid credentials");
         }
-        
+
         return user;
     }
 
@@ -252,7 +248,7 @@ public class UserService implements  IUserService {
         // Find user by email and PESEL
         User user = userRepository.findByEmailAndPesel(request.getEmail(), request.getPesel())
                 .orElse(null);
-        
+
         // Always return success message for security (don't reveal if user exists)
         if (user == null) {
             return ResetPasswordResponseDto.builder()
@@ -260,16 +256,16 @@ public class UserService implements  IUserService {
                     .message("Jeśli podane dane są poprawne, nowe hasło zostanie wysłane na podany adres email.")
                     .build();
         }
-        
+
         // Generate new temporary password
         String temporaryPassword = passwordGenerator.generate(); // Lab2 Adapter usage
-        
+
         // Encode and save new password
         String encodedPassword = passwordEncoder.encode(temporaryPassword);
         user.setPassword(encodedPassword);
         user.setMustChangePassword(true);
         userRepository.save(user);
-        
+
         return ResetPasswordResponseDto.builder()
                 .email(user.getEmail())
                 .temporaryPassword(temporaryPassword)

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pollub.common.dto.ItemDto;
 import org.pollub.common.dto.ReservationItemDto;
 import org.pollub.reservation.client.CatalogServiceClient;
+import org.pollub.reservation.mediator.BookReservationMediator;
 import org.pollub.reservation.model.ReservationHistory;
 import org.pollub.reservation.model.ReservationStatus;
 import org.pollub.reservation.model.dto.ReservationCatalogRequestDto;
@@ -27,6 +28,13 @@ import org.pollub.reservation.iterator.ReservationHistoryIterator;
 @Transactional
 @Slf4j
 public class ReservationService implements  IReservationService {
+    private final BookReservationMediator bookReservationMediator;
+    
+    public boolean reserveBookForUser(Long userId, Long bookId) {
+        //start L5 Mediator
+        return bookReservationMediator.reserveBook(userId, bookId);
+        //end L5 Mediator
+    }
     
     private static final int MAX_ACTIVE_RESERVATIONS = 3;
     

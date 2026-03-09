@@ -1,6 +1,7 @@
 package org.pollub.reservation.client;
 
 import lombok.RequiredArgsConstructor;
+import org.pollub.common.dto.BookDto;
 import org.pollub.common.dto.ItemDto;
 import org.pollub.common.dto.ReservationItemDto;
 import org.pollub.common.exception.ServiceException;
@@ -70,5 +71,13 @@ public class CatalogServiceClient {
             throw new ServiceException("catalog-service",
                     "Failed to update status for item " + itemId + " in branch " + branchId, e);
         }
+    }
+    
+    public BookDto getBookById(Long bookId) {
+        BookDto book = new BookDto();
+        book.setId(bookId);
+        book.setTitle("Mock Book " + bookId);
+        book.setAvailable(true);
+        return book;
     }
 }

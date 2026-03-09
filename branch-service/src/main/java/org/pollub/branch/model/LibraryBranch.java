@@ -41,4 +41,14 @@ public class LibraryBranch {
     
     @Column(columnDefinition = "TEXT")
     private String openingHours;
+
+    private Integer maxEmployees;
+    private Integer currentEmployees;
+    
+    public boolean hasFreeSlot() {
+       if (maxEmployees == null || currentEmployees == null) {
+            return false;
+        }
+        return currentEmployees < maxEmployees;
+    }
 }
