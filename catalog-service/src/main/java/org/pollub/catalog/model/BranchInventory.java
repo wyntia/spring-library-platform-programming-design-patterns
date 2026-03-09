@@ -5,12 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.pollub.catalog.state.CopyState;
+import org.pollub.catalog.state.AvailableCopyState;
+import org.pollub.catalog.state.CopyStateFactory;
 
 import java.time.LocalDateTime;
 
 /**
  * Represents a copy of a library item at a specific branch.
  * Each branch can have its own copy with independent rental status.
+ * Implements State Pattern to manage copy status transitions.
  */
 @Entity
 @Table(name = "branch_inventory",
@@ -36,6 +40,12 @@ public class BranchInventory{
     @Builder.Default
     private CopyStatus status = CopyStatus.AVAILABLE;
 
+    // State Pattern - transient because state is derived from status
+    @Transient
+    private CopyState state;
+
+    // ...existing code...
+
     // Rental info (populated when status = RENTED)
     @Column(name = "rented_by_user_id")
     private Long rentedByUserId;
@@ -59,6 +69,42 @@ public class BranchInventory{
 
     @Column(name = "reservation_expires_at")
     private LocalDateTime reservationExpiresAt;
+
+    // State Pattern methods
+
+    /**
+     * Get the current state object based on status
+     */
+    public CopyState getState() {
+        if (state == null) {
+            state = CopyStateFactory.createState(this.status);
+        }
+        return state;
+    }
+
+    /**
+     * Set state and update status accordingly
+     */
+    public void setState(CopyState newState) {
+        this.state = newState;
+        updateStatusFromState();
+    }
+
+    /**
+     * Update status enum based on current state
+     */
+    private void updateStatusFromState() {
+        if (state != null) {
+            String stateName = state.getStateName();
+            try {
+                this.status = CopyStatus.valueOf(stateName);
+            } catch (IllegalArgumentException e) {
+                // Fallback to AVAILABLE if state name doesn't match enum
+                this.status = CopyStatus.AVAILABLE;
+                this.state = new AvailableCopyState();
+            }
+        }
+    }
 
 }
 

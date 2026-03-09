@@ -3,9 +3,16 @@ package org.pollub.reservation.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.pollub.common.Observer;
+import org.pollub.common.Subject;
+import org.pollub.common.config.DateTimeProvider;
 import org.pollub.common.dto.ItemDto;
 import org.pollub.common.dto.ReservationItemDto;
+import org.pollub.common.event.ReservationEvent;
 import org.pollub.reservation.client.CatalogServiceClient;
+import org.pollub.reservation.interpreter.ReservationSearchExpression;
+import org.pollub.reservation.interpreter.StatusReservationExpression;
+import org.pollub.reservation.iterator.ReservationHistoryIterator;
 import org.pollub.reservation.model.ReservationHistory;
 import org.pollub.reservation.model.ReservationStatus;
 import org.pollub.reservation.model.dto.ReservationCatalogRequestDto;
@@ -16,22 +23,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
-import org.pollub.common.config.DateTimeProvider;
+import java.util.ArrayList;
 import java.util.List;
-import org.pollub.reservation.interpreter.ReservationSearchExpression;
-import org.pollub.reservation.interpreter.StatusReservationExpression;
-import org.pollub.reservation.iterator.ReservationHistoryIterator;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class ReservationService implements  IReservationService {
-    
+public class ReservationService implements IReservationService, Subject {
+
     private static final int MAX_ACTIVE_RESERVATIONS = 3;
     
     private final ReservationRepository reservationRepository;
     private final CatalogServiceClient catalogServiceClient;
+    private final List<Observer> observers = new ArrayList<>();
 
     private final ReservationHistory templateReservation = new ReservationHistory();
 
@@ -54,6 +59,15 @@ public class ReservationService implements  IReservationService {
 
         try {
             reservationRepository.save(reservation);
+
+            //L6 Notify observers about reservation creation
+            notifyObservers(new ReservationEvent(
+                "CREATED",
+                reservation.getId(),
+                dto.getItemId(),
+                userId,
+                DateTimeProvider.getInstance().now()
+            ));
         } catch (Exception e) {
             log.error("Failed to update item status in catalog service for reservation {}", reservation.getId(), e);
             throw new RuntimeException("Failed to update item status in catalog service {}", e);
@@ -115,9 +129,21 @@ public class ReservationService implements  IReservationService {
                     "User " + userId + " is not authorized to cancel reservation " + id
             );
         }
+        //L6 Use State Pattern validation
+        reservation.getState().validateForCancellation();
+
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservation.setResolvedAt(DateTimeProvider.getInstance().now());
         reservationRepository.save(reservation);
+
+        //L6 Notify observers about reservation cancellation
+        notifyObservers(new ReservationEvent(
+            "CANCELLED",
+            reservation.getId(),
+            reservation.getItemId(),
+            userId,
+            DateTimeProvider.getInstance().now()
+        ));
 
         catalogServiceClient.updateStatus(
                 reservation.getItemId(),
@@ -152,9 +178,23 @@ public class ReservationService implements  IReservationService {
         ReservationHistoryIterator iterator = new ReservationHistoryIterator(expired);
         while (iterator.hasNext()) {
             ReservationHistory reservation = iterator.next();
+
+            //L6 Use State Pattern validation
+            reservation.getState().validateForExpiration();
+
             reservation.setStatus(ReservationStatus.EXPIRED);
             reservation.setResolvedAt(DateTimeProvider.getInstance().now());
             reservationRepository.save(reservation);
+
+            //L6 Notify observers about reservation expiration
+            notifyObservers(new ReservationEvent(
+                "EXPIRED",
+                reservation.getId(),
+                reservation.getItemId(),
+                reservation.getUserId(),
+                DateTimeProvider.getInstance().now()
+            ));
+
             catalogServiceClient.updateStatus(
                 reservation.getItemId(),
                 reservation.getBranchId(),
@@ -173,9 +213,43 @@ public class ReservationService implements  IReservationService {
                     reservation.setStatus(ReservationStatus.FULFILLED);
                     reservation.setResolvedAt(DateTimeProvider.getInstance().now());
                     reservationRepository.save(reservation);
-                    log.info("Reservation {} fulfilled for itemId: {}, branchId: {}, userId: {}", 
+
+                    //L6 Notify observers about reservation fulfillment
+                    notifyObservers(new ReservationEvent(
+                        "FULFILLED",
+                        reservation.getId(),
+                        itemId,
+                        userId,
+                        DateTimeProvider.getInstance().now()
+                    ));
+
+                    log.info("Reservation {} fulfilled for itemId: {}, branchId: {}, userId: {}",
                             reservation.getId(), itemId, branchId, userId);
                 });
+    }
+
+    //L6 Observer pattern implementation
+
+    @Override
+    public void attach(Observer observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+            log.debug("Observer attached: {}", observer.getClass().getSimpleName());
+        }
+    }
+
+    @Override
+    public void detach(Observer observer) {
+        if (observers.remove(observer)) {
+            log.debug("Observer detached: {}", observer.getClass().getSimpleName());
+        }
+    }
+
+    @Override
+    public void notifyObservers(Object event) {
+        for (Observer observer : observers) {
+            observer.update(this, event);
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package org.pollub.auth.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.pollub.auth.template.AbstractWebClientRequest;
 import org.pollub.common.dto.BranchDto;
 import org.pollub.common.dto.UserDto;
 import org.pollub.common.exception.ServiceException;
@@ -15,8 +16,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
+// L6 Template Method Usage Context
 /**
  * WebClient for communicating with user-service.
+ * Refactored to use the Template Method pattern for executing HTTP requests.
  */
 @Component
 @RequiredArgsConstructor
@@ -27,39 +30,39 @@ public class UserServiceClient {
     
     @Value("${services.user.url:http://user-service}")
     private String userServiceUrl;
-    
+
     public Optional<UserDto> findByEmail(String email) {
-        try {
-            UserDto user = webClientBuilder.build()
-                    .get()
-                    .uri(userServiceUrl + "/api/users/email/{email}", email)
-                    .retrieve()
-                    .bodyToMono(UserDto.class)
-                    .block();
-            return Optional.ofNullable(user);
-        } catch (WebClientResponseException.NotFound e) {
-            return Optional.empty();
-        } catch (Exception e) {
-            log.error("Error fetching user by email", e);
-            throw new ServiceException("user-service", "Failed to fetch user by email", e);
-        }
+        //L6 Template Method usage for fetching user by email
+        return new AbstractWebClientRequest<UserDto>() {
+            @Override
+            protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
+                return builder.build().get().uri(userServiceUrl + "/api/users/email/{email}", email);
+            }
+            @Override
+            protected Class<UserDto> getResponseType() { return UserDto.class; }
+            @Override
+            protected Optional<UserDto> handleException(Exception e) {
+                log.error("Error fetching user by email", e);
+                throw new ServiceException("user-service", "Failed to fetch user by email", e);
+            }
+        }.execute(webClientBuilder);
     }
-    
+
     public Optional<UserDto> findByUsername(String username) {
-        try {
-            UserDto user = webClientBuilder.build()
-                    .get()
-                    .uri(userServiceUrl + "/api/users/username/{username}", username)
-                    .retrieve()
-                    .bodyToMono(UserDto.class)
-                    .block();
-            return Optional.ofNullable(user);
-        } catch (WebClientResponseException.NotFound e) {
-            return Optional.empty();
-        } catch (Exception e) {
-            log.error("Error fetching user by username", e);
-            throw new ServiceException("user-service", "Failed to fetch user by username", e);
-        }
+        //L6 Template Method usage for fetching user by username
+        return new AbstractWebClientRequest<UserDto>() {
+            @Override
+            protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
+                return builder.build().get().uri(userServiceUrl + "/api/users/username/{username}", username);
+            }
+            @Override
+            protected Class<UserDto> getResponseType() { return UserDto.class; }
+            @Override
+            protected Optional<UserDto> handleException(Exception e) {
+                log.error("Error fetching user by username", e);
+                throw new ServiceException("user-service", "Failed to fetch user by username", e);
+            }
+        }.execute(webClientBuilder);
     }
 
     public UserDto createUser(UserDto userDto) {
@@ -76,45 +79,49 @@ public class UserServiceClient {
                 .bodyToMono(UserDto.class)
                 .block();
     }
-    
+
     public Optional<UserDto> validateCredentials(String usernameOrEmail, String password) {
-        try {
-            UserDto user = webClientBuilder.build()
-                    .post()
-                    .uri(userServiceUrl + "/api/users/validate")
-                    .bodyValue(new CredentialsDto(usernameOrEmail, password))
-                    .retrieve()
-                    .bodyToMono(UserDto.class)
-                    .block();
-            return Optional.ofNullable(user);
-        } catch (WebClientResponseException e) {
-            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+        //L6 Template Method usage for validating credentials
+        return new AbstractWebClientRequest<UserDto>() {
+            @Override
+            protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
+                return builder.build().post()
+                        .uri(userServiceUrl + "/api/users/validate")
+                        .bodyValue(new CredentialsDto(usernameOrEmail, password));
+            }
+            @Override
+            protected Class<UserDto> getResponseType() { return UserDto.class; }
+            @Override
+            protected Optional<UserDto> handleException(Exception e) {
+                log.error("Error validating credentials", e);
+                throw new ServiceException("user-service", "Failed to validate credentials", e);
+            }
+            @Override
+            protected Optional<UserDto> handleUnauthorized(WebClientResponseException.Unauthorized e) {
                 return Optional.empty();
             }
-            log.error("Error validating credentials", e);
-            throw new ServiceException("user-service", "Failed to validate credentials", e);
-        } catch (Exception e) {
-            log.error("Error validating credentials", e);
-            throw new ServiceException("user-service", "Failed to validate credentials", e);
-        }
+        }.execute(webClientBuilder);
     }
-    
+
+
     // Simple DTO for credentials
     public record CredentialsDto(String usernameOrEmail, String password) {}
 
     public Optional<BranchDto> getEmployeeBranch(String username) {
-        try {
-            BranchDto branch = webClientBuilder.build()
-                    .get()
-                    .uri(userServiceUrl + "/api/users/username/{username}/branch", username)
-                    .retrieve()
-                    .bodyToMono(BranchDto.class)
-                    .block();
-            return Optional.ofNullable(branch);
-        } catch (Exception e) {
-            log.error("Error fetching employee branch for username: {}", username, e);
-            return Optional.empty();
-        }
+        //L6 Template Method usage for fetching employee branch
+        return new AbstractWebClientRequest<BranchDto>() {
+            @Override
+            protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
+                return builder.build().get().uri(userServiceUrl + "/api/users/username/{username}/branch", username);
+            }
+            @Override
+            protected Class<BranchDto> getResponseType() { return BranchDto.class; }
+            @Override
+            protected Optional<BranchDto> handleException(Exception e) {
+                log.error("Error fetching employee branch for username: {}", username, e);
+                return Optional.empty();
+            }
+        }.execute(webClientBuilder);
     }
 
     /**
@@ -122,19 +129,22 @@ public class UserServiceClient {
      * Returns the new temporary password if successful.
      */
     public Optional<ResetPasswordResponseDto> resetPassword(String email, String pesel) {
-        try {
-            ResetPasswordResponseDto response = webClientBuilder.build()
-                    .post()
-                    .uri(userServiceUrl + "/api/users/reset-password")
-                    .bodyValue(new ResetPasswordRequestDto(email, pesel))
-                    .retrieve()
-                    .bodyToMono(ResetPasswordResponseDto.class)
-                    .block();
-            return Optional.ofNullable(response);
-        } catch (Exception e) {
-            log.error("Error resetting password for email: {}", email, e);
-            return Optional.empty();
-        }
+        //L6 Template Method usage for reset password request
+        return new AbstractWebClientRequest<ResetPasswordResponseDto>() {
+            @Override
+            protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
+                return builder.build().post()
+                        .uri(userServiceUrl + "/api/users/reset-password")
+                        .bodyValue(new ResetPasswordRequestDto(email, pesel));
+            }
+            @Override
+            protected Class<ResetPasswordResponseDto> getResponseType() { return ResetPasswordResponseDto.class; }
+            @Override
+            protected Optional<ResetPasswordResponseDto> handleException(Exception e) {
+                log.error("Error resetting password for email: {}", email, e);
+                return Optional.empty();
+            }
+        }.execute(webClientBuilder);
     }
 
     // DTOs for reset password

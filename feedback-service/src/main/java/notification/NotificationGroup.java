@@ -18,5 +18,13 @@ public class NotificationGroup implements NotificationComponent {
             child.send(message);
         }
     }
+
+    @Override
+    public void accept(NotificationVisitor visitor) {
+        // L6 Visitor propagation through composite structure
+        for (NotificationComponent child : children) {
+            child.accept(visitor);
+        }
+    }
 }
 //end L3 Composite

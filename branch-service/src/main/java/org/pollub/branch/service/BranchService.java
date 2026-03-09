@@ -1,6 +1,8 @@
 package org.pollub.branch.service;
 
+import org.pollub.branch.strategy.DefaultBranchSearchStrategy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.pollub.branch.client.UserServiceClient;
 import org.pollub.branch.model.LibraryBranch;
 import org.pollub.branch.model.dto.BranchCreateDto;
@@ -16,6 +18,7 @@ import java.util.List;
 @Service("baseBranchService")
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class BranchService implements IBranchService {
     
     private final BranchRepository branchRepository;
@@ -23,7 +26,11 @@ public class BranchService implements IBranchService {
     //start L5 Mediator
     private final BranchMediator branchMediator;
     //end L5 Mediator
-    
+
+    //start L6 Strategy Design Pattern - injectable search strategy
+    private final DefaultBranchSearchStrategy searchStrategy;
+    // end L6 Strategy Design Pattern
+
     public List<LibraryBranch> getAllBranches() {
         return branchRepository.findAll();
     }
@@ -42,7 +49,8 @@ public class BranchService implements IBranchService {
         if (query == null || query.trim().isEmpty()) {
             return branchRepository.findAll();
         }
-        return branchRepository.searchBranches(query.trim());
+        //L6 Strategy Design Pattern - delegate search to current strategy
+        return searchStrategy.search(query);
     }
     
     public LibraryBranch createBranch(BranchCreateDto dto) {

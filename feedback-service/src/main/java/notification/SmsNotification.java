@@ -11,5 +11,10 @@ public class SmsNotification implements NotificationComponent {
     public void send(String message) {
         System.out.println("Wysyłam SMS do: " + phoneNumber + " | Treść: " + message);
     }
+
+    @Override
+    public void accept(NotificationVisitor visitor) {
+        visitor.visitSms(this); // L6 Visitor double dispatch
+    }
 }
 //end L3 Composite

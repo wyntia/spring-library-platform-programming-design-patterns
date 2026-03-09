@@ -2,9 +2,13 @@ package org.pollub.rental.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.pollub.common.Observer;
+import org.pollub.common.Subject;
+import org.pollub.common.config.DateTimeProvider;
 import org.pollub.common.dto.ItemDto;
 import org.pollub.common.dto.RentalHistoryDto;
 import org.pollub.common.dto.ReservationResponse;
+import org.pollub.common.event.RentalEvent;
 import org.pollub.rental.bridge.IValidationBridge;
 import org.pollub.rental.client.CatalogServiceClient;
 import org.pollub.rental.model.RentalHistory;
@@ -14,20 +18,21 @@ import org.pollub.rental.utils.IRentalValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.pollub.common.config.DateTimeProvider;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class RentalService implements IRentalService {
+public class RentalService implements IRentalService, Subject {
     private static final int DAYS_TO_RENT = 14;
 
     private final IRentalHistoryRepository rentalHistoryRepository;
     private final CatalogServiceClient catalogServiceClient;
     private final IRentalValidator rentalValidator;
     private final IValidationBridge validationBridge;
+    private final List<Observer> observers = new ArrayList<>();
 
     public List<ItemDto> getActiveRentals(Long userId) {
         return catalogServiceClient.getItemsByUser(userId);
@@ -60,6 +65,15 @@ public class RentalService implements IRentalService {
         try{
             rentalHistoryRepository.save(rentalHistory);
             log.info("Rental history saved: {}", rentalHistory);
+
+            // Notify observers about rental creation
+            notifyObservers(new RentalEvent(
+                "CREATED",
+                rentalHistory.getId(),
+                itemId,
+                userId,
+                DateTimeProvider.getInstance().now()
+            ));
         } catch (Exception e){
             log.error("Error saving rental history for itemId: {}, userId: {}. Error: {}", itemId, userId, e.getMessage());
             throw e;
@@ -73,12 +87,23 @@ public class RentalService implements IRentalService {
     public void returnItem(Long itemId, Long branchId) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
 
+        //L6 Use State Pattern validation
+        rentalHistory.getState().validateForReturn();
+
         rentalHistory.setReturnedAt(DateTimeProvider.getInstance().now());
-        rentalHistory.setStatus(
-                RentalStatus.RETURNED
-        );
+        rentalHistory.setStatus(RentalStatus.RETURNED);
+
         try{
             rentalHistoryRepository.save(rentalHistory);
+
+            //L6 Notify observers about item return
+            notifyObservers(new RentalEvent(
+                "RETURNED",
+                rentalHistory.getId(),
+                itemId,
+                rentalHistory.getUserId(),
+                DateTimeProvider.getInstance().now()
+            ));
         }
         catch (Exception e){
             log.error("Error updating rental history for return of itemId: {}. Error: {}", itemId, e.getMessage());
@@ -93,11 +118,23 @@ public class RentalService implements IRentalService {
     public void extendLoan(Long itemId, Long branchId, int days) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
 
+        //L6 Use State Pattern validation
+        rentalHistory.getState().validateForExtension();
+
         throwIfHaveBeenAlreadyRentedBefore(itemId, rentalHistory);
 
         extendLoanRecord(days, rentalHistory);
         try{
             rentalHistoryRepository.save(rentalHistory);
+
+            // Notify observers about rental extension
+            notifyObservers(new RentalEvent(
+                "EXTENDED",
+                rentalHistory.getId(),
+                itemId,
+                rentalHistory.getUserId(),
+                DateTimeProvider.getInstance().now()
+            ));
         }
         catch (Exception e){
             log.error("Error updating rental history for extension of itemId: {}. Error: {}", itemId, e.getMessage());
@@ -141,6 +178,30 @@ public class RentalService implements IRentalService {
                 .dueDate(rentalHistory.getDueDate())
                 .returnedAt(rentalHistory.getReturnedAt())
                 .build();
+    }
+
+    //L6 Observer pattern implementation
+
+    @Override
+    public void attach(Observer observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+            log.debug("Observer attached: {}", observer.getClass().getSimpleName());
+        }
+    }
+
+    @Override
+    public void detach(Observer observer) {
+        if (observers.remove(observer)) {
+            log.debug("Observer detached: {}", observer.getClass().getSimpleName());
+        }
+    }
+
+    @Override
+    public void notifyObservers(Object event) {
+        for (Observer observer : observers) {
+            observer.update(this, event);
+        }
     }
 }
 
