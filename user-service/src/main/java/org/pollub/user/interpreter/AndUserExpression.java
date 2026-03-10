@@ -3,7 +3,7 @@ package org.pollub.user.interpreter;
 import org.pollub.user.model.User;
 import java.util.List;
 
-//start L5 Interpreter
+//start L3 Interpreter
 public class AndUserExpression implements UserSearchExpression {
     private final List<UserSearchExpression> expressions;
 
@@ -20,4 +20,4 @@ public class AndUserExpression implements UserSearchExpression {
         return result;
     }
 }
-//end L5 Interpreter
+//end L3 Interpreter

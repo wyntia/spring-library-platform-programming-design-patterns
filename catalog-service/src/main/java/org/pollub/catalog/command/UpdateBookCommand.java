@@ -4,7 +4,7 @@ import org.pollub.catalog.model.dto.BookCreateDto;
 import org.pollub.catalog.model.Book;
 import org.pollub.catalog.service.IBookService;
 
-//start L5 Command
+//start L3 Command
 public class UpdateBookCommand implements Command<Book> {
     private final IBookService bookService;
     private final Long id;
@@ -21,4 +21,4 @@ public class UpdateBookCommand implements Command<Book> {
         return bookService.updateBook(id, dto);
     }
 }
-//end L5 Command
+//end L3 Command

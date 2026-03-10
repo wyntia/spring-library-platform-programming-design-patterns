@@ -41,13 +41,13 @@ public class BookService implements IBookService {
     @Override
     public List<Book> findAll() {
         List<Book> books = bookRepository.findAll();
-        //start L5 Iterator
+        //start L3 Iterator
         BookIterator iterator = new BookIterator(books);
         while (iterator.hasNext()) {
             Book book = iterator.next();
             System.out.println("Znaleziono książkę: " + book.getTitle() + " (Autor: " + book.getAuthor() + ")");
         }
-        //end L5 Iterator
+        //end L3 Iterator
         return books;
     }
 
@@ -179,7 +179,7 @@ public class BookService implements IBookService {
     public BookAvailabilityDto getBookAvailability(Long id) {
         Book book = findById(id);
         List<BranchInventory> inventories = inventoryRepository.findByItemId(id);
-        //start L5 Iterator
+        //start L3 Iterator
         BranchInventoryIterator iterator = new BranchInventoryIterator(inventories);
         Integer daysUntilDue = null;
         Set<Long> availableBranches = new HashSet<>();
@@ -201,7 +201,7 @@ public class BookService implements IBookService {
             daysUntilDue = (int) Math.max(0, days);
         }
         String overallStatus = availableBranches.isEmpty() ? "UNAVAILABLE" : "AVAILABLE";
-        //end L5 Iterator
+        //end L3 Iterator
         return BookAvailabilityDto.builder()
             .id(book.getId())
             .title(book.getTitle())

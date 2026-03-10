@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package notification;
 
 /**
@@ -17,4 +17,4 @@ public class SmsNotification implements NotificationComponent {
         visitor.visitSms(this); // L6 Visitor double dispatch
     }
 }
-//end L3 Composite
+//end L2 Composite

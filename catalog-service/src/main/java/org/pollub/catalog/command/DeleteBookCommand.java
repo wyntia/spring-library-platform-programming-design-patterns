@@ -2,7 +2,7 @@ package org.pollub.catalog.command;
 
 import org.pollub.catalog.service.IBookService;
 
-//start L5 Command     
+//start L3 Command     
 public class DeleteBookCommand implements Command<Void> {
     private final IBookService bookService;
     private final Long id;
@@ -18,4 +18,4 @@ public class DeleteBookCommand implements Command<Void> {
         return null;
     }
 }
-//end L5 Command
+//end L3 Command

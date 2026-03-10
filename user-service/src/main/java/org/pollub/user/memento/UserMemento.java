@@ -2,7 +2,7 @@ package org.pollub.user.memento;
 
 import org.pollub.user.model.User;
 
-//start L5 Memento
+//start L3 Memento
 public class UserMemento {
     private final User userSnapshot;
 
@@ -25,4 +25,4 @@ public class UserMemento {
         return userSnapshot;
     }
 }
-//end L5 Memento
+//end L3 Memento

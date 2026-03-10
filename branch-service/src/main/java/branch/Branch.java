@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package branch;
 
 import java.util.Collections;
@@ -24,4 +24,4 @@ public class Branch implements BranchComponent {
         throw new UnsupportedOperationException("Branch (liść) nie obsługuje dzieci");
     }
 }
-//end L3 Composite
+//end L2 Composite
