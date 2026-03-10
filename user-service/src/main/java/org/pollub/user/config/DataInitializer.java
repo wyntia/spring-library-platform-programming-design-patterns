@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pollub.user.model.User;
 import org.pollub.user.repository.IUserRepository;
 import org.pollub.user.service.utils.AdminUserFactory;
-import org.pollub.user.service.utils.UserFactory;
+import org.pollub.user.service.utils.LibrarianUserFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ public class DataInitializer implements CommandLineRunner {
     private final IUserRepository IUserRepository;
     //Lab1 - Factory Method Start
     private final AdminUserFactory adminUserFactory;
-    private final UserFactory userFactory;
+    private final LibrarianUserFactory librarianUserFactory;
     //Lab1 End Factory Method
     
     @Override
@@ -32,7 +32,7 @@ public class DataInitializer implements CommandLineRunner {
             IUserRepository.save(admin);
             log.info("Created admin user: admin@library.com / admin123");
             
-            User librarian = userFactory.createUser(
+            User librarian = librarianUserFactory.createUser(
                     "librarian", "librarian@library.com", "librarian123", "Default", "Librarian"
             );
             IUserRepository.save(librarian);
