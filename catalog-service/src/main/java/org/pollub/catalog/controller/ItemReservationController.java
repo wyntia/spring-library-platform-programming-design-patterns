@@ -2,13 +2,13 @@ package org.pollub.catalog.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.pollub.common.mediator.Mediator;
+import org.pollub.catalog.mediator.request.GetItemsForReservationRequest;
+import org.pollub.catalog.mediator.request.MarkAsReservedRequest;
+import org.pollub.catalog.mediator.request.UpdateItemInventoryStatusRequest;
 import org.pollub.catalog.model.dto.BranchInventoryDto;
 import org.pollub.catalog.model.dto.ReservationCatalogRequestDto;
 import org.pollub.catalog.model.dto.UpdateInventoryStatusRequest;
-import org.pollub.catalog.service.IBranchInventoryService;
-import org.pollub.catalog.service.ICatalogService;
-import org.pollub.catalog.command.ReserveItemCommand;
-import org.pollub.catalog.command.Command;
 import org.pollub.common.dto.ReservationItemDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,28 +20,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemReservationController {
 
-    private final ICatalogService catalogService;
-    private final IBranchInventoryService branchInventoryService;
+    //Lab5 Mediator Start
+    private final Mediator mediator;
 
     @PutMapping("/{itemId}/reserve")
-        public ResponseEntity<BranchInventoryDto> markAsReserved(
+    public ResponseEntity<BranchInventoryDto> markAsReserved(
             @PathVariable Long itemId,
             @RequestBody ReservationCatalogRequestDto reservationCatalogRequestDto
-        ) {
-        //start L5 Command
-        Command<BranchInventoryDto> command = new ReserveItemCommand(branchInventoryService, itemId, reservationCatalogRequestDto);
-        BranchInventoryDto branchInventory = command.execute();
-        ResponseEntity<BranchInventoryDto> response = ResponseEntity.ok(branchInventory);
-        //end L5 Command
-        return response;
-        }
+    ) {
+        BranchInventoryDto result = mediator.send(
+                new MarkAsReservedRequest(itemId, reservationCatalogRequestDto)
+        );
+        return ResponseEntity.ok(result);
+    }
 
     // POST for getting because of possible large list of IDs
     @PostMapping("/info/batch")
     public ResponseEntity<List<ReservationItemDto.Item>> getItemsForReservation(
             @RequestBody List<Long> itemIds
     ) {
-        List<ReservationItemDto.Item> items = catalogService.getItemsForReservation(itemIds);
+        List<ReservationItemDto.Item> items = mediator.send(
+                new GetItemsForReservationRequest(itemIds)
+        );
         return ResponseEntity.ok(items);
     }
 
@@ -51,13 +51,10 @@ public class ItemReservationController {
             @PathVariable Long branchId,
             @Valid @RequestBody UpdateInventoryStatusRequest request
     ) {
-        String statusStr = request.getStatus();
-
-        branchInventoryService.updateStatus(itemId, branchId, statusStr);
+        mediator.send(
+                new UpdateItemInventoryStatusRequest(itemId, branchId, request.getStatus())
+        );
         return ResponseEntity.noContent().build();
     }
-
-
-
-
+    //Lab5 Mediator End
 }

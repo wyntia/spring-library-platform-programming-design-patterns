@@ -9,8 +9,14 @@ import org.pollub.common.dto.ItemDto;
 import org.pollub.common.dto.RentalHistoryDto;
 import org.pollub.common.dto.ReservationResponse;
 import org.pollub.common.event.RentalEvent;
+import org.pollub.common.mediator.Mediator;
 import org.pollub.rental.bridge.IValidationBridge;
-import org.pollub.rental.client.CatalogServiceClient;
+import org.pollub.rental.mediator.request.ExtendRentalRequest;
+import org.pollub.rental.mediator.request.GetActiveRentalsRequest;
+import org.pollub.rental.mediator.request.MarkAsRentedRequest;
+import org.pollub.rental.mediator.request.MarkAsReturnedRequest;
+import org.pollub.rental.mediator.request.SendRentalConfirmationNotification;
+import org.pollub.rental.mediator.request.SendReturnConfirmationNotification;
 import org.pollub.rental.model.RentalHistory;
 import org.pollub.rental.model.RentalStatus;
 import org.pollub.rental.repository.IRentalHistoryRepository;
@@ -29,13 +35,15 @@ public class RentalService implements IRentalService, Subject {
     private static final int DAYS_TO_RENT = 14;
 
     private final IRentalHistoryRepository rentalHistoryRepository;
-    private final CatalogServiceClient catalogServiceClient;
     private final IRentalValidator rentalValidator;
     private final IValidationBridge validationBridge;
+    //Lab5 Mediator Start
+    private final Mediator mediator;
+    //Lab5 Mediator End
     private final List<Observer> observers = new ArrayList<>();
 
     public List<ItemDto> getActiveRentals(Long userId) {
-        return catalogServiceClient.getItemsByUser(userId);
+        return mediator.send(new GetActiveRentalsRequest(userId));
     }
 
     public List<RentalHistory> getUserRentalHistory(Long userId) {
@@ -78,9 +86,18 @@ public class RentalService implements IRentalService, Subject {
             log.error("Error saving rental history for itemId: {}, userId: {}. Error: {}", itemId, userId, e.getMessage());
             throw e;
         }
-        return catalogServiceClient.markAsRented(
+        //Lab5 Mediator Start
+        try {
+            mediator.send(new SendRentalConfirmationNotification(
+                    userId, itemId, rentalHistory.getDueDate()
+            ));
+        } catch (Exception e) {
+            log.warn("Failed to send rental confirmation notification: {}", e.getMessage());
+        }
+        //Lab5 Mediator End
+        return mediator.send(new MarkAsRentedRequest(
                 toRentalCatalogRequestDto(rentalHistory)
-        );
+        ));
     }
 
     @Override
@@ -110,8 +127,17 @@ public class RentalService implements IRentalService, Subject {
             throw e;
         }
 
-        catalogServiceClient.markAsReturned(itemId, branchId);
+        mediator.send(new MarkAsReturnedRequest(itemId, branchId));
 
+        //Lab5 Mediator Start
+        try {
+            mediator.send(new SendReturnConfirmationNotification(
+                    rentalHistory.getUserId(), itemId
+            ));
+        } catch (Exception e) {
+            log.warn("Failed to send return confirmation notification: {}", e.getMessage());
+        }
+        //Lab5 Mediator End
     }
 
     @Override
@@ -141,7 +167,7 @@ public class RentalService implements IRentalService, Subject {
             throw e;
         }
 
-        catalogServiceClient.extendRental(itemId, branchId, days);
+        mediator.send(new ExtendRentalRequest(itemId, branchId, days));
 
     }
 

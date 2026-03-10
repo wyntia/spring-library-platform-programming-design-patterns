@@ -13,7 +13,19 @@ public interface INotificationBridge {
      * Send rental reminder notification.
      */
     void sendRentalReminder(String recipient, String itemTitle, LocalDateTime dueDate);
-    
+
+    //Lab5 Mediator Start
+    /**
+     * Send rental confirmation notification.
+     */
+    void sendRentalConfirmation(String recipient, String itemTitle, LocalDateTime dueDate);
+
+    /**
+     * Send return confirmation notification.
+     */
+    void sendReturnConfirmation(String recipient, String itemTitle);
+    //Lab5 Mediator End
+
     /**
      * Get notification type.
      */

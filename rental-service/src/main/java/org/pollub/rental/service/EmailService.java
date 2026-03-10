@@ -58,4 +58,55 @@ public class EmailService {
                 "Pozdrawiamy,\n" +
                 "System Biblioteczny";
     }
+
+    //Lab5 Mediator Start
+    public void sendRentalConfirmationEmail(String email, String itemTitle, LocalDateTime dueDate) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Potwierdzenie wypożyczenia - " + itemTitle);
+            message.setText(buildRentalConfirmationBody(itemTitle, dueDate));
+            message.setFrom(fromAddress);
+
+            mailSender.send(message);
+            log.info("Rental confirmation email sent to: {} for item: {}", email, itemTitle);
+        } catch (Exception e) {
+            log.error("Failed to send rental confirmation email to: {} for item: {}", email, itemTitle, e);
+        }
+    }
+
+    public void sendReturnConfirmationEmail(String email, String itemTitle) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Potwierdzenie zwrotu - " + itemTitle);
+            message.setText(buildReturnConfirmationBody(itemTitle));
+            message.setFrom(fromAddress);
+
+            mailSender.send(message);
+            log.info("Return confirmation email sent to: {} for item: {}", email, itemTitle);
+        } catch (Exception e) {
+            log.error("Failed to send return confirmation email to: {} for item: {}", email, itemTitle, e);
+        }
+    }
+
+    private String buildRentalConfirmationBody(String itemTitle, LocalDateTime dueDate) {
+        return "Szanowny Czytelniku,\n\n" +
+                "Potwierdzamy wypożyczenie pozycji:\n\n" +
+                "Tytuł: " + itemTitle + "\n" +
+                "Termin zwrotu: " + dueDate.format(DATE_FORMATTER) + "\n\n" +
+                "Życzymy przyjemnej lektury!\n\n" +
+                "Pozdrawiamy,\n" +
+                "System Biblioteczny";
+    }
+
+    private String buildReturnConfirmationBody(String itemTitle) {
+        return "Szanowny Czytelniku,\n\n" +
+                "Potwierdzamy zwrot pozycji:\n\n" +
+                "Tytuł: " + itemTitle + "\n\n" +
+                "Dziękujemy za terminowy zwrot!\n\n" +
+                "Pozdrawiamy,\n" +
+                "System Biblioteczny";
+    }
+    //Lab5 Mediator End
 }

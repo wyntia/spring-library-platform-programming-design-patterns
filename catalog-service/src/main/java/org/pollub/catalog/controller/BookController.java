@@ -26,9 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookController {
     private final IBookService bookService;
-    //start L5 Mediator
-    private final org.pollub.catalog.mediator.BookMediator bookMediator;
-    //end L5 Mediator
     private final Logger log = LoggerFactory.getLogger(BookController.class);
 
     @GetMapping
@@ -50,17 +47,11 @@ public class BookController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<Book> createBook(@Valid @RequestBody BookCreateDto dto) {
-        //start L5 Mediator
-        Book book = bookMediator.createBook(dto);
-        ResponseEntity<Book> response = ResponseEntity.ok(book);
-        //end L5 Mediator
-        return response;
+        return ResponseEntity.ok(bookService.createBook(dto));
     }
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBook(@PathVariable Long id) {
-        //start L5 Mediator
-        return ResponseEntity.ok(bookMediator.findBookById(id));
-        //end L5 Mediator
+        return ResponseEntity.ok(bookService.findById(id));
     }
 
     @GetMapping("/author/{author}")
@@ -89,21 +80,14 @@ public class BookController {
             @PathVariable Long id,
             @Valid @RequestBody BookCreateDto dto
     ) {
-        //start L5 Mediator
-        Book book = bookMediator.updateBook(id, dto);
-        ResponseEntity<Book> response = ResponseEntity.ok(book);
-        //end L5 Mediator
-        return response;
+        return ResponseEntity.ok(bookService.updateBook(id, dto));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        //start L5 Mediator
-        bookMediator.deleteBook(id);
-        ResponseEntity<String> response = ResponseEntity.ok("Book deleted");
-        //end L5 Mediator
-        return response;
+        bookService.deleteBook(id);
+        return ResponseEntity.ok("Book deleted");
     }
 
     @GetMapping("/search")
@@ -133,9 +117,8 @@ public class BookController {
         //Lab1 - Builder 3 End
 
         this.log.debug("Searching books with criteria: {}", criteria);
-        //start L5 Mediator
-        return ResponseEntity.ok(bookMediator.searchBooks(criteria));
-        //end L5 Mediator
+        return ResponseEntity.ok(bookService.searchBooks(criteria));
+
     }
     @GetMapping("/genres")
     public ResponseEntity<List<String>> getTopGenres() {
@@ -163,9 +146,8 @@ public class BookController {
         if (limit > 20) {
             limit = 20;
         }
-        //start L5 Mediator
-        return ResponseEntity.ok(bookMediator.getRecentBooks(limit));
-        //end L5 Mediator
+        return ResponseEntity.ok(bookService.getRecentBooks(limit));
+
     }
 
     @GetMapping("/popular")
@@ -174,17 +156,16 @@ public class BookController {
         if (limit > 20) {
             limit = 20;
         }
-        //start L5 Mediator
-        return ResponseEntity.ok(bookMediator.getPopularBooks(limit));
-        //end L5 Mediator
+        return ResponseEntity.ok(bookService.getPopularBooks(limit));
+
     }
 
     @GetMapping("/{id}/availability")
-    public ResponseEntity<BookAvailabilityDto> getBookAvailability(
+    public ResponseEntity<
+            BookAvailabilityDto
+            > getBookAvailability(
             @PathVariable Long id) {
-        //start L5 Mediator
-        return ResponseEntity.ok(bookMediator.getBookAvailability(id));
-        //end L5 Mediator
+        return ResponseEntity.ok(bookService.getBookAvailability(id));
     }
 
 

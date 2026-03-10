@@ -2,9 +2,8 @@ package org.pollub.rental.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.pollub.rental.bridge.INotificationBridge;
-import org.pollub.rental.client.CatalogServiceClient;
-import org.pollub.rental.client.UserServiceClient;
+import org.pollub.common.mediator.Mediator;
+import org.pollub.rental.mediator.request.SendOverdueReminderNotification;
 import org.pollub.rental.model.RentalHistory;
 import org.pollub.rental.model.RentalStatus;
 import org.pollub.rental.repository.IRentalHistoryRepository;
@@ -26,19 +25,16 @@ public class RentalReminderService {
 
     private static final int DAYS_BEFORE_DUE = 3;
 
+    //Lab5 Mediator Start
     private final IRentalHistoryRepository rentalHistoryRepository;
-    private final UserServiceClient userServiceClient;
-    private final CatalogServiceClient catalogServiceClient;
-    private final EmailService emailService;
-    private final INotificationBridge notificationBridge; // L2 Bridge for sending notifications
+    private final Mediator mediator;
 
     /**
-     * Find all rentals expiring in 3 days and send reminder emails.
+     * Find all rentals expiring in 3 days and send reminder notifications via Mediator.
      */
     public void sendReminders() {
         log.info("Starting rental reminder job...");
 
-        // Calculate date range for rentals due in 3 days
         LocalDate targetDate = LocalDate.now().plusDays(DAYS_BEFORE_DUE);
         LocalDateTime startOfDay = targetDate.atStartOfDay();
         LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX);
@@ -53,22 +49,8 @@ public class RentalReminderService {
 
         for (RentalHistory rental : expiringRentals) {
             try {
-                // Get user email
-                String email = userServiceClient.getUserEmail(rental.getUserId());
-                if (email == null) {
-                    log.warn("Could not find email for user {}, skipping reminder for rental {}",
-                            rental.getUserId(), rental.getId());
-                    failCount++;
-                    continue;
-                }
-
-                // Get item title
-                String itemTitle = getItemTitle(rental.getItemId());
-
-                // Send reminder email
-                notificationBridge.sendRentalReminder(email, itemTitle, rental.getDueDate()); //L2 Bridge usage
+                mediator.send(new SendOverdueReminderNotification(rental.getId()));
                 successCount++;
-
             } catch (Exception e) {
                 log.error("Error processing reminder for rental {}: {}", rental.getId(), e.getMessage());
                 failCount++;
@@ -77,14 +59,5 @@ public class RentalReminderService {
 
         log.info("Rental reminder job completed. Sent: {}, Failed: {}", successCount, failCount);
     }
-
-    private String getItemTitle(Long itemId) {
-        try {
-            var item = catalogServiceClient.getItemById(itemId);
-            return item != null ? item.getTitle() : "Nieznany tytuł";
-        } catch (Exception e) {
-            log.warn("Could not fetch title for item {}: {}", itemId, e.getMessage());
-            return "Nieznany tytuł";
-        }
-    }
+    //Lab5 Mediator End
 }
