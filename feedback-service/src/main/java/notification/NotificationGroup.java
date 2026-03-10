@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package notification;
 
 import java.util.ArrayList;
@@ -27,4 +27,4 @@ public class NotificationGroup implements NotificationComponent {
         }
     }
 }
-//end L3 Composite
+//end L2 Composite

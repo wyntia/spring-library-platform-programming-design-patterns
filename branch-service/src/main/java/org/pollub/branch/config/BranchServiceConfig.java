@@ -1,4 +1,4 @@
-//start L3 Decoratoe
+//start L2 Decorator
 package org.pollub.branch.config;
 
 import org.pollub.branch.service.BranchService;
@@ -20,4 +20,4 @@ public class BranchServiceConfig {
         return new BranchServiceLoggingDecorator(branchService);
     }
 }
-//end L3 Decorator Config
+//end L2 Decorator Config

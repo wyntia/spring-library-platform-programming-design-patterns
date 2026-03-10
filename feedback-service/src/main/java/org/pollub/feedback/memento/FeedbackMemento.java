@@ -2,7 +2,7 @@ package org.pollub.feedback.memento;
 
 import org.pollub.feedback.model.Feedback;
 
-//start L5 Memento
+//start L3 Memento
 public class FeedbackMemento {
     private final Feedback feedbackSnapshot;
 
@@ -22,4 +22,4 @@ public class FeedbackMemento {
         return feedbackSnapshot;
     }
 }
-//end L5 Memento
+//end L3 Memento
