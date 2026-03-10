@@ -27,7 +27,7 @@ public class CachingBookServiceProxy implements IBookService {
 
     private final IBookService bookService;
 
-    public CachingBookServiceProxy(@Qualifier("bookService") IBookService bookService) {
+    public CachingBookServiceProxy(@Qualifier("loggingBookService") IBookService bookService) {
         this.bookService = bookService;
     }
 
