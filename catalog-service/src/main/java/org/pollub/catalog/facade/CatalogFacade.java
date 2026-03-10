@@ -1,7 +1,6 @@
 package org.pollub.catalog.facade;
 
 import lombok.RequiredArgsConstructor;
-import org.pollub.catalog.mediator.ItemMediator;
 import org.pollub.catalog.model.Book;
 import org.pollub.catalog.model.BranchInventory;
 import org.pollub.catalog.model.LibraryItem;
@@ -26,40 +25,29 @@ import java.util.Map;
 @RequiredArgsConstructor
 //Lab1 - Facade 1 Method Start
 public class CatalogFacade {
-    //start L5 Mediator
-    private final ItemMediator itemMediator;
-    //end L5 Mediator
     private final ICatalogService catalogService;
     private final IBranchInventoryService branchInventoryService;
 
     public List<ItemDto> getAllItems() {
-        //start L5 Mediator
-        return itemMediator.findAll().stream()
+        return catalogService.findAll().stream()
                 .map(this::toDto)
                 .toList();
-        //end L5 Mediator
     }
 
     public ItemDto getItemById(Long id) {
-        //start L5 Mediator
-        return toDto(itemMediator.findById(id));
-            //end L5 Mediator
+        return toDto(catalogService.findById(id));
     }
 
     public List<ItemDto> getAvailableItems() {
-        //start L5 Mediator
-        return itemMediator.findAvailable().stream()
+        return catalogService.findAvailable().stream()
                 .map(this::toDto)
                 .toList();
-        //end L5 Mediator
     }
 
     public List<ItemDto> getRentedItems() {
-        // start L5 Mediator
-        return itemMediator.findRented().stream()
+        return catalogService.findRented().stream()
                 .map(this::toDto)
                 .toList();
-        // end L5 Mediator
     }
 
     /**
@@ -71,9 +59,7 @@ public class CatalogFacade {
 
         return rentedInventory.stream()
                 .map(inventory -> {
-                    // start L5 Mediator
-                    LibraryItem item = itemMediator.findById(inventory.getItemId());
-                    // end L5 Mediator
+                    LibraryItem item = catalogService.findById(inventory.getItemId());
                     ItemDto dto = toDto(item);
 
                     dto.setDueDate(inventory.getDueDate());
@@ -85,36 +71,27 @@ public class CatalogFacade {
     }
 
     public List<ItemDto> getItemsByBranch(Long branchId) {
-        // start L5 Mediator
-        return itemMediator.findByBranchId(branchId).stream()
+        return catalogService.findByBranchId(branchId).stream()
                 .map(this::toDto)
                 .toList();
-        // end L5 Mediator
     }
 
     public List<ItemDto> getAvailableByBranch(Long branchId) {
-        // start L5 Mediator
-        return itemMediator.findAvailableByBranch(branchId).stream()
+        return catalogService.findAvailableByBranch(branchId).stream()
                 .map(this::toDto)
                 .toList();
-        // end L5 Mediator
     }
 
     public List<ItemDto> searchItems(String query) {
-        // start L5 Mediator
-        return itemMediator.searchItems(query).stream()
+        return catalogService.searchItems(query).stream()
                 .map(this::toDto)
                 .toList();
-        // end L5 Mediator
     }
 
     public List<ItemDto> getBestsellers() {
-        // start L5 Mediator
-        return itemMediator.findBestsellers().stream()
+        return catalogService.findBestsellers().stream()
                 .map(this::toDto)
                 .toList();
-
-            // end L5 Mediator
     }
 
     public List<BranchInventoryDto> getItemInventory(Long itemId) {
@@ -132,15 +109,11 @@ public class CatalogFacade {
 
 
     public void deleteItem(Long id) {
-        //start L5 Mediator
-        itemMediator.deleteItem(id);
-            //end L5 Mediator
+        catalogService.deleteItem(id);
     }
 
     public Map<Long, HistoryCatalogResponse> getHistoryCatalogData(List<Long> itemIds) {
-        // start L5 Mediator
-        return itemMediator.getHistoryCatalogDataByItemIds(itemIds);
-            // end L5 Mediator
+        return catalogService.getHistoryCatalogDataByItemIds(itemIds);
     }
 
 

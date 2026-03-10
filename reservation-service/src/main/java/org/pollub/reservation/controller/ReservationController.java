@@ -4,28 +4,35 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.pollub.common.dto.ItemDto;
 import org.pollub.common.dto.ReservationItemDto;
+import org.pollub.common.mediator.Mediator;
 import org.pollub.common.security.JwtUserDetails;
+import org.pollub.reservation.mediator.request.CancelReservationRequest;
+import org.pollub.reservation.mediator.request.CreateReservationRequest;
+import org.pollub.reservation.mediator.request.FulfillReservationRequest;
+import org.pollub.reservation.mediator.request.GetUserReservationsRequest;
 import org.pollub.reservation.model.dto.ReservationDto;
-import org.pollub.reservation.service.IReservationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
 public class ReservationController {
-    
-    private final IReservationService reservationService;
+
+    //Lab5 Mediator Start
+    private final Mediator mediator;
+    //Lab5 Mediator End
 
     @GetMapping("/my")
     public ResponseEntity<List<ReservationItemDto>> getMyReservations(
             @AuthenticationPrincipal JwtUserDetails user
     ) {
-        List<ReservationItemDto> reservations = reservationService.getReservationsByUsername(user.getUserId());
+        //Lab5 Mediator Start
+        List<ReservationItemDto> reservations = mediator.send(new GetUserReservationsRequest(user.getUserId()));
+        //Lab5 Mediator End
         return ResponseEntity.ok(reservations);
     }
 
@@ -34,7 +41,9 @@ public class ReservationController {
             @Valid @RequestBody ReservationDto dto,
             @AuthenticationPrincipal JwtUserDetails user
     ) {
-        ItemDto reservation = reservationService.createReservation(dto, user.getUserId());
+        //Lab5 Mediator Start
+        ItemDto reservation = mediator.send(new CreateReservationRequest(dto, user.getUserId()));
+        //Lab5 Mediator End
         return ResponseEntity.ok(reservation);
     }
 
@@ -42,8 +51,10 @@ public class ReservationController {
     public ResponseEntity<Void> cancelReservation(
             @PathVariable Long id,
             @AuthenticationPrincipal JwtUserDetails user
-    ) throws AccessDeniedException {
-        reservationService.cancelReservation(id, user.getUserId());
+    ) {
+        //Lab5 Mediator Start
+        mediator.send(new CancelReservationRequest(id, user.getUserId()));
+        //Lab5 Mediator End
         return ResponseEntity.noContent().build();
     }
 
@@ -55,7 +66,9 @@ public class ReservationController {
     public ResponseEntity<List<ReservationItemDto>> getUserReservations(
             @PathVariable Long userId
     ) {
-        List<ReservationItemDto> reservations = reservationService.getReservationsByUsername(userId);
+        //Lab5 Mediator Start
+        List<ReservationItemDto> reservations = mediator.send(new GetUserReservationsRequest(userId));
+        //Lab5 Mediator End
         return ResponseEntity.ok(reservations);
     }
 
@@ -69,7 +82,9 @@ public class ReservationController {
             @RequestParam Long branchId,
             @RequestParam Long userId
     ) {
-        reservationService.fulfillReservation(itemId, branchId, userId);
+        //Lab5 Mediator Start
+        mediator.send(new FulfillReservationRequest(itemId, branchId, userId));
+        //Lab5 Mediator End
         return ResponseEntity.ok().build();
     }
 }
