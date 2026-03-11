@@ -2,7 +2,7 @@ package org.pollub.catalog.factory;
 
 import org.springframework.data.domain.Sort;
 
-//Lab2 - Simple Factory 2 Start
+//Lab1 - Simple Factory 2 Start
 public class SortStrategyFactory {
 
     private SortStrategyFactory() {

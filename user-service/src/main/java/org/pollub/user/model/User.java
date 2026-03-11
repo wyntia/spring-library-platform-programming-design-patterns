@@ -102,7 +102,7 @@ public class User implements UserDetails, Cloneable {
         return enabled;
     }
 
-    //Lab2 - Builder 4 Start
+    //Lab1 - Builder 4 Start
 
 
     public static Builder builder() {
@@ -163,7 +163,7 @@ public class User implements UserDetails, Cloneable {
         }
     }
 
-    //Lab2 - Prototype 3 Start
+    //Lab1 - Prototype 3 Start
     @Override
     public User clone() {
         try {

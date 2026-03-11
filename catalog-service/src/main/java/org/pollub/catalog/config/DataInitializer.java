@@ -25,7 +25,7 @@ public class DataInitializer implements CommandLineRunner {
     private final IBookRepository bookRepository;
     private final IBranchInventoryRepository branchInventoryRepository;
 
-    //Lab2 - Factory 1 Method Start
+    //Lab1 - Factory 1 Method Start
     /**
      * Injecting LibraryItemFactory (Spring resolves to all implementations: BookFactory, MovieDiscFactory).
      * This allows initializing different item types via the same abstraction.
@@ -38,7 +38,7 @@ public class DataInitializer implements CommandLineRunner {
         if (bookRepository.count() == 0) {
             log.info("No items found. Populating catalog with legacy book data...");
 
-            //Lab2 - Factory 1 Method Start
+            //Lab1 - Factory 1 Method Start
             BookFactory bookFactory = (BookFactory) itemFactories.stream()
                     .filter(f -> f.getItemType() == ItemType.BOOK)
                     .findFirst()

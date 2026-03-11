@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-//Lab2 - Factory 3 Method Start
+//Lab1 - Factory 3 Method Start
 @Component
 @RequiredArgsConstructor
 public class AdminUserFactory implements IUserFactory {
@@ -30,8 +30,8 @@ public class AdminUserFactory implements IUserFactory {
 
     @Override
     public User createUser(User userDto) {
-        //Lab2 - Prototype Start
-        //Lab2 - Builder Start
+        //Lab1 - Prototype Start
+        //Lab1 - Builder Start
         return templateAdmin.clone().toBuilder()
                 .username(userDto.getEmail())
                 .email(userDto.getEmail().toLowerCase())
@@ -50,8 +50,8 @@ public class AdminUserFactory implements IUserFactory {
 
     @Override
     public User createUser(String username, String email, String password, String name, String surname) {
-        //Lab2 - Prototype Start
-        //Lab2 - Builder Start
+        //Lab1 - Prototype Start
+        //Lab1 - Builder Start
         return templateAdmin.clone().toBuilder()
                 .username(username)
                 .email(email.toLowerCase())

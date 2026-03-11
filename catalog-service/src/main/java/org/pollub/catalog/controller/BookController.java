@@ -100,7 +100,7 @@ public class BookController {
             size = 16;
         }
 
-        //Lab2 - Builder 3 Start
+        //Lab1 - Builder 3 Start
         SearchCriteria criteria = SearchCriteria.builder()
                 .query(query)
                 .status(status)

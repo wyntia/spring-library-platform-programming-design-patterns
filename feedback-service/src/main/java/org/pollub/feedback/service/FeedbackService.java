@@ -47,12 +47,12 @@ public class FeedbackService implements IFeedbackService {
             throw new RateLimitExceededException();
         }
 
-        // LAB2 - Singleton 2 START
+        //Lab1 - Singleton 2 START
         if (IpBlacklist.getInstance().isBanned(ipAddress)) {
             log.warn("Blocked banned IP address: {}", maskIp(ipAddress));
             throw new IpAddressBannedException(ipAddress);
         }
-        // LAB2 - Singleton 2 END
+        //Lab1 - Singleton 2 END
         Feedback feedback = Feedback.builder()
                 .category(dto.category())
                 .message(sanitizeMessage(dto.message()))

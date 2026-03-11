@@ -3,7 +3,7 @@ package org.pollub.common.config;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-//Lab2 - Singleton 1 Start
+//Lab1 - Singleton 1 Start
 /**
  * Eager Singleton providing consistent date/time operations across all services.
  * Uses eager initialization with static final instance.

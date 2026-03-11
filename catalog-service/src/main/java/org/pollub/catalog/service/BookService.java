@@ -115,7 +115,7 @@ public class BookService implements IBookService {
     @Override
     public Page<Book> searchBooks(SearchCriteria criteria) {
 
-        //Lab2 - Simple Factory 2 Start
+        //Lab1 - Simple Factory 2 Start
         Sort sortSpec = SortStrategyFactory.createSort(criteria.getSort());
         // End Simple Factory 2
 
@@ -130,7 +130,7 @@ public class BookService implements IBookService {
 
     @Override
     public List<String> getTopGenres() {
-        //Lab2 - Singleton 3 Start
+        //Lab1 - Singleton 3 Start
         List<String> cached = CatalogCacheManager.INSTANCE.get("topGenres", List.class);
         if (cached != null) {
             return cached;
@@ -143,7 +143,7 @@ public class BookService implements IBookService {
 
     @Override
     public List<String> getOtherGenres() {
-        //Lab2 - Singleton 3 Start
+        //Lab1 - Singleton 3 Start
         List<String> cached = CatalogCacheManager.INSTANCE.get("otherGenres", List.class);
         if (cached != null) {
             return cached;

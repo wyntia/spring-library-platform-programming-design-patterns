@@ -5,7 +5,7 @@ import org.pollub.catalog.model.ItemType;
 import org.pollub.catalog.model.LibraryItem;
 import org.springframework.stereotype.Component;
 
-//Lab2 - Factory 1 Method Start
+//Lab1 - Factory 1 Method Start
 /**
  * Factory Method implementation for creating Book objects.
  * Uses Book.builder() (Builder pattern) internally.
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookFactory implements LibraryItemFactory {
 
-    // Lab2 - Prototype Start
+    //Lab1 - Prototype Start
     private final Book templateBook;
 
     public BookFactory() {
@@ -26,8 +26,8 @@ public class BookFactory implements LibraryItemFactory {
     @Override
     public LibraryItem createItem(String title, String author, String genre, String description,
                                   String imageUrl, Integer releaseYear, Boolean isBestseller) {
-        //Lab2 - Prototype 1 Start
-        //Lab2 - Builder 1 Start
+        //Lab1 - Prototype 1 Start
+        //Lab1 - Builder 1 Start
         return templateBook.clone().toBuilder()
                 .title(title)
                 .author(author)
@@ -48,8 +48,8 @@ public class BookFactory implements LibraryItemFactory {
                            Integer pageCount, String paperType, String publisher,
                            Integer shelfNumber, String description, String imageUrl,
                            Integer releaseYear, boolean isBestseller) {
-        //Lab2 - Builder 1 Start
-        //Lab2 - Prototype 1 Start
+        //Lab1 - Builder 1 Start
+        //Lab1 - Prototype 1 Start
         return templateBook.clone().toBuilder()
                 .title(title)
                 .author(author)

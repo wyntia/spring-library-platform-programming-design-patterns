@@ -19,7 +19,7 @@ import org.pollub.common.config.DateTimeProvider;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-//Lab2 - Prototype Start
+//Lab1 - Prototype Start
 public class ReservationHistory implements Cloneable {
 
     @Id
@@ -48,7 +48,7 @@ public class ReservationHistory implements Cloneable {
     @Column(name = "status", nullable = false)
     private ReservationStatus status;
 
-    // Lab2 - Prototype 2 Start
+    //Lab1 - Prototype 2 Start
     @Override
     public ReservationHistory clone() {
         try {

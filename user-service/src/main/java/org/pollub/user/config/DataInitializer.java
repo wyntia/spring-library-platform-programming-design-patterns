@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements CommandLineRunner {
     
     private final IUserRepository IUserRepository;
-    //Lab2 - Factory Method Start
+    //Lab1 - Factory Method Start
     private final AdminUserFactory adminUserFactory;
     private final UserFactory userFactory;
     // End Factory Method
@@ -25,7 +25,7 @@ public class DataInitializer implements CommandLineRunner {
         if (IUserRepository.count() == 0) {
             log.info("No users found. Creating default admin and librarian...");
 
-            //Lab2 - Factory Method Start
+            //Lab1 - Factory Method Start
             User admin = adminUserFactory.createUser(
                     "admin", "admin@library.com", "admin123", "System", "Administrator"
             );

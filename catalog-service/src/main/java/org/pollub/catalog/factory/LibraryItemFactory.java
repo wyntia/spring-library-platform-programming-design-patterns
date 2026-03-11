@@ -3,7 +3,7 @@ package org.pollub.catalog.factory;
 import org.pollub.catalog.model.LibraryItem;
 import org.pollub.catalog.model.ItemType;
 
-//Lab2 - Factory Method Start
+//Lab1 - Factory Method Start
 /**
  * Factory Method interface for creating LibraryItem objects.
  * Each implementation creates a specific type of library item (Book, MovieDisc).

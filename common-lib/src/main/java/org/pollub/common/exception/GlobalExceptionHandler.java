@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 ApiResponse.builder()
                         .status(HttpStatus.CONFLICT.value())
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 ApiResponse.builder()
                         .status(HttpStatus.NOT_FOUND.value())
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DisabledUserException.class)
     public ResponseEntity<Map<String, Object>> handleDisabledUser(DisabledUserException ex) {
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.builder()
                         .status(HttpStatus.FORBIDDEN.value())
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FavouriteLibraryNotSetException.class)
     public ResponseEntity<Map<String, Object>> handleFavouriteLibraryNotSet(FavouriteLibraryNotSetException ex) {
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.builder()
                         .status(HttpStatus.NOT_FOUND.value())
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
                 fieldErrors.put(error.getField(), error.getDefaultMessage())
         );
 
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.builder()
                         .status(HttpStatus.BAD_REQUEST.value())
@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(
             IllegalArgumentException ex
     ) {
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.builder()
                         .status(HttpStatus.BAD_REQUEST.value())
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleAccessDenied(
             AccessDeniedException ex
     ) {
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.builder()
                         .status(HttpStatus.FORBIDDEN.value())
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex) {
         log.error(ex.getMessage(), ex);
-        //Lab2 - Builder 2 Start
+        //Lab1 - Builder 2 Start
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.builder()
                         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())

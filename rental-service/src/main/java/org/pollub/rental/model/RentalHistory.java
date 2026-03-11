@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-//Lab2 - Builder Start
+//Lab1 - Builder Start
 /**
  * Entity representing a completed rental transaction.
  * Uses manual Builder pattern instead of Lombok @Builder.

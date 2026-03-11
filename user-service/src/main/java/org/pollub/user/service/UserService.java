@@ -34,7 +34,7 @@ public class UserService implements  IUserService {
     
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    //Lab2 - Factory Method Start
+    //Lab1 - Factory Method Start
     private final IUserFactory userFactory;
     // End Factory Method
     private final UserValidator userValidator;
