@@ -87,7 +87,7 @@ public class RentalService implements IRentalService, Subject {
     public void returnItem(Long itemId, Long branchId) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
 
-        //L6 Use State Pattern validation
+        //L3 Use State Pattern validation
         rentalHistory.getState().validateForReturn();
 
         rentalHistory.setReturnedAt(DateTimeProvider.getInstance().now());
@@ -96,7 +96,7 @@ public class RentalService implements IRentalService, Subject {
         try{
             rentalHistoryRepository.save(rentalHistory);
 
-            //L6 Notify observers about item return
+            //L3 Notify observers about item return
             notifyObservers(new RentalEvent(
                 "RETURNED",
                 rentalHistory.getId(),
@@ -118,7 +118,7 @@ public class RentalService implements IRentalService, Subject {
     public void extendLoan(Long itemId, Long branchId, int days) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
 
-        //L6 Use State Pattern validation
+        //L3 Use State Pattern validation
         rentalHistory.getState().validateForExtension();
 
         throwIfHaveBeenAlreadyRentedBefore(itemId, rentalHistory);
@@ -180,7 +180,7 @@ public class RentalService implements IRentalService, Subject {
                 .build();
     }
 
-    //L6 Observer pattern implementation
+    //L3 Observer pattern implementation
 
     @Override
     public void attach(Observer observer) {

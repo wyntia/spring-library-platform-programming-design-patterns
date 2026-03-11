@@ -1,6 +1,6 @@
 package org.pollub.auth.util.strategy;
 
-//start L6 Strategy Design Pattern - Strategy interface for password generation
+//start L3 Strategy Design Pattern - Strategy interface for password generation
 /**
  * Strategy interface for password generation.
  */

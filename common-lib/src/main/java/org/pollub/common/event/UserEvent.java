@@ -2,7 +2,7 @@ package org.pollub.common.event;
 
 import java.time.LocalDateTime;
 
-//L6 Observer pattern - Event class for user status changes
+//L3 Observer pattern - Event class for user status changes
 /**
  * Event representing a change in user status.
  * Used to notify observers about user operations.

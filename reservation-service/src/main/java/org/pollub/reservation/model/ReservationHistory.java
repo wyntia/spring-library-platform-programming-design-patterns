@@ -50,11 +50,11 @@ public class ReservationHistory implements Cloneable {
     @Column(name = "status", nullable = false)
     private ReservationStatus status;
 
-    //L6 State Pattern - transient because state is derived from status
+    //L3 State Pattern - transient because state is derived from status
     @Transient
     private ReservationState state;
 
-    //L6 State Pattern methods
+    //L3 State Pattern methods
 
     public ReservationHistory() {
         this.status = ReservationStatus.ACTIVE;

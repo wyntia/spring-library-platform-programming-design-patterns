@@ -20,12 +20,12 @@ public class NotificationTemplateDecorator implements NotificationComponent {
         delegate.send(formatted);
     }
 
-    // start L6 Visitor
+    // start L3 Visitor
     @Override
     public void accept(NotificationVisitor visitor) {
         // Decorator forwards the visitor to the delegate
         delegate.accept(visitor);
     }
-    // end L6 Visitor
+    // end L3 Visitor
 }
 //end L3 Decorator

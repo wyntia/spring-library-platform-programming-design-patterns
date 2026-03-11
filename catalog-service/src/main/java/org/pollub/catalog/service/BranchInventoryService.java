@@ -228,7 +228,7 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
         return savedInventory;
     }
 
-    //L6 Use State Pattern validation for rental extension
+    //L3 Use State Pattern validation for rental extension
     private static void throwIfNotRented(BranchInventory inventory) {
         if (inventory.getStatus() != CopyStatus.RENTED) {
             throw new IllegalStateException("Copy is not rented. Current status: " + inventory.getStatus());

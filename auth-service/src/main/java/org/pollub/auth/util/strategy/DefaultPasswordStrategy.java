@@ -2,7 +2,7 @@ package org.pollub.auth.util.strategy;
 
 import java.util.Random;
 
-//L6 Strategy Design Pattern - Default password generation strategy
+//L3 Strategy Design Pattern - Default password generation strategy
 /**
  * Default strategy generating a strong password with at least 12 characters,
  * containing uppercase, lowercase, digits, and special characters.

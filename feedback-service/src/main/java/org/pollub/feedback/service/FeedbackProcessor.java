@@ -4,7 +4,7 @@ import org.pollub.common.exception.ResourceNotFoundException;
 import org.pollub.feedback.model.Feedback;
 import org.pollub.feedback.repository.IFeedbackRepository;
 
-//L6 Template Method Design Pattern - Abstract base class for feedback processing
+//L3 Template Method Design Pattern - Abstract base class for feedback processing
 /**
  * Abstract base class for the Template Method pattern.
  * Defines the skeleton of a feedback processing operation.

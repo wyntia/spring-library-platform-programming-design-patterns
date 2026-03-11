@@ -1,6 +1,6 @@
 package org.pollub.reservation.state;
 
-//L6 State Design Pattern - Concrete State for ACTIVE reservation status
+//L3 State Design Pattern - Concrete State for ACTIVE reservation status
 /**
  * State implementation for ACTIVE reservation status.
  * Reservation can be fulfilled, cancelled, or expired when active.

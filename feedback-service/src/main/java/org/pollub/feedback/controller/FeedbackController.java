@@ -30,13 +30,13 @@ import java.util.Set;
 public class FeedbackController {
 
     private final IFeedbackService feedbackService;
-    private final IpIdentificationStrategy ipStrategy; // L6 Strategy Pattern
+    private final IpIdentificationStrategy ipStrategy; // L3 Strategy Pattern
 
-    // L6 Strategy Pattern - Constructor injection of strategy with configuration for trusted proxies
+    // L3 Strategy Pattern - Constructor injection of strategy with configuration for trusted proxies
     public FeedbackController(IFeedbackService feedbackService,
                               @Value("${app.trusted-proxies:}") Set<String> trustedProxies) {
         this.feedbackService = feedbackService;
-        this.ipStrategy = new ProxyHeaderIpStrategy(trustedProxies); // L6 Strategy initialization
+        this.ipStrategy = new ProxyHeaderIpStrategy(trustedProxies); // L3 Strategy initialization
     }
 
     @PostMapping
@@ -45,7 +45,7 @@ public class FeedbackController {
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletRequest request
     ) {
-        //L6 Strategy Pattern - Identify IP using the selected strategy
+        //L3 Strategy Pattern - Identify IP using the selected strategy
         String ipAddress = ipStrategy.identify(request);
 
         Feedback saved = feedbackService.submitFeedback(dto, ipAddress);

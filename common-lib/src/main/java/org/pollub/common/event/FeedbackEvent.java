@@ -2,7 +2,7 @@ package org.pollub.common.event;
 
 import java.time.LocalDateTime;
 
-//L6 Observer pattern - Event class for feedback status changes
+//L3 Observer pattern - Event class for feedback status changes
 /**
  * Event representing a change in feedback status.
  * Used to notify observers about feedback operations.

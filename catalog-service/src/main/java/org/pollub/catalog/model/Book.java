@@ -194,7 +194,7 @@ public class Book extends LibraryItem {
     }
     //Lab1 End Builder 1
 
-    //L6 Visitor Design Pattern - accept method for visitor
+    //L3 Visitor Design Pattern - accept method for visitor
     @Override
     public void accept(LibraryItemVisitor visitor) {
         visitor.visit(this); // Double dispatch

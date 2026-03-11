@@ -1,6 +1,6 @@
 package org.pollub.reservation.state;
 
-//L6 State Design Pattern - Concrete State for FULFILLED reservation status
+//L3 State Design Pattern - Concrete State for FULFILLED reservation status
 /**
  * State implementation for FULFILLED reservation status.
  * Terminal state - reservation has been fulfilled.

@@ -1,6 +1,6 @@
 package org.pollub.rental.state;
 
-//start L6 State Design Pattern - State interface for Rental Status
+//start L3 State Design Pattern - State interface for Rental Status
 /**
  * State interface for Rental Status state machine.
  * Represents different states of a rental (RENTED, RETURNED, OVERDUE).

@@ -2,7 +2,7 @@ package org.pollub.feedback.visitor;
 
 import org.pollub.feedback.model.Feedback;
 
-//L6 Visitor Design Pattern - Concrete Visitor for security sanitization
+//L3 Visitor Design Pattern - Concrete Visitor for security sanitization
 /**
  * Concrete Visitor responsible for cleaning feedback data from XSS and other threats.
  */

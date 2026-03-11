@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-// L6 Template Method Usage Context
+// L3 Template Method Usage Context
 /**
  * WebClient for communicating with user-service.
  * Refactored to use the Template Method pattern for executing HTTP requests.
@@ -32,7 +32,7 @@ public class UserServiceClient {
     private String userServiceUrl;
 
     public Optional<UserDto> findByEmail(String email) {
-        //L6 Template Method usage for fetching user by email
+        //L3 Template Method usage for fetching user by email
         return new AbstractWebClientRequest<UserDto>() {
             @Override
             protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
@@ -49,7 +49,7 @@ public class UserServiceClient {
     }
 
     public Optional<UserDto> findByUsername(String username) {
-        //L6 Template Method usage for fetching user by username
+        //L3 Template Method usage for fetching user by username
         return new AbstractWebClientRequest<UserDto>() {
             @Override
             protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
@@ -81,7 +81,7 @@ public class UserServiceClient {
     }
 
     public Optional<UserDto> validateCredentials(String usernameOrEmail, String password) {
-        //L6 Template Method usage for validating credentials
+        //L3 Template Method usage for validating credentials
         return new AbstractWebClientRequest<UserDto>() {
             @Override
             protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
@@ -108,7 +108,7 @@ public class UserServiceClient {
     public record CredentialsDto(String usernameOrEmail, String password) {}
 
     public Optional<BranchDto> getEmployeeBranch(String username) {
-        //L6 Template Method usage for fetching employee branch
+        //L3 Template Method usage for fetching employee branch
         return new AbstractWebClientRequest<BranchDto>() {
             @Override
             protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {
@@ -129,7 +129,7 @@ public class UserServiceClient {
      * Returns the new temporary password if successful.
      */
     public Optional<ResetPasswordResponseDto> resetPassword(String email, String pesel) {
-        //L6 Template Method usage for reset password request
+        //L3 Template Method usage for reset password request
         return new AbstractWebClientRequest<ResetPasswordResponseDto>() {
             @Override
             protected WebClient.RequestHeadersSpec<?> buildRequest(WebClient.Builder builder) {

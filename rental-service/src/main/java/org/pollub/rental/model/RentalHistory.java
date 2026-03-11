@@ -46,7 +46,7 @@ public class RentalHistory {
     @Column(name = "status", nullable = false)
     private RentalStatus status;
 
-    // L6 State Pattern - current runtime state (nie zapisujemy w DB)
+    // L3 State Pattern - current runtime state (nie zapisujemy w DB)
     @Transient
     private RentalState state;
 

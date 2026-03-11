@@ -1,6 +1,6 @@
 package org.pollub.reservation.state;
 
-//L6 State Design Pattern - Concrete State for EXPIRED reservation status
+//L3 State Design Pattern - Concrete State for EXPIRED reservation status
 /**
  * State implementation for EXPIRED reservation status.
  * Terminal state - reservation has expired.

@@ -57,6 +57,6 @@ public class Feedback {
      * Accept method for the Visitor pattern to perform operations on the entity.
      */
     public void accept(FeedbackVisitor visitor) {
-        visitor.visit(this); // start L6 Visitor
+        visitor.visit(this); // start L3 Visitor
     }
 }

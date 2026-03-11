@@ -14,7 +14,7 @@ public class EmailNotification implements NotificationComponent {
 
     @Override
     public void accept(NotificationVisitor visitor) {
-        visitor.visitEmail(this); // L6 Visitor double dispatch
+        visitor.visitEmail(this); // L3 Visitor double dispatch
     }
 }
 //end L3 Composite

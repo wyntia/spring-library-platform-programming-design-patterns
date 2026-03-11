@@ -145,11 +145,11 @@ public class CatalogFacade {
 
 
     private ItemDto toDto(LibraryItem item) {
-        // start L6 Visitor pattern refactor
+        // start L3 Visitor pattern refactor
         ItemDtoMappingVisitor visitor = new ItemDtoMappingVisitor(branchInventoryService);
         item.accept(visitor);
         return visitor.getResult();
-        // end L6 Visitor pattern refactor
+        // end L3 Visitor pattern refactor
     }
 
     private BranchInventoryDto toBranchInventoryDto(BranchInventory inventory) {

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-//L6 Strategy Design Pattern - City search strategy
+//L3 Strategy Design Pattern - City search strategy
 /**
  * Strategy that searches branches only by city name.
  */

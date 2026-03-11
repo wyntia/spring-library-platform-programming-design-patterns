@@ -1,6 +1,6 @@
 package notification;
 
-//L6 Visitor Design Pattern - Visitor interface for formatting notifications
+//L3 Visitor Design Pattern - Visitor interface for formatting notifications
 /**
  * Concrete Visitor that formats messages specifically for each channel.
  */

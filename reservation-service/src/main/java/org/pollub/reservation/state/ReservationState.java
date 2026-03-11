@@ -1,6 +1,6 @@
 package org.pollub.reservation.state;
 
-//start L6 State Design Pattern - State interface for Reservation Status
+//start L3 State Design Pattern - State interface for Reservation Status
 /**
  * State interface for Reservation Status state machine.
  * Represents different states of a reservation (ACTIVE, FULFILLED, CANCELLED, EXPIRED).

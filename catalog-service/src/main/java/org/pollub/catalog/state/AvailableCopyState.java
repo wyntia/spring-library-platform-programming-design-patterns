@@ -1,6 +1,6 @@
 package org.pollub.catalog.state;
 
-//L6 State Implementation for Copy Status - AVAILABLE state
+//L3 State Implementation for Copy Status - AVAILABLE state
 /**
  * State implementation for AVAILABLE copy status.
  * Copy can be rented or reserved when available.

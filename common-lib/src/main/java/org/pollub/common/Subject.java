@@ -1,6 +1,6 @@
 package org.pollub.common;
 
-//start L6 Observer
+//start L3 Observer
 /**
  * Subject interface for the Observer design pattern.
  * Subjects maintain a list of observers and notify them of changes.
@@ -28,4 +28,4 @@ public interface Subject {
      */
     void notifyObservers(Object event);
 }
-//stop L6 Observer
+//stop L3 Observer

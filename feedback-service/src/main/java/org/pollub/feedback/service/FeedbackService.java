@@ -59,18 +59,18 @@ public class FeedbackService implements IFeedbackService, Subject {
     public Feedback submitFeedback(FeedbackRequestDto dto , String ipAddress) {
         Feedback feedback = Feedback.builder()
                 .category(dto.category())
-                .message(dto.message()) // L6 refactor - sanitize message to prevent XSS
+                .message(dto.message()) // L3 refactor - sanitize message to prevent XSS
                 .pageUrl(dto.pageUrl())
                 .ipAddress(ipAddress)
                 .createdAt(DateTimeProvider.getInstance().now())
                 .status(FeedbackStatus.NEW)
                 .build();
 
-        // start L6 Visitor pattern refactor
+        // start L3 Visitor pattern refactor
         // Use visitor to sanitize data instead of a private method
         SecuritySanitizationVisitor sanitizer = new SecuritySanitizationVisitor();
         feedback.accept(sanitizer);
-        // end L6 Visitor pattern refactor
+        // end L3 Visitor pattern refactor
 
         Feedback saved = feedbackRepository.save(feedback);
         log.info("Feedback submitted: id={}, category={}",
@@ -125,7 +125,7 @@ public class FeedbackService implements IFeedbackService, Subject {
     @Override
     @Transactional
     public Feedback updateStatus(Long feedbackId, FeedbackStatus newStatus) {
-        //L6 Implementation of Template Method pattern using FeedbackProcessor
+        //L3 Implementation of Template Method pattern using FeedbackProcessor
         return new FeedbackProcessor(feedbackRepository) {
             private String oldStatus;
 

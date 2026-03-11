@@ -27,9 +27,9 @@ public class BranchService implements IBranchService {
     private final BranchMediator branchMediator;
     //end L5 Mediator
 
-    //start L6 Strategy Design Pattern - injectable search strategy
+    //start L3 Strategy Design Pattern - injectable search strategy
     private final DefaultBranchSearchStrategy searchStrategy;
-    // end L6 Strategy Design Pattern
+    // end L3 Strategy Design Pattern
 
     public List<LibraryBranch> getAllBranches() {
         return branchRepository.findAll();
@@ -49,7 +49,7 @@ public class BranchService implements IBranchService {
         if (query == null || query.trim().isEmpty()) {
             return branchRepository.findAll();
         }
-        //L6 Strategy Design Pattern - delegate search to current strategy
+        //L3 Strategy Design Pattern - delegate search to current strategy
         return searchStrategy.search(query);
     }
     

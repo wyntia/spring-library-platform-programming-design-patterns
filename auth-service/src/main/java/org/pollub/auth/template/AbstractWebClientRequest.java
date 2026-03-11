@@ -6,7 +6,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.util.Optional;
 
-//start L6 Template Method Design Pattern - Abstract class defining the skeleton of the algorithm
+//start L3 Template Method Design Pattern - Abstract class defining the skeleton of the algorithm
 /**
  * Abstract class defining the template method for executing WebClient HTTP requests.
  * It encapsulates common error handling, mapping, and blocking operations.

@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Set;
 
-//start L6 Strategy Design Pattern - Strategy for identifying client IP address considering proxy headers
+//start L3 Strategy Design Pattern - Strategy for identifying client IP address considering proxy headers
 public class ProxyHeaderIpStrategy implements IpIdentificationStrategy {
     private final Set<String> trustedProxies;
 

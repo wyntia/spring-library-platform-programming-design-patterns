@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Random;
 
-//L6 Strategy Design Pattern - PasswordGenerator as Context for different password generation strategies
+//L3 Strategy Design Pattern - PasswordGenerator as Context for different password generation strategies
 /**
  * Utility class for generating random passwords.
  * Refactored to act as a Context for the PasswordGenerationStrategy (Strategy Pattern).

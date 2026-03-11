@@ -60,7 +60,7 @@ public class ReservationService implements IReservationService, Subject {
         try {
             reservationRepository.save(reservation);
 
-            //L6 Notify observers about reservation creation
+            //L3 Notify observers about reservation creation
             notifyObservers(new ReservationEvent(
                 "CREATED",
                 reservation.getId(),
@@ -129,14 +129,14 @@ public class ReservationService implements IReservationService, Subject {
                     "User " + userId + " is not authorized to cancel reservation " + id
             );
         }
-        //L6 Use State Pattern validation
+        //L3 Use State Pattern validation
         reservation.getState().validateForCancellation();
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservation.setResolvedAt(DateTimeProvider.getInstance().now());
         reservationRepository.save(reservation);
 
-        //L6 Notify observers about reservation cancellation
+        //L3 Notify observers about reservation cancellation
         notifyObservers(new ReservationEvent(
             "CANCELLED",
             reservation.getId(),
@@ -179,14 +179,14 @@ public class ReservationService implements IReservationService, Subject {
         while (iterator.hasNext()) {
             ReservationHistory reservation = iterator.next();
 
-            //L6 Use State Pattern validation
+            //L3 Use State Pattern validation
             reservation.getState().validateForExpiration();
 
             reservation.setStatus(ReservationStatus.EXPIRED);
             reservation.setResolvedAt(DateTimeProvider.getInstance().now());
             reservationRepository.save(reservation);
 
-            //L6 Notify observers about reservation expiration
+            //L3 Notify observers about reservation expiration
             notifyObservers(new ReservationEvent(
                 "EXPIRED",
                 reservation.getId(),
@@ -214,7 +214,7 @@ public class ReservationService implements IReservationService, Subject {
                     reservation.setResolvedAt(DateTimeProvider.getInstance().now());
                     reservationRepository.save(reservation);
 
-                    //L6 Notify observers about reservation fulfillment
+                    //L3 Notify observers about reservation fulfillment
                     notifyObservers(new ReservationEvent(
                         "FULFILLED",
                         reservation.getId(),
@@ -228,7 +228,7 @@ public class ReservationService implements IReservationService, Subject {
                 });
     }
 
-    //L6 Observer pattern implementation
+    //L3 Observer pattern implementation
 
     @Override
     public void attach(Observer observer) {

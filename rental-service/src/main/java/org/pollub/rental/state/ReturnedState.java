@@ -1,5 +1,5 @@
 package org.pollub.rental.state;
-//L6 State Design Pattern - Concrete State for RETURNED rental status
+//L3 State Design Pattern - Concrete State for RETURNED rental status
 /**
  * State implementation for RETURNED rental status.
  * Terminal state - rental has been returned.

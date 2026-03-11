@@ -1,5 +1,5 @@
 package org.pollub.catalog.state;
-//L6 State Implementation for Copy Status - RENTED state
+//L3 State Implementation for Copy Status - RENTED state
 /**
  * State implementation for RENTED copy status.
  * Copy can be returned or rental extended when rented.

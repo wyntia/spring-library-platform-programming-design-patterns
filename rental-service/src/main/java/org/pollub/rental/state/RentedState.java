@@ -1,6 +1,6 @@
 package org.pollub.rental.state;
 
-//L6 State Design Pattern - Concrete State for RENTED rental status
+//L3 State Design Pattern - Concrete State for RENTED rental status
 /**
  * State implementation for RENTED rental status.
  * Rental can be returned or extended when rented.

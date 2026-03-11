@@ -2,7 +2,7 @@ package org.pollub.feedback.visitor;
 
 import org.pollub.feedback.model.Feedback;
 
-// L6 Visitor Design Pattern - Visitor interface for Feedback entities
+// L3 Visitor Design Pattern - Visitor interface for Feedback entities
 /**
  * Visitor interface for operations on Feedback entities.
  */
