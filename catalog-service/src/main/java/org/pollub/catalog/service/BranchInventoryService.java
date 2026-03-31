@@ -34,6 +34,9 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
     private final IBranchInventoryRepository inventoryRepository;
     private final ReservationServiceClient reservationServiceClient;
+    //Lab4 OCP Start
+    private final InventoryTransitionPolicy inventoryTransitionPolicy;
+    //Lab4 OCP End
     private final List<Observer> observers = new ArrayList<>();
 
     @Override
@@ -49,7 +52,13 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
         // Check if the book was reserved before we clear the reservation info
         boolean wasReserved = inventory.getStatus() == CopyStatus.RESERVED;
 
-        updateInventoryRecordWithRentData(inventory, CopyStatus.RENTED, userId, rentalHistoryDto.getRentedAt(), rentalHistoryDto.getDueDate());
+        updateInventoryRecordWithRentData(
+            inventory,
+            inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RENT),
+            userId,
+            rentalHistoryDto.getRentedAt(),
+            rentalHistoryDto.getDueDate()
+        );
 
         clearReservationInfo(inventory);
 
@@ -117,14 +126,13 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
     }
 
     private void validateAvailabilityForRent(BranchInventory inventory) {
-        if (inventory.getStatus() != CopyStatus.AVAILABLE &&
-                inventory.getStatus() != CopyStatus.RESERVED) {
-
-            throw new IllegalStateException(
-                    "Copy is not available for rent. Current status: "
-                            + inventory.getStatus()
-            );
-        }
+        //Lab4 OCP Start
+        inventoryTransitionPolicy.throwIfOperationNotAllowed(
+            inventory.getStatus(),
+            InventoryOperation.RENT,
+            "Copy is not available for rent. Current status: "
+        );
+        //Lab4 OCP End
     }
 
 
@@ -137,12 +145,20 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
         BranchInventory inventory = getBranchInventoryOrThrow(itemId, branchId);
 
-        if (inventory.getStatus() != CopyStatus.RENTED) {
-            throw new IllegalStateException("Copy is not rented. Current status: " + inventory.getStatus());
-        }
+        inventoryTransitionPolicy.throwIfOperationNotAllowed(
+            inventory.getStatus(),
+            InventoryOperation.RETURN,
+            "Copy is not rented. Current status: "
+        );
 
         Long rentedByUserId = inventory.getRentedByUserId();
-        updateInventoryRecordWithRentData(inventory, CopyStatus.AVAILABLE, null, null, null);
+        updateInventoryRecordWithRentData(
+            inventory,
+            inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RETURN),
+            null,
+            null,
+            null
+        );
 
         try {
             inventoryRepository.save(inventory);
@@ -168,12 +184,13 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
         BranchInventory inventory = getBranchInventoryOrThrow(itemId, branchId);
 
-        if (inventory.getStatus() != CopyStatus.AVAILABLE) {
-            throw new IllegalStateException(
-                    "Copy is not available for reservation. Current status: " + inventory.getStatus());
-        }
+        inventoryTransitionPolicy.throwIfOperationNotAllowed(
+            inventory.getStatus(),
+            InventoryOperation.RESERVE,
+            "Copy is not available for reservation. Current status: "
+        );
 
-        inventory.setStatus(CopyStatus.RESERVED);
+        inventory.setStatus(inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RESERVE));
         Long userId = reservationCatalogRequestDto.getUserId();
         inventory.setReservedByUserId(userId);
         inventory.setReservedAt(DateTimeProvider.getInstance().now());
@@ -206,12 +223,14 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
         BranchInventory inventory = getBranchInventoryOrThrow(itemId, branchId);
 
-        if (inventory.getStatus() != CopyStatus.RESERVED) {
-            throw new IllegalStateException("Copy is not reserved. Current status: " + inventory.getStatus());
-        }
+        inventoryTransitionPolicy.throwIfOperationNotAllowed(
+            inventory.getStatus(),
+            InventoryOperation.CANCEL_RESERVATION,
+            "Copy is not reserved. Current status: "
+        );
 
         Long reservedByUserId = inventory.getReservedByUserId();
-        inventory.setStatus(CopyStatus.AVAILABLE);
+        inventory.setStatus(inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.CANCEL_RESERVATION));
         clearReservationInfo(inventory);
 
         BranchInventory savedInventory = inventoryRepository.save(inventory);
@@ -229,10 +248,12 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
     }
 
     //L6 Use State Pattern validation for rental extension
-    private static void throwIfNotRented(BranchInventory inventory) {
-        if (inventory.getStatus() != CopyStatus.RENTED) {
-            throw new IllegalStateException("Copy is not rented. Current status: " + inventory.getStatus());
-        }
+    private void throwIfNotRented(BranchInventory inventory) {
+        inventoryTransitionPolicy.throwIfOperationNotAllowed(
+                inventory.getStatus(),
+                InventoryOperation.EXTEND,
+                "Copy is not rented. Current status: "
+        );
     }
 
     @Override

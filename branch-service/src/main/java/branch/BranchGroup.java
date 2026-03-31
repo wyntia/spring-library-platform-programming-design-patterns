@@ -16,9 +16,11 @@ public class BranchGroup implements BranchComponent {
     public String getName() { return name; }
     @Override
     public List<BranchComponent> getChildren() { return children; }
+    //Lab5 : Liskov 2 Start
     @Override
-    public void addChild(BranchComponent child) { children.add(child); }
+    public boolean addChild(BranchComponent child) { return children.add(child); }
     @Override
-    public void removeChild(BranchComponent child) { children.remove(child); }
+    public boolean removeChild(BranchComponent child) { return children.remove(child); }
+    //Lab5 : Liskov 2 End
 }
 //end L2 Composite

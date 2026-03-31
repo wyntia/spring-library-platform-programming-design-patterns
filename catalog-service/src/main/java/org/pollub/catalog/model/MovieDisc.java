@@ -67,6 +67,20 @@ public class MovieDisc extends LibraryItem {
     public void accept(LibraryItemVisitor visitor) {
         visitor.visit(this);
     }
+
+    //Lab5 : Liskov 1 Start
+    @Override
+    public boolean matchesCustomSearch(String query) {
+        if (query == null) return false;
+        String q = query.toLowerCase();
+        return (getDirector() != null && getDirector().toLowerCase().contains(q));
+    }
+
+    @Override
+    public String extractAuthorOrCreator() {
+        return getDirector() != null ? getDirector() : "-";
+    }
+    //Lab5 : Liskov 1 End
 }
 //Lab1 End Prototype
 

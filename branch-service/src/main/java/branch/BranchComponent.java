@@ -9,7 +9,9 @@ import java.util.List;
 public interface BranchComponent {
     String getName();
     List<BranchComponent> getChildren();
-    void addChild(BranchComponent child);
-    void removeChild(BranchComponent child);
+    //Lab5 : Liskov 2 Start
+    boolean addChild(BranchComponent child);
+    boolean removeChild(BranchComponent child);
+    //Lab5 : Liskov 2 End
 }
 //end L2 Composite
