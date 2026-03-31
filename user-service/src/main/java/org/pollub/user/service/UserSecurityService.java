@@ -16,8 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 //Lab4 - SRP 1 Start
-public class UserSecurityService {
-
+//Lab5 : ISP 1 Start
+public class UserSecurityService implements IUserSecurityService {
+//Lab5 : ISP 1 End
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final IPasswordGenerator passwordGenerator;

@@ -9,8 +9,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//Lab4 - SRP 2 Start
-public class BranchEmployeesService {
+//Lab5 : ISP 2 Start
+public class BranchEmployeesService implements IBranchEmployeesService {
+//Lab5 : ISP 2 End
 
     private final UserServiceClient userServiceClient;
     private final BranchQueryService branchQueryService;

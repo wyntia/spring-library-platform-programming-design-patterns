@@ -56,8 +56,16 @@ public class BranchServiceLoggingDecorator implements IBranchService {
     }
     @Override
     public List<LibraryBranch> getBranchesByIds(List<Long> branchIds) {
-        System.out.println("[LOG] Pobieranie wielu oddziałów po ID: " + branchIds);
+        System.out.println("[LOG] Pobieranie wielu oddziałów o IDs: " + branchIds);
         return delegate.getBranchesByIds(branchIds);
     }
+
+    //Lab5 : Liskov 2 Start
+    @Override
+    public java.util.Map<String, Object> getBranchHierarchy() {
+        System.out.println("[LOG] Pobieranie hierarchii oddziałów biblioteki");
+        return delegate.getBranchHierarchy();
+    }
+    //Lab5 : Liskov 2 End
 }
 //end L2 Decorator

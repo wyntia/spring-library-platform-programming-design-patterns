@@ -10,8 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-//Lab4 - SRP 2 Start
-public class BranchCommandService {
+//Lab5 : ISP 2 Start
+public class BranchCommandService implements IBranchCommandService {
+//Lab5 : ISP 2 End
 
     private final BranchRepository branchRepository;
     private final BranchQueryService branchQueryService;

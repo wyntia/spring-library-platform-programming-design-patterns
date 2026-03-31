@@ -19,5 +19,8 @@ public interface IBranchService {
     void deleteBranch(Long id);
     List<UserDto> getBranchEmployees(Long branchId);
     List<LibraryBranch> getBranchesByIds(List<Long> branchIds);
+    //Lab5 : Liskov 2 Start
+    java.util.Map<String, Object> getBranchHierarchy();
+    //Lab5 : Liskov 2 End
 }
 //end L2 Decorator

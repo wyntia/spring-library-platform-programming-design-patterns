@@ -20,16 +20,23 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-//Lab4 - SRP 1 Start
-public class UserProfileService {
-
+// Lab4 - SRP 1 Start
+// Lab5 : ISP 1 Start
+public class UserProfileService implements IUserSearchService, IUserQueryService, IUserCommandService {
+    // Lab5 : ISP 1 End
     private final IUserRepository userRepository;
     private final IUserFactory userFactory;
     private final UserValidator userValidator;
     private final UserEventPublisher userEventPublisher;
-    //L4 - OCP 1 Start
+    // L4 - OCP 1 Start
     private final List<UserSearchExpressionFactory> userSearchExpressionFactories;
-    //L4 - OCP 1 END
+    // L4 - OCP 1 END
+    // Lab5 : DIP 1 Start
+    private final org.pollub.user.service.utils.logger.IUserActivityLogger activityLogger;
+    // Lab5 : DIP 1 End
+    // Lab5 : DIP 2 Start
+    private final org.pollub.user.service.utils.exporter.IProfileExporter profileExporter;
+    // Lab5 : DIP 2 End
 
     public User findById(Long id) {
         return userRepository.findById(id)
@@ -56,11 +63,11 @@ public class UserProfileService {
         }
 
         List<User> allUsers = userRepository.findAll();
-        //L4 - OCP 1 Start
+        // L4 - OCP 1 Start
         List<UserSearchExpression> expressions = userSearchExpressionFactories.stream()
-            .map(factory -> factory.create(query))
+                .map(factory -> factory.create(query))
                 .toList();
-        //L4 - OCP 1 END
+        // L4 - OCP 1 END
         UserSearchExpression andExpr = new AndUserExpression(expressions);
         return andExpr.interpret(allUsers);
     }
@@ -86,6 +93,10 @@ public class UserProfileService {
 
         User savedUser = userRepository.save(user);
         userEventPublisher.publish("USER_UPDATED", savedUser, "User profile updated");
+
+        // Lab5 : DIP 1 Start
+        activityLogger.logActivity(id, "Zaktualizowano profil");
+        // Lab5 : DIP 1 End
 
         return savedUser;
     }
@@ -118,8 +129,8 @@ public class UserProfileService {
         userEventPublisher.publish(
                 "ROLES_CHANGED",
                 savedUser,
-                "User roles changed to: " + roles.stream().map(Role::toString).reduce((a, b) -> a + ", " + b).orElse("NONE")
-        );
+                "User roles changed to: "
+                        + roles.stream().map(Role::toString).reduce((a, b) -> a + ", " + b).orElse("NONE"));
 
         return savedUser;
     }
@@ -139,6 +150,12 @@ public class UserProfileService {
 
         userEventPublisher.publish("USER_DELETED", id, user.getUsername(), user.getEmail(), "User account deleted");
     }
+
+    // Lab5 : DIP 2 Start
+    public byte[] exportUserProfile(Long id) {
+        return profileExporter.exportProfile(id);
+    }
+    // Lab5 : DIP 2 End
 }
 
-//SRP1 End
+// SRP1 End

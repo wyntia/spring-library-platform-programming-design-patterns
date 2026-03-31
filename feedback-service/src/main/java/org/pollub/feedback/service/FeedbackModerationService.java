@@ -14,8 +14,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//Lab4 - SRP 3 Start
-public class FeedbackModerationService {
+//Lab5 : ISP 3 Start
+public class FeedbackModerationService implements IFeedbackQueryService, IFeedbackStatusModerationService{
+//Lab5 : ISP 3 End
 
     private final IFeedbackRepository feedbackRepository;
     private final FeedbackEventPublisher feedbackEventPublisher;

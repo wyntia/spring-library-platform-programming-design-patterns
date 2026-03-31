@@ -59,4 +59,33 @@ public class BranchService implements IBranchService {
     public List<LibraryBranch> getBranchesByIds(List<Long> branchIds) {
         return branchFacade.getBranchesByIds(branchIds);
     }
+
+    //Lab5 : Liskov 2 Start
+    @Override
+    public java.util.Map<String, Object> getBranchHierarchy() {
+        branch.BranchComponent countryGroup = new branch.BranchGroup("Miejska Biblioteka Publiczna w Lublinie");
+
+        branch.BranchComponent northRegion = new branch.BranchGroup("Śródmieście i Północ");
+        branch.BranchComponent southRegion = new branch.BranchGroup("Południe");
+
+        northRegion.addChild(new branch.Branch("Filia nr 1 - Śródmieście"));
+        northRegion.addChild(new branch.Branch("Filia nr 2 - Czechów"));
+
+        southRegion.addChild(new branch.Branch("Filia nr 3 - Czuby"));
+
+        countryGroup.addChild(northRegion);
+        countryGroup.addChild(southRegion);
+
+        return buildHierarchyMap(countryGroup);
+    }
+
+    private java.util.Map<String, Object> buildHierarchyMap(branch.BranchComponent component) {
+        return java.util.Map.of(
+            "name", component.getName(),
+            "children", component.getChildren().stream()
+                .map(this::buildHierarchyMap)
+                .collect(java.util.stream.Collectors.toList())
+        );
+    }
+    //Lab5 : Liskov 2 End
 }

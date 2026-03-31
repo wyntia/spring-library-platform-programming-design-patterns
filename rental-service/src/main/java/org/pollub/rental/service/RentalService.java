@@ -229,5 +229,20 @@ public class RentalService implements IRentalService, Subject {
             observer.update(this, event);
         }
     }
+
+    //Lab5 : Liskov 3 Start
+    /**
+     * Demonstrates Liskov Substitution Principle.
+     * The RentalService relies only on the IRentalFeeStrategy abstraction.
+     * Both StandardFeeStrategy and StudentDiscountFeeStrategy can be passed interchangeably
+     * without breaking the correctness of the fee calculation process.
+     */
+    public java.math.BigDecimal calculateRentalFee(int days, IRentalFeeStrategy feeStrategy) {
+        if (feeStrategy == null) {
+            throw new IllegalArgumentException("Fee strategy cannot be null");
+        }
+        return feeStrategy.calculateFee(days);
+    }
+    //Lab5 : Liskov 3 End
 }
 

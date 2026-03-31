@@ -18,8 +18,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-//Lab4 - SRP 3 Start
-public class FeedbackRateLimitService {
+//Lab5 : ISP 3 Start
+public class FeedbackRateLimitService implements IFeedbackRateLimitService {
+//Lab5 : ISP 3 End
 
     private final IFeedbackRepository feedbackRepository;
 

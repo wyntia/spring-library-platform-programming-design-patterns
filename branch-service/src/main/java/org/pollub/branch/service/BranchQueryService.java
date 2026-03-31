@@ -10,8 +10,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//Lab4 - SRP 2 Start
-public class BranchQueryService {
+//Lab5 : ISP 2 Start
+public class BranchQueryService implements IBranchQueryService {
+//Lab5 : ISP 2 End
 
     private final BranchRepository branchRepository;
 

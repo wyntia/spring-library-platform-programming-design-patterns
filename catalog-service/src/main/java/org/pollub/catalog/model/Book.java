@@ -199,4 +199,19 @@ public class Book extends LibraryItem {
     public void accept(LibraryItemVisitor visitor) {
         visitor.visit(this); // Double dispatch
     }
+
+    //Lab5 : Liskov 1 Start
+    @Override
+    public boolean matchesCustomSearch(String query) {
+        if (query == null) return false;
+        String q = query.toLowerCase();
+        return (getAuthor() != null && getAuthor().toLowerCase().contains(q)) || 
+               (getIsbn() != null && getIsbn().toLowerCase().contains(q));
+    }
+
+    @Override
+    public String extractAuthorOrCreator() {
+        return getAuthor() != null ? getAuthor() : "-";
+    }
+    //Lab5 : Liskov 1 End
 }

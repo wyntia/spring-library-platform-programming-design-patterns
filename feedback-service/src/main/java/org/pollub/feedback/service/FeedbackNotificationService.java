@@ -9,8 +9,9 @@ import java.util.List;
 @Service
 //Lab4 - SRP 3 Start
 @RequiredArgsConstructor
-//L4 - OCP 2 Start
-public class FeedbackNotificationService {
+//Lab5 : ISP 3 Start
+public class FeedbackNotificationService implements IFeedbackNotificationService {
+//Lab5 : ISP 3 End
 
     private final List<FeedbackNotificationHandler> notificationHandlers;
 

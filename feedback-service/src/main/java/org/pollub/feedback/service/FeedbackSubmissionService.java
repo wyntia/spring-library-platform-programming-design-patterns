@@ -13,8 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-//Lab4 - SRP 3 Start
-public class FeedbackSubmissionService {
+//Lab5 : ISP 3 Start
+public class FeedbackSubmissionService implements IFeedbackSubmissionService {
+//Lab5 : ISP 3 End
 
     private final IFeedbackRepository feedbackRepository;
     private final FeedbackEventPublisher feedbackEventPublisher;
@@ -22,9 +23,19 @@ public class FeedbackSubmissionService {
     //L4 - OCP 3 Start
     private final FeedbackSanitizationPolicy feedbackSanitizationPolicy;
     //L4 - OCP 3 END
+    //Lab5 : DIP 3 Start
+    private final org.pollub.feedback.service.moderator.IFeedbackModerator feedbackModerator;
+    //Lab5 : DIP 3 End
 
     @Transactional
     public Feedback submitFeedback(FeedbackRequestDto dto, String ipAddress) {
+        
+        //Lab5 : DIP 3 Start
+        if (!feedbackModerator.isAppropriate(dto.message())) {
+            throw new IllegalArgumentException("Feedback zawiera niedozwolone treści i został odrzucony.");
+        }
+        //Lab5 : DIP 3 End
+
         Feedback feedback = Feedback.builder()
                 .category(dto.category())
                 .message(dto.message())

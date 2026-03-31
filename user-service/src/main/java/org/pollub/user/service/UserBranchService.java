@@ -15,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 //Lab4 - SRP 1 Start
-public class UserBranchService {
-
+public class UserBranchService implements IEmployeeBranchAssignmentService, IUserFavouriteBranchService {
     private final IUserRepository userRepository;
     private final IBranchServiceClient branchServiceClient;
     private final UserEventPublisher userEventPublisher;
