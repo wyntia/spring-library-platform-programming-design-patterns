@@ -7,6 +7,7 @@ import org.pollub.user.dto.ApiTextResponse;
 import org.pollub.user.dto.ChangePasswordDto;
 import org.pollub.user.dto.ResetPasswordRequestDto;
 import org.pollub.user.dto.ResetPasswordResponseDto;
+import org.pollub.user.exception.PasswordResetIdentityNotVerifiedException;
 import org.pollub.user.model.User;
 import org.pollub.user.repository.IUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,12 +65,11 @@ public class UserSecurityService implements IUserSecurityService {
         User user = userRepository.findByEmailAndPesel(request.getEmail(), request.getPesel())
                 .orElse(null);
 
+        //Lab6 : Wyjątki zamiast kodów błędów — przykład 1 (reset hasła) Start
         if (user == null) {
-            return ResetPasswordResponseDto.builder()
-                    .success(false)
-                    .message("Jeśli podane dane są poprawne, nowe hasło zostanie wysłane na podany adres email.")
-                    .build();
+            throw new PasswordResetIdentityNotVerifiedException();
         }
+        //Lab6 : Wyjątki zamiast kodów błędów — przykład 1 (reset hasła) Stop
 
         String temporaryPassword = passwordGenerator.generate();
 

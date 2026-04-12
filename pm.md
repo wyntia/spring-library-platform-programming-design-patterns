@@ -126,3 +126,34 @@ Rekord [UserEventSnapshot](c:/Users/Black/Desktop/spring-library-platform-progra
 ### Commit
 
 - `Refactor: Maksymalnie 3 argumenty`
+
+---
+
+## Wyjątki zamiast kodów błędów (zadanie 6, 3 pkt / 3 odrębne przykłady)
+
+### Cel
+
+Zamiast sygnalizować błąd wartością zwracaną (`success: false` w DTO, `Optional.empty()` przy dowolnym błędzie HTTP, `null` z klienta), warstwa serwisu/kilent rzuca wyjątki; tam gdzie kontrakt HTTP musi pozostać bez zmian, dedykowany `@RestControllerAdvice` mapuje wyjątek z powrotem na ten sam body/status co wcześniej.
+
+### Przykład 1 — reset hasła (user-service + auth-service)
+
+- `UserSecurityService.resetPassword`: przy niezgodności email+PESEL — `PasswordResetIdentityNotVerifiedException`; `PasswordResetExceptionHandler` zwraca **HTTP 200** + `ResetPasswordResponseDto` z `success=false` i dotychczasowym komunikatem (WebClient w auth nadal deserializuje odpowiedź).
+- `AuthService.resetPassword`: pusty `Optional` z klienta — `PasswordResetUserServiceFailedException`; błąd wysyłki maila — `PasswordResetEmailDeliveryException`; `PasswordResetExceptionHandler` w auth-service zwraca te same DTO co wcześniej.
+
+Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 1 (reset hasła)`.
+
+### Przykład 2 — `BranchServiceClient` (user-service)
+
+404 z branch-service → nadal `Optional.empty()`; inne błędy (w tym sieć) → `ServiceException` zamiast milczącego `Optional.empty()`. Uwaga w `CachingBranchServiceProxy` i `UserBranchService.getEmployeeBranch`, że awaria usługi propaguje wyjątek.
+
+Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 2`.
+
+### Przykład 3 — email użytkownika (rental-service)
+
+`UserServiceClient.getUserEmail` rzuca `ServiceException` zamiast zwracać `null`; `OverdueReminderHandler`, `RentalConfirmationHandler`, `ReturnConfirmationHandler` łapią `ServiceException` przy `mediator.send(GetUserEmailRequest)` i pomijają powiadomienie z tym samym logiem co przy wcześniejszym `email == null`.
+
+Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 3`.
+
+### Commit
+
+- `Refactor: Wyjątki zamiast kodów błędów (Lab6)`

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.pollub.auth.client.UserServiceClient;
 import org.pollub.auth.dto.*;
+import org.pollub.auth.exception.PasswordResetEmailDeliveryException;
+import org.pollub.auth.exception.PasswordResetUserServiceFailedException;
 import org.pollub.auth.security.JwtTokenProvider;
 import org.pollub.auth.util.PasswordGenerator;
 import org.pollub.common.adapter.IPasswordGenerator;
@@ -182,13 +184,12 @@ public class AuthService implements IAuthService {
         // Call user-service to reset password and get the new temporary password
         var userServiceResponse = userServiceClient.resetPassword(request.getEmail(), request.getPesel());
         
+        //Lab6 : Wyjątki zamiast kodów błędów — przykład 1 (reset hasła) Start
         if (userServiceResponse.isEmpty()) {
             log.warn("Password reset failed - user-service returned empty response for email: {}", request.getEmail());
-            return ResetPasswordResponseDto.builder()
-                    .success(false)
-                    .message("Jeśli podane dane są poprawne, nowe hasło zostanie wysłane na podany adres email.")
-                    .build();
+            throw new PasswordResetUserServiceFailedException();
         }
+        //Lab6 : Wyjątki zamiast kodów błędów — przykład 1 (reset hasła) Stop
         
         var response = userServiceResponse.get();
         
@@ -199,10 +200,7 @@ public class AuthService implements IAuthService {
                 log.info("Password reset successful for email: {}", response.email());
             } catch (Exception e) {
                 log.error("Failed to send password reset email to: {}", response.email(), e);
-                return ResetPasswordResponseDto.builder()
-                        .success(false)
-                        .message("Wystąpił błąd podczas wysyłania emaila. Spróbuj ponownie później.")
-                        .build();
+                throw new PasswordResetEmailDeliveryException(e);
             }
         }
         

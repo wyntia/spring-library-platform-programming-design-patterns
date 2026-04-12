@@ -52,6 +52,7 @@ public class UserBranchService implements IEmployeeBranchAssignmentService, IUse
         return user.getEmployeeBranchId();
     }
 
+    //Lab6 : Wyjątki zamiast kodów błędów — przykład 2: błąd branch-service (nie 404) propaguje ServiceException
     public BranchDto getEmployeeBranch(String username) {
         User user = findByUsername(username);
         Long branchId = user.getEmployeeBranchId();

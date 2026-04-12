@@ -28,6 +28,7 @@ public class CachingBranchServiceProxy implements IBranchServiceClient {
         this.branchServiceClient = branchServiceClient;
     }
 
+    //Lab6 : Wyjątki zamiast kodów błędów — przykład 2: błędy usługi nie są cachowane — propagują wyjątek
     @Override
     public Optional<BranchDto> getBranchById(Long id) {
         return cache.computeIfAbsent(id, key -> {
