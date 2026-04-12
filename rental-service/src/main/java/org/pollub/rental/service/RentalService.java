@@ -56,6 +56,7 @@ public class RentalService implements IRentalService, Subject {
     }
 
     //Lab6 : Długość metod 1 Start
+    //Lab6 : Poziom abstrakcji 1 Start
     @Override
     @Transactional
     public ReservationResponse rentItem(Long itemId, Long userId, Long branchId) {
@@ -63,11 +64,20 @@ public class RentalService implements IRentalService, Subject {
         validationBridge.validateAbilityToRentOrThrow(userId, itemId);
         RentalHistory rentalHistory = buildRentalHistoryForRent(itemId, userId, branchId);
         saveNewRentalAndNotifyCreated(rentalHistory, itemId, userId);
+        notifyUserOfRentalConfirmation(rentalHistory, userId, itemId);
+        return completeRentalInCatalog(rentalHistory);
+    }
+
+    private void notifyUserOfRentalConfirmation(RentalHistory rentalHistory, Long userId, Long itemId) {
         sendRentalConfirmationSafely(userId, itemId, rentalHistory.getDueDate());
+    }
+
+    private ReservationResponse completeRentalInCatalog(RentalHistory rentalHistory) {
         return mediator.send(new MarkAsRentedRequest(
                 toRentalCatalogRequestDto(rentalHistory)
         ));
     }
+    //Lab6 : Poziom abstrakcji 1 Stop
 
     private RentalHistory buildRentalHistoryForRent(Long itemId, Long userId, Long branchId) {
         return RentalHistory.builder()
@@ -164,36 +174,49 @@ public class RentalService implements IRentalService, Subject {
     //Lab6 : Jedna rola funkcji 1 Stop
 
     //Lab6 : Znaczące nazewnictwo 1 Start
+    //Lab6 : Poziom abstrakcji 2 Start
     @Override
     public void extendRental(Long itemId, Long branchId, int days) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
+        validateRentalExtensionAllowed(itemId, rentalHistory);
+        applyRentalDueDateExtension(days, rentalHistory);
+        persistExtendedRentalAndNotifyObservers(itemId, rentalHistory);
+        syncCatalogAfterRentalExtension(itemId, branchId, days);
+    }
 
+    private void validateRentalExtensionAllowed(Long itemId, RentalHistory rentalHistory) {
         //L6 Use State Pattern validation
         rentalHistory.getState().validateForExtension();
 
         throwIfHaveBeenAlreadyRentedBefore(itemId, rentalHistory);
+    }
 
+    private void applyRentalDueDateExtension(int days, RentalHistory rentalHistory) {
         extendRentalRecord(days, rentalHistory);
-        try{
+    }
+
+    private void persistExtendedRentalAndNotifyObservers(Long itemId, RentalHistory rentalHistory) {
+        try {
             rentalHistoryRepository.save(rentalHistory);
 
             // Notify observers about rental extension
             notifyObservers(new RentalEvent(
-                "EXTENDED",
-                rentalHistory.getId(),
-                itemId,
-                rentalHistory.getUserId(),
-                DateTimeProvider.getInstance().now()
+                    "EXTENDED",
+                    rentalHistory.getId(),
+                    itemId,
+                    rentalHistory.getUserId(),
+                    DateTimeProvider.getInstance().now()
             ));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.error("Error updating rental history for extension of itemId: {}. Error: {}", itemId, e.getMessage());
             throw e;
         }
-
-        mediator.send(new ExtendRentalRequest(itemId, branchId, days));
-
     }
+
+    private void syncCatalogAfterRentalExtension(Long itemId, Long branchId, int days) {
+        mediator.send(new ExtendRentalRequest(itemId, branchId, days));
+    }
+    //Lab6 : Poziom abstrakcji 2 Stop
 
     private static void extendRentalRecord(int days, RentalHistory rentalHistory) {
         rentalHistory.setDueDate(

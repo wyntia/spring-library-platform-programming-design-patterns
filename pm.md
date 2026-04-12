@@ -78,3 +78,27 @@ Pętla z iteratorem L3 wywołuje: `expireReservationRecord` (walidacja stanu + z
 ### Commit
 
 - `Refactor: Jedna rola funkcji (SRP)`
+
+---
+
+## Poziom abstrakcji top-down (zadanie 4, 3 pkt / 3 przykłady)
+
+### Cel
+
+Orkiestracja na **jednym poziomie abstrakcji**: metoda publiczna opisuje kroki domenowe; szczegóły (DTO, `getDueDate()`, `mediator.send` z konstrukcją żądania) schodzą do głębszych metod prywatnych. Zachowane wcześniejsze markery Lab6 (długość metod, nazewnictwo) oraz `L4 OCP` przy fabrykach wyszukiwania.
+
+### Przykład 1 — `RentalService.rentItem`
+
+Dodano `notifyUserOfRentalConfirmation` oraz `completeRentalInCatalog`, żeby `rentItem` nie mieszał szczegółów z sąsiednimi krokami. Markery: `//Lab6 : Poziom abstrakcji 1 Start` / `Stop` (wewnątrz bloku długości metod 1).
+
+### Przykład 2 — `RentalService.extendRental`
+
+Kroki: `validateRentalExtensionAllowed`, `applyRentalDueDateExtension`, `persistExtendedRentalAndNotifyObservers`, `syncCatalogAfterRentalExtension`. Markery: `//Lab6 : Poziom abstrakcji 2 Start` / `Stop` wewnątrz `//Lab6 : Znaczące nazewnictwo 1`; `extendRentalRecord` pozostaje w bloku nazewnictwa.
+
+### Przykład 3 — `UserProfileService.searchUsers`
+
+Wydzielono: `loadAllUsersForSearch`, `buildCombinedSearchExpression` (z blokiem `// L4 - OCP 1`), `executeUserSearch`. Markery: `//Lab6 : Poziom abstrakcji 3 Start` / `Stop`.
+
+### Commit
+
+- `Refactor: Poziom abstrakcji (top-down)`

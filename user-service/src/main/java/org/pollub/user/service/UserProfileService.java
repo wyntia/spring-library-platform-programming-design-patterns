@@ -57,20 +57,34 @@ public class UserProfileService implements IUserSearchService, IUserQueryService
         return userRepository.findAll();
     }
 
+    //Lab6 : Poziom abstrakcji 3 Start
     public List<User> searchUsers(String query) {
         if (query == null || query.trim().isEmpty()) {
             return List.of();
         }
 
-        List<User> allUsers = userRepository.findAll();
+        List<User> candidates = loadAllUsersForSearch();
+        UserSearchExpression expression = buildCombinedSearchExpression(query);
+        return executeUserSearch(candidates, expression);
+    }
+
+    private List<User> loadAllUsersForSearch() {
+        return userRepository.findAll();
+    }
+
+    private UserSearchExpression buildCombinedSearchExpression(String query) {
         // L4 - OCP 1 Start
         List<UserSearchExpression> expressions = userSearchExpressionFactories.stream()
                 .map(factory -> factory.create(query))
                 .toList();
         // L4 - OCP 1 END
-        UserSearchExpression andExpr = new AndUserExpression(expressions);
-        return andExpr.interpret(allUsers);
+        return new AndUserExpression(expressions);
     }
+
+    private static List<User> executeUserSearch(List<User> candidates, UserSearchExpression expression) {
+        return expression.interpret(candidates);
+    }
+    //Lab6 : Poziom abstrakcji 3 Stop
 
     @Transactional
     public User createUser(User user) {
