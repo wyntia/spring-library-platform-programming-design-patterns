@@ -81,6 +81,18 @@ public abstract class LibraryItem implements Cloneable {
 
     //L6 Visitor Design Pattern - accept method for visitor
     public abstract void accept(LibraryItemVisitor visitor);
+
+    //Lab5 : Liskov 1 Start
+    /**
+     * Checks if the item matches the custom search query (e.g., by checking author or ISBN).
+     */
+    public abstract boolean matchesCustomSearch(String query);
+
+    /**
+     * Extracts the primary creator of the item (e.g., author for books, director for movies).
+     */
+    public abstract String extractAuthorOrCreator();
+    //Lab5 : Liskov 1 End
 }
 //Lab1 End Prototype
 

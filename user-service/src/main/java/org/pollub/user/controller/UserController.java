@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.pollub.common.dto.BranchDto;
 import org.pollub.common.dto.UserAddressDto;
 import org.pollub.common.dto.UserDto;
+import org.pollub.user.facade.UserFacade;
 import org.pollub.user.dto.*;
 import org.pollub.user.model.Role;
 import org.pollub.user.model.User;
 import org.pollub.user.model.UserAddress;
-import org.pollub.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserController {
     
-    private final UserService userService;
+    private final UserFacade userFacade;
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = userService.findAll().stream()
+        List<UserDto> users = userFacade.findAll().stream()
                 .map(this::toDto)
                 .toList();
         return ResponseEntity.ok(users);
@@ -36,25 +36,25 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
-        User user = userService.findById(id);
+        User user = userFacade.findById(id);
         return ResponseEntity.ok(toDto(user));
     }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
-        User user = userService.findByUsername(username);
+        User user = userFacade.findByUsername(username);
         return ResponseEntity.ok(toDto(user));
     }
 
     @GetMapping("/email/{email}")
     public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
-        User user = userService.findByEmail(email);
+        User user = userFacade.findByEmail(email);
         return ResponseEntity.ok(toDto(user));
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<UserDto>> searchUsers(@RequestParam String query) {
-        List<UserDto> users = userService.searchUsers(query).stream()
+        List<UserDto> users = userFacade.searchUsers(query).stream()
                 .map(this::toDto)
                 .toList();
         return ResponseEntity.ok(users);
@@ -62,7 +62,7 @@ public class UserController {
 
     @GetMapping("/branch/{branchId}/employees")
     public ResponseEntity<List<UserDto>> getEmployeesByBranch(@PathVariable Long branchId) {
-        List<UserDto> employees = userService.findEmployeesByBranch(branchId).stream()
+        List<UserDto> employees = userFacade.findEmployeesByBranch(branchId).stream()
                 .map(this::toDto)
                 .toList();
         return ResponseEntity.ok(employees);
@@ -70,19 +70,19 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody User user) {
-        User updated = userService.updateUser(id, user);
+        User updated = userFacade.updateUser(id, user);
         return ResponseEntity.ok(toDto(updated));
     }
 
     @PutMapping("/{id}/address")
     public ResponseEntity<UserDto> updateAddress(@PathVariable Long id, @RequestBody UserAddressDto addressDto) {
-        User updated = userService.updateAddress(id, addressDto);
+        User updated = userFacade.updateAddress(id, addressDto);
         return ResponseEntity.ok(toDto(updated));
     }
 
     @PutMapping("/{id}/roles")
     public ResponseEntity<UserDto> updateRoles(@PathVariable Long id, @RequestBody Set<Role> roles) {
-        User updated = userService.updateRoles(id, roles);
+        User updated = userFacade.updateRoles(id, roles);
         return ResponseEntity.ok(toDto(updated));
     }
 
@@ -91,14 +91,14 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) Long branchId
     ) {
-        User user = userService.updateFavouriteBranch(userDetails.getUsername(), branchId);
+        User user = userFacade.updateFavouriteBranch(userDetails.getUsername(), branchId);
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/password")
     public ResponseEntity<ApiTextResponse> changePassword(@Valid @RequestBody ChangePasswordDto passwordDto, @AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();
-        ApiTextResponse response = userService.changePassword(username, passwordDto);
+        ApiTextResponse response = userFacade.changePassword(username, passwordDto);
         return ResponseEntity.ok(response);
     }
 
@@ -108,13 +108,13 @@ public class UserController {
      */
     @PostMapping("/reset-password")
     public ResponseEntity<ResetPasswordResponseDto> resetPassword(@Valid @RequestBody ResetPasswordRequestDto request) {
-        ResetPasswordResponseDto response = userService.resetPassword(request);
+        ResetPasswordResponseDto response = userFacade.resetPassword(request);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/favourite-branch")
     public ResponseEntity<Long> getFavouriteBranch(@PathVariable Long id) {
-        Long branchId = userService.getFavouriteBranchId(id);
+        Long branchId = userFacade.getFavouriteBranchId(id);
         return ResponseEntity.ok(branchId);
     }
     
@@ -126,7 +126,7 @@ public class UserController {
     public ResponseEntity<BranchDto> getMyFavouriteBranch(
             @AuthenticationPrincipal org.pollub.common.security.JwtUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        BranchDto branch = userService.getFavouriteBranch(userId);
+        BranchDto branch = userFacade.getFavouriteBranch(userId);
         return ResponseEntity.ok(branch);
     }
     
@@ -139,14 +139,14 @@ public class UserController {
             @RequestParam(required = false) Long branchId
     ) {
         Long userId = userDetails.getUserId();
-        User user = userService.findById(userId);
-        User updated = userService.updateFavouriteBranch(user.getUsername(), branchId);
+        User user = userFacade.findById(userId);
+        User updated = userFacade.updateFavouriteBranch(user.getUsername(), branchId);
         return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/{id}/employee-branch")
     public ResponseEntity<Long> getEmployeeBranch(@PathVariable Long id) {
-        Long branchId = userService.getEmployeeBranchId(id);
+        Long branchId = userFacade.getEmployeeBranchId(id);
         return ResponseEntity.ok(branchId);
     }
     
@@ -158,19 +158,19 @@ public class UserController {
     public ResponseEntity<BranchDto> getMyEmployeeBranch(
             @AuthenticationPrincipal org.pollub.common.security.JwtUserDetails userDetails) {
         Long userId = userDetails.getUserId();
-        BranchDto branch = userService.getEmployeeBranchById(userId);
+        BranchDto branch = userFacade.getEmployeeBranchById(userId);
         return ResponseEntity.ok(branch);
     }
 
     @GetMapping("/username/{username}/branch")
     public ResponseEntity<BranchDto> getEmployeeBranchByUsername(@PathVariable String username) {
-        BranchDto branch = userService.getEmployeeBranch(username);
+        BranchDto branch = userFacade.getEmployeeBranch(username);
         return ResponseEntity.ok(branch);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+        userFacade.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -180,7 +180,7 @@ public class UserController {
     @GetMapping("/{id}/exists")
     public ResponseEntity<Boolean> userExists(@PathVariable Long id) {
         try {
-            userService.findById(id);
+            userFacade.findById(id);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return ResponseEntity.ok(false);
@@ -193,7 +193,7 @@ public class UserController {
     @PostMapping("/validate")
     public ResponseEntity<UserDto> validateCredentials(@RequestBody CredentialsDto credentials) {
         try {
-            User user = userService.validateCredentials(
+            User user = userFacade.validateCredentials(
                     credentials.getUsernameOrEmail(), 
                     credentials.getPassword()
             );
@@ -239,7 +239,7 @@ public class UserController {
                     .build();
             
 
-            User created = userService.createUser(user);
+            User created = userFacade.createUser(user);
             
 
             return ResponseEntity.ok(toDto(created));

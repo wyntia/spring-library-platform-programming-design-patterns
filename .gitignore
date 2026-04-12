@@ -22,3 +22,6 @@ yarn-error.log*
 .env.local
 /k8s/secrets.yaml
 /pr.md
+.cursorrules
+.pm.md
+/pm.md

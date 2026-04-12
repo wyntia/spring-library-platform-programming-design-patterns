@@ -15,6 +15,7 @@ import org.pollub.catalog.model.dto.BookCreateDto;
 import org.pollub.catalog.repository.IBranchInventoryRepository;
 import org.pollub.catalog.repository.IBookRepository;
 import org.pollub.common.exception.ResourceNotFoundException;
+import org.pollub.common.function.SearchQueryNormalizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -132,11 +133,18 @@ public class BookService implements IBookService {
 
         Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(), sortSpec);
 
-        String queryParam = (criteria.getQuery() != null && !criteria.getQuery().isBlank()) ? criteria.getQuery() : null;
+        //Lab7 : Interfejsy funkcyjne i lambda — użycie 1/3 (catalog)
+        String queryParam = resolveSearchQuery(
+                criteria.getQuery(),
+                raw -> (raw != null && !raw.isBlank()) ? raw : null);
         String publisherParam = (criteria.getPublisher() != null && !criteria.getPublisher().isBlank()) ? criteria.getPublisher() : null;
         String genresParam = (criteria.getGenres() != null && !criteria.getGenres().isEmpty()) ? criteria.getGenres() : null;
 
         return bookRepository.searchBooksWithoutStatus(queryParam, publisherParam, genresParam, pageable);
+    }
+
+    private static String resolveSearchQuery(String raw, SearchQueryNormalizer normalizer) {
+        return normalizer.normalize(raw);
     }
 
     @Override

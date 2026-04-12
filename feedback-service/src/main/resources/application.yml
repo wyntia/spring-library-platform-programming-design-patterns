@@ -37,3 +37,25 @@ logging:
 
 jwt:
   secret: ${JWT_SECRET:default-secret-key-for-development-only-change-in-production}
+
+#L4 - OCP 2 Start
+feedback:
+  notification:
+    channels:
+      - email
+      - sms
+    email-recipients:
+      - user@example.com
+    sms-recipients:
+      - 123-456-789
+    header: "[Biblioteka Miejska]"
+    footer: "Dziękujemy za korzystanie z naszych usług!"
+    logging-enabled: true
+  #L4 - OCP 2 END
+
+  #L4 - OCP 3 Start
+  moderation:
+    resolve-at-statuses:
+      - RESOLVED
+      - DISMISSED
+#L4 - OCP 3 END
