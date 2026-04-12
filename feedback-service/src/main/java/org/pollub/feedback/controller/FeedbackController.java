@@ -8,12 +8,14 @@ import org.pollub.feedback.model.dto.FeedbackAdminDto;
 import org.pollub.feedback.model.dto.FeedbackRequestDto;
 import org.pollub.feedback.model.dto.FeedbackResponseDto;
 import org.pollub.feedback.service.IFeedbackService;
-import org.pollub.feedback.command.UpdateFeedbackStatusCommand;
 import org.pollub.feedback.command.Command;
+import org.pollub.feedback.command.UpdateFeedbackStatusCommand;
+import org.pollub.feedback.digest.FeedbackIngressMixer;
 import org.pollub.feedback.strategy.IpIdentificationStrategy;
 import org.pollub.feedback.strategy.ProxyHeaderIpStrategy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,12 +33,16 @@ public class FeedbackController {
 
     private final IFeedbackService feedbackService;
     private final IpIdentificationStrategy ipStrategy; // L6 Strategy Pattern
+    private final FeedbackIngressMixer feedbackIngressMixer;
 
     // L6 Strategy Pattern - Constructor injection of strategy with configuration for trusted proxies
-    public FeedbackController(IFeedbackService feedbackService,
-                              @Value("${app.trusted-proxies:}") Set<String> trustedProxies) {
+    public FeedbackController(
+            IFeedbackService feedbackService,
+            @Value("${app.trusted-proxies:}") Set<String> trustedProxies,
+            FeedbackIngressMixer feedbackIngressMixer) {
         this.feedbackService = feedbackService;
         this.ipStrategy = new ProxyHeaderIpStrategy(trustedProxies); // L6 Strategy initialization
+        this.feedbackIngressMixer = feedbackIngressMixer;
     }
 
     @PostMapping
@@ -78,6 +84,16 @@ public class FeedbackController {
                 .toList();
 
         return ResponseEntity.ok(dtos);
+    }
+
+    //Lab9 : Celowo zła klasa (anty-wzorce) — cienki endpoint delegujący do FeedbackIngressMixer
+    @GetMapping(value = "/admin/text-digest", produces = MediaType.TEXT_PLAIN_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    public ResponseEntity<String> getAdminTextDigest(
+            @RequestParam(required = false) FeedbackStatus status,
+            @RequestParam(defaultValue = "50") int maxLines) {
+        String body = feedbackIngressMixer.buildWholeThing(maxLines, status, true, "---", 200, true);
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(body);
     }
 
     @PutMapping("/{id}/status")
