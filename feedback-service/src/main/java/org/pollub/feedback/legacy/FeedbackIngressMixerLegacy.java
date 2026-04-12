@@ -1,4 +1,4 @@
-package org.pollub.feedback.digest;
+package org.pollub.feedback.legacy;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,20 +6,19 @@ import org.pollub.common.config.DateTimeProvider;
 import org.pollub.feedback.model.Feedback;
 import org.pollub.feedback.model.FeedbackStatus;
 import org.pollub.feedback.repository.IFeedbackRepository;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * NOTE FOR REVIEWERS: This class is intentionally written with poor structure for Lab 9
- * (mixed concerns, naming noise, long methods) — not production style.
+ * Zachowana implementacja z zadania Lab 9 (1) — anty-wzorce, nieużywana w runtime.
+ * Pozostawiona jako odniesienie dla sprawozdania; nie jest beanem Springa.
  */
+@Deprecated(forRemoval = false)
 //Lab9 : Celowo zła klasa (anty-wzorce) Start
-@Component
 @RequiredArgsConstructor
 @Slf4j
-public class FeedbackIngressMixer {
+public class FeedbackIngressMixerLegacy {
 
     private final IFeedbackRepository feedbackRepository;
 
