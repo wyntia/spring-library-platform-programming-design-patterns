@@ -24,6 +24,7 @@ import org.pollub.rental.utils.IRentalValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,13 +55,22 @@ public class RentalService implements IRentalService, Subject {
         return rentalHistoryRepository.findByItemId(itemId);
     }
 
+    //Lab6 : Długość metod 1 Start
     @Override
     @Transactional
     public ReservationResponse rentItem(Long itemId, Long userId, Long branchId) {
 //        this.rentalValidator.validateAbilityToRentOrThrow(userId, itemId);
         validationBridge.validateAbilityToRentOrThrow(userId, itemId);
+        RentalHistory rentalHistory = buildRentalHistoryForRent(itemId, userId, branchId);
+        saveNewRentalAndNotifyCreated(rentalHistory, itemId, userId);
+        sendRentalConfirmationSafely(userId, itemId, rentalHistory.getDueDate());
+        return mediator.send(new MarkAsRentedRequest(
+                toRentalCatalogRequestDto(rentalHistory)
+        ));
+    }
 
-        RentalHistory rentalHistory = RentalHistory.builder()
+    private RentalHistory buildRentalHistoryForRent(Long itemId, Long userId, Long branchId) {
+        return RentalHistory.builder()
                 .itemId(itemId)
                 .userId(userId)
                 .branchId(branchId)
@@ -69,36 +79,39 @@ public class RentalService implements IRentalService, Subject {
                 .isExtended(false)
                 .dueDate(DateTimeProvider.getInstance().now().plusDays(DAYS_TO_RENT))
                 .build();
-        
-        try{
+    }
+
+    private void saveNewRentalAndNotifyCreated(RentalHistory rentalHistory, Long itemId, Long userId) {
+        try {
             rentalHistoryRepository.save(rentalHistory);
             log.info("Rental history saved: {}", rentalHistory);
 
             // Notify observers about rental creation
             notifyObservers(new RentalEvent(
-                "CREATED",
-                rentalHistory.getId(),
-                itemId,
-                userId,
-                DateTimeProvider.getInstance().now()
+                    "CREATED",
+                    rentalHistory.getId(),
+                    itemId,
+                    userId,
+                    DateTimeProvider.getInstance().now()
             ));
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("Error saving rental history for itemId: {}, userId: {}. Error: {}", itemId, userId, e.getMessage());
             throw e;
         }
+    }
+
+    private void sendRentalConfirmationSafely(Long userId, Long itemId, LocalDateTime dueDate) {
         //Lab5 Mediator Start
         try {
             mediator.send(new SendRentalConfirmationNotification(
-                    userId, itemId, rentalHistory.getDueDate()
+                    userId, itemId, dueDate
             ));
         } catch (Exception e) {
             log.warn("Failed to send rental confirmation notification: {}", e.getMessage());
         }
         //Lab5 Mediator End
-        return mediator.send(new MarkAsRentedRequest(
-                toRentalCatalogRequestDto(rentalHistory)
-        ));
     }
+    //Lab6 : Długość metod 1 Stop
 
     @Override
     public void returnItem(Long itemId, Long branchId) {

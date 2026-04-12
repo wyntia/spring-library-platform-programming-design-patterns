@@ -39,59 +39,80 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
     //Lab4 OCP End
     private final List<Observer> observers = new ArrayList<>();
 
+    //Lab6 : Długość metod 3 Start
     @Override
     public ReservationResponse rentCopy(Long itemId, RentalHistoryDto rentalHistoryDto) {
         Long branchId = rentalHistoryDto.getBranchId();
         Long userId = rentalHistoryDto.getUserId();
-
         BranchInventory inventory = getBranchInventoryOrThrow(itemId, branchId);
-
         validateReservationOwnership(inventory, userId);
         validateAvailabilityForRent(inventory);
-
         // Check if the book was reserved before we clear the reservation info
         boolean wasReserved = inventory.getStatus() == CopyStatus.RESERVED;
+        applyRentDataAndClearReservation(inventory, userId, rentalHistoryDto);
+        return persistRentedCopyAndBuildResponse(inventory, itemId, branchId, userId, wasReserved, rentalHistoryDto);
+    }
 
+    private void applyRentDataAndClearReservation(
+            BranchInventory inventory, Long userId, RentalHistoryDto rentalHistoryDto) {
         updateInventoryRecordWithRentData(
-            inventory,
-            inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RENT),
-            userId,
-            rentalHistoryDto.getRentedAt(),
-            rentalHistoryDto.getDueDate()
-        );
-
-        clearReservationInfo(inventory);
-
-        try{
-            inventoryRepository.save(inventory);
-            
-            // Notify observers about rent
-            notifyObservers(new BranchInventoryEvent(
-                "RENT",
-                itemId,
-                branchId,
+                inventory,
+                inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RENT),
                 userId,
-                DateTimeProvider.getInstance().now()
-            ));
+                rentalHistoryDto.getRentedAt(),
+                rentalHistoryDto.getDueDate()
+        );
+        clearReservationInfo(inventory);
+    }
 
-            // If the book was reserved, mark the reservation as fulfilled in reservation-service
-            if (wasReserved) {
-                reservationServiceClient.fulfillReservation(itemId, branchId, userId);
-            }
-            
-            return ReservationResponse.builder()
-                    .itemId(itemId)
-                    .branchId(branchId)
-                    .userId(userId)
-                    .rentedAt(rentalHistoryDto.getRentedAt())
-                    .dueDate(rentalHistoryDto.getDueDate())
-                    .status(CopyStatus.RENTED.name())
-                    .build();
+    private ReservationResponse persistRentedCopyAndBuildResponse(
+            BranchInventory inventory,
+            Long itemId,
+            Long branchId,
+            Long userId,
+            boolean wasReserved,
+            RentalHistoryDto rentalHistoryDto) {
+        try {
+            inventoryRepository.save(inventory);
+            notifyRentObservers(itemId, branchId, userId);
+            fulfillReservationIfWasReserved(wasReserved, itemId, branchId, userId);
+            return buildRentReservationResponse(itemId, branchId, userId, rentalHistoryDto);
         } catch (Exception e) {
             log.error("Error renting copy of item {} at branch {}: {}", itemId, branchId, e.getMessage());
             throw e;
         }
     }
+
+    private void notifyRentObservers(Long itemId, Long branchId, Long userId) {
+        // Notify observers about rent
+        notifyObservers(new BranchInventoryEvent(
+                "RENT",
+                itemId,
+                branchId,
+                userId,
+                DateTimeProvider.getInstance().now()
+        ));
+    }
+
+    private void fulfillReservationIfWasReserved(boolean wasReserved, Long itemId, Long branchId, Long userId) {
+        // If the book was reserved, mark the reservation as fulfilled in reservation-service
+        if (wasReserved) {
+            reservationServiceClient.fulfillReservation(itemId, branchId, userId);
+        }
+    }
+
+    private static ReservationResponse buildRentReservationResponse(
+            Long itemId, Long branchId, Long userId, RentalHistoryDto rentalHistoryDto) {
+        return ReservationResponse.builder()
+                .itemId(itemId)
+                .branchId(branchId)
+                .userId(userId)
+                .rentedAt(rentalHistoryDto.getRentedAt())
+                .dueDate(rentalHistoryDto.getDueDate())
+                .status(CopyStatus.RENTED.name())
+                .build();
+    }
+    //Lab6 : Długość metod 3 Stop
 
     private static void clearReservationInfo(BranchInventory inventory) {
         inventory.setReservedByUserId(null);
