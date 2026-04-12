@@ -3,6 +3,7 @@ package org.pollub.user.service;
 import lombok.RequiredArgsConstructor;
 import org.pollub.common.dto.UserAddressDto;
 import org.pollub.common.exception.ResourceNotFoundException;
+import org.pollub.user.dto.UserEventSnapshot;
 import org.pollub.user.interpreter.AndUserExpression;
 import org.pollub.user.interpreter.UserSearchExpression;
 import org.pollub.user.model.Role;
@@ -162,7 +163,10 @@ public class UserProfileService implements IUserSearchService, IUserQueryService
         User user = findById(id);
         userRepository.deleteById(id);
 
-        userEventPublisher.publish("USER_DELETED", id, user.getUsername(), user.getEmail(), "User account deleted");
+        userEventPublisher.publish(
+                "USER_DELETED",
+                new UserEventSnapshot(id, user.getUsername(), user.getEmail()),
+                "User account deleted");
     }
 
     // Lab5 : DIP 2 Start

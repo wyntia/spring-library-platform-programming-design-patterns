@@ -102,3 +102,27 @@ Wydzielono: `loadAllUsersForSearch`, `buildCombinedSearchExpression` (z blokiem 
 ### Commit
 
 - `Refactor: Poziom abstrakcji (top-down)`
+
+---
+
+## Maksymalnie 3 argumenty (zadanie 5, 3 pkt / 3 przykłady)
+
+### Cel
+
+Metody przyjmują co najwyżej **3 parametry**; dłuższe listy zastąpione rekordami kontekstu. Wybrane miejsca: **catalog-service** (wypożyczenie egzemplarza, aktualizacja stanu wypożyczenia) oraz **user-service** (publikacja zdarzenia po usunięciu użytkownika).
+
+### Przykład 1 — `BranchInventoryService` (rent copy)
+
+Rekordy `RentCopyParties`, `PendingRentPersistence`; `persistRentedCopyAndBuildResponse(PendingRentPersistence)`, `notifyRentObservers(RentCopyParties)`, `fulfillReservationIfWasReserved(boolean, RentCopyParties)`, `buildRentReservationResponse(RentCopyParties, RentalHistoryDto)`. `applyRentDataAndClearReservation` — 3 argumenty. Markery: `//Lab6 : Maksymalnie 3 argumenty 1 Start` / `Stop`.
+
+### Przykład 2 — `BranchInventoryService` (stan egzemplarza)
+
+Rekord `RentAssignmentDetails`; `updateInventoryRecordWithRentData(BranchInventory, CopyStatus, RentAssignmentDetails)` — 3 argumenty (wcześniej 5). Markery: `//Lab6 : Maksymalnie 3 argumenty 2 Start` / `Stop`.
+
+### Przykład 3 — `UserEventPublisher` + `UserProfileService.deleteUser`
+
+Rekord [UserEventSnapshot](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/user-service/src/main/java/org/pollub/user/dto/UserEventSnapshot.java); `publish(String eventType, UserEventSnapshot snapshot, String message)` zamiast pięciu parametrów primitivów. Markery: `//Lab6 : Maksymalnie 3 argumenty 3 Start` / `Stop` w `UserEventPublisher`.
+
+### Commit
+
+- `Refactor: Maksymalnie 3 argumenty`

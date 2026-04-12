@@ -5,6 +5,7 @@ import org.pollub.common.Observer;
 import org.pollub.common.Subject;
 import org.pollub.common.config.DateTimeProvider;
 import org.pollub.common.event.UserEvent;
+import org.pollub.user.dto.UserEventSnapshot;
 import org.pollub.user.model.User;
 import org.springframework.stereotype.Component;
 
@@ -32,16 +33,18 @@ public class UserEventPublisher implements Subject {
         ));
     }
 
-    public void publish(String eventType, Long userId, String username, String email, String message) {
+    //Lab6 : Maksymalnie 3 argumenty 3 Start
+    public void publish(String eventType, UserEventSnapshot snapshot, String message) {
         notifyObservers(new UserEvent(
                 eventType,
-                userId,
-                username,
-                email,
+                snapshot.userId(),
+                snapshot.username(),
+                snapshot.email(),
                 message,
                 DateTimeProvider.getInstance().now()
         ));
     }
+    //Lab6 : Maksymalnie 3 argumenty 3 Stop
 
     @Override
     public void attach(Observer observer) {
