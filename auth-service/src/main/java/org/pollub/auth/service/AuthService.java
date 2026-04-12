@@ -14,6 +14,8 @@ import org.pollub.common.dto.UserDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Authentication service for login and registration.
  */
@@ -68,7 +70,7 @@ public class AuthService implements IAuthService {
         return AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")
-                .expiresIn(jwtTokenProvider.getExpirationMs() / 1000)
+                .expiresIn(accessTokenExpiresInSeconds())
                 .userId(validatedUser.getId())
                 .username(validatedUser.getUsername())
                 .email(validatedUser.getEmail())
@@ -129,7 +131,7 @@ public class AuthService implements IAuthService {
         return AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")
-                .expiresIn(jwtTokenProvider.getExpirationMs() / 1000)
+                .expiresIn(accessTokenExpiresInSeconds())
                 .userId(createdUser.getId())
                 .username(createdUser.getUsername())
                 .email(createdUser.getEmail())
@@ -138,7 +140,13 @@ public class AuthService implements IAuthService {
                 .build();
     }
     //Lab6 : Długość metod 2 Stop
-    
+
+    //Lab6 : Magiczne liczby Start
+    private long accessTokenExpiresInSeconds() {
+        return TimeUnit.MILLISECONDS.toSeconds(jwtTokenProvider.getExpirationMs());
+    }
+    //Lab6 : Magiczne liczby Stop
+
     public boolean validateToken(String token) {
         return jwtTokenProvider.validateToken(token);
     }
