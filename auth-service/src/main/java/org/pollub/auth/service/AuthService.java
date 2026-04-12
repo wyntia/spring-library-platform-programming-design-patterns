@@ -25,31 +25,45 @@ public class AuthService implements IAuthService {
     private final EmailService emailService;
     private final IPasswordGenerator passwordGenerator; //l2 Adapter injection
 
+    //Lab6 : Jedna rola funkcji 2 Start
     @Override
     public AuthResponse login(LoginUserDto request) {
         log.info("Login attempt for: {}", request.getUsernameOrEmail());
-        
+        UserDto validatedUser = validateLoginCredentials(request);
+        logLoginDebugHints(validatedUser);
+        String token = createAccessTokenForUser(validatedUser);
+        log.info("Login successful for user: {}", validatedUser.getUsername());
+        AuthResponse response = buildAuthResponseForLogin(validatedUser, token);
+        logAuthResponseDebugHint(response);
+        return response;
+    }
+
+    private UserDto validateLoginCredentials(LoginUserDto request) {
         // Validate credentials directly via user-service
-        UserDto validatedUser = userServiceClient.validateCredentials(
-                request.getUsernameOrEmail(), 
+        return userServiceClient.validateCredentials(
+                request.getUsernameOrEmail(),
                 request.getPassword()
         ).orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
-        
+    }
+
+    private void logLoginDebugHints(UserDto validatedUser) {
         log.debug("=== DEBUG AuthService.login() ===");
         log.debug("validatedUser.isMustChangePassword() = {}", validatedUser.isMustChangePassword());
         System.out.println("=== DEBUG AuthService.login() ===");
         System.out.println("validatedUser.isMustChangePassword() = " + validatedUser.isMustChangePassword());
-        
+    }
+
+    private String createAccessTokenForUser(UserDto validatedUser) {
         // Generate JWT token
-        String token = jwtTokenProvider.generateToken(
+        return jwtTokenProvider.generateToken(
                 validatedUser.getId(),
                 validatedUser.getUsername(),
                 validatedUser.getRoles()
         );
-        
-        log.info("Login successful for user: {}", validatedUser.getUsername());
-        
-        AuthResponse response = AuthResponse.builder()
+    }
+
+    private AuthResponse buildAuthResponseForLogin(UserDto validatedUser, String token) {
+        return AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")
                 .expiresIn(jwtTokenProvider.getExpirationMs() / 1000)
@@ -60,11 +74,12 @@ public class AuthService implements IAuthService {
                 .employeeOfBranch(validatedUser.getEmployeeBranchId())
                 .mustChangePassword(validatedUser.isMustChangePassword())
                 .build();
-        
-        System.out.println("AuthResponse.mustChangePassword = " + response.isMustChangePassword());
-        
-        return response;
     }
+
+    private static void logAuthResponseDebugHint(AuthResponse response) {
+        System.out.println("AuthResponse.mustChangePassword = " + response.isMustChangePassword());
+    }
+    //Lab6 : Jedna rola funkcji 2 Stop
 
     //Lab6 : Długość metod 2 Start
     @Override

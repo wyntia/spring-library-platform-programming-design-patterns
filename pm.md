@@ -54,3 +54,27 @@ Wydzielono: `applyRentDataAndClearReservation`, `persistRentedCopyAndBuildRespon
 ### Commit
 
 - `Refactor: Długość metod (max 20 linii)`
+
+---
+
+## Jedna rola funkcji / SRP (zadanie 3, 3 pkt / 3 przykłady)
+
+### Cel
+
+Rozdzielenie odpowiedzialności w wybranych metodach: krótka metoda publiczna jako orkiestracja, prywatne metody z jedną rolą (domena, persystencja/observer, integracja z mediatorem, uwierzytelnianie, diagnostyka, budowa odpowiedzi itd.). Zachowane komentarze i markery wcześniejszych labów (`L6`, `Lab5`, `L3 Iterator`).
+
+### Przykład 1 — `RentalService.returnItem`
+
+Wydzielono: `applyReturnDomainTransition` (walidacja stanu + pola zwrotu), `persistReturnedRentalAndNotifyObservers` (zapis + zdarzenie `RETURNED`), `finalizeReturnIntegration` (`MarkAsReturnedRequest` + blok Lab5 przy `SendReturnConfirmationNotification`). Markery: `//Lab6 : Jedna rola funkcji 1 Start` / `Stop`.
+
+### Przykład 2 — `AuthService.login`
+
+Wydzielono: `validateLoginCredentials`, `logLoginDebugHints`, `createAccessTokenForUser`, `buildAuthResponseForLogin`, `logAuthResponseDebugHint` — bez zmiany kolejności logów i komunikatów. Markery: `//Lab6 : Jedna rola funkcji 2 Start` / `Stop`.
+
+### Przykład 3 — `ReservationService.cleanupExpiredReservations`
+
+Pętla z iteratorem L3 wywołuje: `expireReservationRecord` (walidacja stanu + zapis wygasłej rezerwacji), `publishExpiredReservationIntegrationEvents` (observer + `UpdateCatalogStatusRequest`). Markery: `//Lab6 : Jedna rola funkcji 3 Start` / `Stop`.
+
+### Commit
+
+- `Refactor: Jedna rola funkcji (SRP)`

@@ -113,33 +113,42 @@ public class RentalService implements IRentalService, Subject {
     }
     //Lab6 : Długość metod 1 Stop
 
+    //Lab6 : Jedna rola funkcji 1 Start
     @Override
     public void returnItem(Long itemId, Long branchId) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
+        applyReturnDomainTransition(rentalHistory);
+        persistReturnedRentalAndNotifyObservers(rentalHistory, itemId);
+        finalizeReturnIntegration(rentalHistory, itemId, branchId);
+    }
 
+    private void applyReturnDomainTransition(RentalHistory rentalHistory) {
         //L6 Use State Pattern validation
         rentalHistory.getState().validateForReturn();
 
         rentalHistory.setReturnedAt(DateTimeProvider.getInstance().now());
         rentalHistory.setStatus(RentalStatus.RETURNED);
+    }
 
-        try{
+    private void persistReturnedRentalAndNotifyObservers(RentalHistory rentalHistory, Long itemId) {
+        try {
             rentalHistoryRepository.save(rentalHistory);
 
             //L6 Notify observers about item return
             notifyObservers(new RentalEvent(
-                "RETURNED",
-                rentalHistory.getId(),
-                itemId,
-                rentalHistory.getUserId(),
-                DateTimeProvider.getInstance().now()
+                    "RETURNED",
+                    rentalHistory.getId(),
+                    itemId,
+                    rentalHistory.getUserId(),
+                    DateTimeProvider.getInstance().now()
             ));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.error("Error updating rental history for return of itemId: {}. Error: {}", itemId, e.getMessage());
             throw e;
         }
+    }
 
+    private void finalizeReturnIntegration(RentalHistory rentalHistory, Long itemId, Long branchId) {
         mediator.send(new MarkAsReturnedRequest(itemId, branchId));
 
         //Lab5 Mediator Start
@@ -152,6 +161,7 @@ public class RentalService implements IRentalService, Subject {
         }
         //Lab5 Mediator End
     }
+    //Lab6 : Jedna rola funkcji 1 Stop
 
     //Lab6 : Znaczące nazewnictwo 1 Start
     @Override
