@@ -157,3 +157,22 @@ Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 3`.
 ### Commit
 
 - `Refactor: Wyjątki zamiast kodów błędów (Lab6)`
+
+---
+
+## Brak powtórzeń / DRY (zadanie 7, 1 pkt)
+
+### Cel
+
+Usunięcie trzykrotnego powtórzenia tego samego wzorca `try/catch (ServiceException)` przy pobieraniu emaila użytkownika dla powiadomień o wypożyczeniu.
+
+### Zmiany
+
+- Komponent [NotificationUserEmailResolver](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/rental-service/src/main/java/org/pollub/rental/mediator/support/NotificationUserEmailResolver.java) (`org.pollub.rental.mediator.support`): `resolveEmail(userId, Runnable onServiceFailure)` — `Optional` + wywołanie `onServiceFailure` przy `ServiceException`.
+- `OverdueReminderHandler`, `RentalConfirmationHandler`, `ReturnConfirmationHandler` — ten sam przepływ co wcześniej, z osobnymi komunikatami `log.warn` przekazywanymi jako `Runnable`.
+
+Markery: `//Lab6 : Brak powtórzeń (DRY) Start` / `Stop`.
+
+### Commit
+
+- `Refactor: Brak powtórzeń w kodzie (DRY)`
