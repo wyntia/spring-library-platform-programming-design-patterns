@@ -1,14 +1,10 @@
 package org.pollub.branch.service;
 
-import org.pollub.branch.strategy.DefaultBranchSearchStrategy;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.pollub.branch.client.UserServiceClient;
+import org.pollub.branch.facade.BranchFacade;
 import org.pollub.branch.model.LibraryBranch;
 import org.pollub.branch.model.dto.BranchCreateDto;
-import org.pollub.branch.repository.BranchRepository;
 import org.pollub.common.dto.UserDto;
-import org.pollub.common.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,87 +13,79 @@ import java.util.List;
 @Service("baseBranchService")
 @Transactional
 @RequiredArgsConstructor
-@Slf4j
-public class BranchService implements IBranchService {
-    
-    private final BranchRepository branchRepository;
-    private final UserServiceClient userServiceClient;
 
-    //start L6 Strategy Design Pattern - injectable search strategy
-    private final DefaultBranchSearchStrategy searchStrategy;
-    // end L6 Strategy Design Pattern
+public class BranchService implements IBranchService {
+
+    private final BranchFacade branchFacade;
 
     public List<LibraryBranch> getAllBranches() {
-        return branchRepository.findAll();
+        return branchFacade.getAllBranches();
     }
     
     public LibraryBranch getBranchById(Long id) {
-        return branchRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("LibraryBranch", id));
+        return branchFacade.getBranchById(id);
     }
     
     public LibraryBranch getBranchByNumber(String branchNumber) {
-        return branchRepository.findByBranchNumber(branchNumber)
-                .orElseThrow(() -> new ResourceNotFoundException("Branch not found with number: " + branchNumber));
+        return branchFacade.getBranchByNumber(branchNumber);
     }
     
     public List<LibraryBranch> searchBranches(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            return branchRepository.findAll();
-        }
-        //L6 Strategy Design Pattern - delegate search to current strategy
-        return searchStrategy.search(query);
+        return branchFacade.searchBranches(query);
     }
 
     public LibraryBranch createBranch(BranchCreateDto dto) {
-        LibraryBranch branch = LibraryBranch.builder()
-                .branchNumber(dto.getBranchNumber())
-                .name(dto.getName())
-                .city(dto.getCity())
-                .address(dto.getAddress())
-                .latitude(dto.getLatitude())
-                .longitude(dto.getLongitude())
-                .phone(dto.getPhone())
-                .email(dto.getEmail())
-                .openingHours(dto.getOpeningHours())
-                .build();
-        return branchRepository.save(branch);
+        return branchFacade.createBranch(dto);
     }
 
     public LibraryBranch updateBranch(Long id, BranchCreateDto dto) {
-        LibraryBranch branch = getBranchById(id);
-        branch.setBranchNumber(dto.getBranchNumber());
-        branch.setName(dto.getName());
-        branch.setCity(dto.getCity());
-        branch.setAddress(dto.getAddress());
-        branch.setLatitude(dto.getLatitude());
-        branch.setLongitude(dto.getLongitude());
-        branch.setPhone(dto.getPhone());
-        branch.setEmail(dto.getEmail());
-        branch.setOpeningHours(dto.getOpeningHours());
-        return branchRepository.save(branch);
+        return branchFacade.updateBranch(id, dto);
     }
     
     public void deleteBranch(Long id) {
-        if (!branchRepository.existsById(id)) {
-            throw new ResourceNotFoundException("LibraryBranch", id);
-        }
-        branchRepository.deleteById(id);
+        branchFacade.deleteBranch(id);
     }
     
     /**
      * Get employees assigned to this branch from user-service
      */
     public List<UserDto> getBranchEmployees(Long branchId) {
-        // Verify branch exists
-        getBranchById(branchId);
-        return userServiceClient.getEmployeesByBranch(branchId);
+        return branchFacade.getBranchEmployees(branchId);
     }
 
     /**
      * Get multiple branches by IDs
      */
     public List<LibraryBranch> getBranchesByIds(List<Long> branchIds) {
-        return branchRepository.findAllById(branchIds);
+        return branchFacade.getBranchesByIds(branchIds);
     }
+
+    //Lab5 : Liskov 2 Start
+    @Override
+    public java.util.Map<String, Object> getBranchHierarchy() {
+        branch.BranchComponent countryGroup = new branch.BranchGroup("Miejska Biblioteka Publiczna w Lublinie");
+
+        branch.BranchComponent northRegion = new branch.BranchGroup("Śródmieście i Północ");
+        branch.BranchComponent southRegion = new branch.BranchGroup("Południe");
+
+        northRegion.addChild(new branch.Branch("Filia nr 1 - Śródmieście"));
+        northRegion.addChild(new branch.Branch("Filia nr 2 - Czechów"));
+
+        southRegion.addChild(new branch.Branch("Filia nr 3 - Czuby"));
+
+        countryGroup.addChild(northRegion);
+        countryGroup.addChild(southRegion);
+
+        return buildHierarchyMap(countryGroup);
+    }
+
+    private java.util.Map<String, Object> buildHierarchyMap(branch.BranchComponent component) {
+        return java.util.Map.of(
+            "name", component.getName(),
+            "children", component.getChildren().stream()
+                .map(this::buildHierarchyMap)
+                .collect(java.util.stream.Collectors.toList())
+        );
+    }
+    //Lab5 : Liskov 2 End
 }

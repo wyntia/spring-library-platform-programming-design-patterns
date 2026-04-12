@@ -24,6 +24,7 @@ import org.pollub.rental.utils.IRentalValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,13 +55,32 @@ public class RentalService implements IRentalService, Subject {
         return rentalHistoryRepository.findByItemId(itemId);
     }
 
+    //Lab6 : Długość metod 1 Start
+    //Lab6 : Poziom abstrakcji 1 Start
     @Override
     @Transactional
     public ReservationResponse rentItem(Long itemId, Long userId, Long branchId) {
 //        this.rentalValidator.validateAbilityToRentOrThrow(userId, itemId);
         validationBridge.validateAbilityToRentOrThrow(userId, itemId);
+        RentalHistory rentalHistory = buildRentalHistoryForRent(itemId, userId, branchId);
+        saveNewRentalAndNotifyCreated(rentalHistory, itemId, userId);
+        notifyUserOfRentalConfirmation(rentalHistory, userId, itemId);
+        return completeRentalInCatalog(rentalHistory);
+    }
 
-        RentalHistory rentalHistory = RentalHistory.builder()
+    private void notifyUserOfRentalConfirmation(RentalHistory rentalHistory, Long userId, Long itemId) {
+        sendRentalConfirmationSafely(userId, itemId, rentalHistory.getDueDate());
+    }
+
+    private ReservationResponse completeRentalInCatalog(RentalHistory rentalHistory) {
+        return mediator.send(new MarkAsRentedRequest(
+                toRentalCatalogRequestDto(rentalHistory)
+        ));
+    }
+    //Lab6 : Poziom abstrakcji 1 Stop
+
+    private RentalHistory buildRentalHistoryForRent(Long itemId, Long userId, Long branchId) {
+        return RentalHistory.builder()
                 .itemId(itemId)
                 .userId(userId)
                 .branchId(branchId)
@@ -69,64 +89,76 @@ public class RentalService implements IRentalService, Subject {
                 .isExtended(false)
                 .dueDate(DateTimeProvider.getInstance().now().plusDays(DAYS_TO_RENT))
                 .build();
-        
-        try{
+    }
+
+    private void saveNewRentalAndNotifyCreated(RentalHistory rentalHistory, Long itemId, Long userId) {
+        try {
             rentalHistoryRepository.save(rentalHistory);
             log.info("Rental history saved: {}", rentalHistory);
 
             // Notify observers about rental creation
             notifyObservers(new RentalEvent(
-                "CREATED",
-                rentalHistory.getId(),
-                itemId,
-                userId,
-                DateTimeProvider.getInstance().now()
+                    "CREATED",
+                    rentalHistory.getId(),
+                    itemId,
+                    userId,
+                    DateTimeProvider.getInstance().now()
             ));
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("Error saving rental history for itemId: {}, userId: {}. Error: {}", itemId, userId, e.getMessage());
             throw e;
         }
+    }
+
+    private void sendRentalConfirmationSafely(Long userId, Long itemId, LocalDateTime dueDate) {
         //Lab5 Mediator Start
         try {
             mediator.send(new SendRentalConfirmationNotification(
-                    userId, itemId, rentalHistory.getDueDate()
+                    userId, itemId, dueDate
             ));
         } catch (Exception e) {
             log.warn("Failed to send rental confirmation notification: {}", e.getMessage());
         }
         //Lab5 Mediator End
-        return mediator.send(new MarkAsRentedRequest(
-                toRentalCatalogRequestDto(rentalHistory)
-        ));
     }
+    //Lab6 : Długość metod 1 Stop
 
+    //Lab6 : Jedna rola funkcji 1 Start
     @Override
     public void returnItem(Long itemId, Long branchId) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
+        applyReturnDomainTransition(rentalHistory);
+        persistReturnedRentalAndNotifyObservers(rentalHistory, itemId);
+        finalizeReturnIntegration(rentalHistory, itemId, branchId);
+    }
 
+    private void applyReturnDomainTransition(RentalHistory rentalHistory) {
         //L6 Use State Pattern validation
         rentalHistory.getState().validateForReturn();
 
         rentalHistory.setReturnedAt(DateTimeProvider.getInstance().now());
         rentalHistory.setStatus(RentalStatus.RETURNED);
+    }
 
-        try{
+    private void persistReturnedRentalAndNotifyObservers(RentalHistory rentalHistory, Long itemId) {
+        try {
             rentalHistoryRepository.save(rentalHistory);
 
             //L6 Notify observers about item return
             notifyObservers(new RentalEvent(
-                "RETURNED",
-                rentalHistory.getId(),
-                itemId,
-                rentalHistory.getUserId(),
-                DateTimeProvider.getInstance().now()
+                    "RETURNED",
+                    rentalHistory.getId(),
+                    itemId,
+                    rentalHistory.getUserId(),
+                    DateTimeProvider.getInstance().now()
             ));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.error("Error updating rental history for return of itemId: {}. Error: {}", itemId, e.getMessage());
             throw e;
         }
+    }
 
+    private void finalizeReturnIntegration(RentalHistory rentalHistory, Long itemId, Long branchId) {
         mediator.send(new MarkAsReturnedRequest(itemId, branchId));
 
         //Lab5 Mediator Start
@@ -139,44 +171,60 @@ public class RentalService implements IRentalService, Subject {
         }
         //Lab5 Mediator End
     }
+    //Lab6 : Jedna rola funkcji 1 Stop
 
+    //Lab6 : Znaczące nazewnictwo 1 Start
+    //Lab6 : Poziom abstrakcji 2 Start
     @Override
-    public void extendLoan(Long itemId, Long branchId, int days) {
+    public void extendRental(Long itemId, Long branchId, int days) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
+        validateRentalExtensionAllowed(itemId, rentalHistory);
+        applyRentalDueDateExtension(days, rentalHistory);
+        persistExtendedRentalAndNotifyObservers(itemId, rentalHistory);
+        syncCatalogAfterRentalExtension(itemId, branchId, days);
+    }
 
+    private void validateRentalExtensionAllowed(Long itemId, RentalHistory rentalHistory) {
         //L6 Use State Pattern validation
         rentalHistory.getState().validateForExtension();
 
         throwIfHaveBeenAlreadyRentedBefore(itemId, rentalHistory);
+    }
 
-        extendLoanRecord(days, rentalHistory);
-        try{
+    private void applyRentalDueDateExtension(int days, RentalHistory rentalHistory) {
+        extendRentalRecord(days, rentalHistory);
+    }
+
+    private void persistExtendedRentalAndNotifyObservers(Long itemId, RentalHistory rentalHistory) {
+        try {
             rentalHistoryRepository.save(rentalHistory);
 
             // Notify observers about rental extension
             notifyObservers(new RentalEvent(
-                "EXTENDED",
-                rentalHistory.getId(),
-                itemId,
-                rentalHistory.getUserId(),
-                DateTimeProvider.getInstance().now()
+                    "EXTENDED",
+                    rentalHistory.getId(),
+                    itemId,
+                    rentalHistory.getUserId(),
+                    DateTimeProvider.getInstance().now()
             ));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.error("Error updating rental history for extension of itemId: {}. Error: {}", itemId, e.getMessage());
             throw e;
         }
-
-        mediator.send(new ExtendRentalRequest(itemId, branchId, days));
-
     }
 
-    private static void extendLoanRecord(int days, RentalHistory rentalHistory) {
+    private void syncCatalogAfterRentalExtension(Long itemId, Long branchId, int days) {
+        mediator.send(new ExtendRentalRequest(itemId, branchId, days));
+    }
+    //Lab6 : Poziom abstrakcji 2 Stop
+
+    private static void extendRentalRecord(int days, RentalHistory rentalHistory) {
         rentalHistory.setDueDate(
                 rentalHistory.getDueDate().plusDays(days)
         );
         rentalHistory.setIsExtended(true);
     }
+    //Lab6 : Znaczące nazewnictwo 1 Stop
 
     private static void throwIfHaveBeenAlreadyRentedBefore(Long itemId, RentalHistory rentalHistory) {
         if (rentalHistory.getIsExtended() == true) {
@@ -229,5 +277,20 @@ public class RentalService implements IRentalService, Subject {
             observer.update(this, event);
         }
     }
+
+    //Lab5 : Liskov 3 Start
+    /**
+     * Demonstrates Liskov Substitution Principle.
+     * The RentalService relies only on the IRentalFeeStrategy abstraction.
+     * Both StandardFeeStrategy and StudentDiscountFeeStrategy can be passed interchangeably
+     * without breaking the correctness of the fee calculation process.
+     */
+    public java.math.BigDecimal calculateRentalFee(int days, IRentalFeeStrategy feeStrategy) {
+        if (feeStrategy == null) {
+            throw new IllegalArgumentException("Fee strategy cannot be null");
+        }
+        return feeStrategy.calculateFee(days);
+    }
+    //Lab5 : Liskov 3 End
 }
 

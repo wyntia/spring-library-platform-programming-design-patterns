@@ -2,6 +2,7 @@ package org.pollub.feedback.model.dto;
 
 
 
+import org.pollub.common.function.FeedbackIpAnonymizer;
 import org.pollub.feedback.model.Feedback;
 import org.pollub.feedback.model.FeedbackCategory;
 import org.pollub.feedback.model.FeedbackStatus;
@@ -26,9 +27,26 @@ public record FeedbackAdminDto(
      * Convert entity to admin DTO with sensitive data masked.
      */
     public static FeedbackAdminDto fromEntity(Feedback feedback) {
-        String submitterName = null;
-        boolean anonymous = true;
-        
+        //Lab7 : Interfejsy funkcyjne i lambda — użycie 3/3 (feedback)
+        return toAdminDto(
+                feedback,
+                ip -> {
+                    if (ip == null || ip.isBlank()) {
+                        return "unknown";
+                    }
+                    int lastDot = ip.lastIndexOf('.');
+                    if (lastDot > 0) {
+                        return ip.substring(0, lastDot) + ".***";
+                    }
+                    int lastColon = ip.lastIndexOf(':');
+                    if (lastColon > 0) {
+                        return ip.substring(0, lastColon) + ":****";
+                    }
+                    return "***";
+                });
+    }
+
+    private static FeedbackAdminDto toAdminDto(Feedback feedback, FeedbackIpAnonymizer ipAnonymizer) {
         return new FeedbackAdminDto(
                 feedback.getId(),
                 feedback.getCategory(),
@@ -37,24 +55,7 @@ public record FeedbackAdminDto(
                 feedback.getStatus(),
                 feedback.getCreatedAt(),
                 feedback.getResolvedAt(),
-                maskIp(feedback.getIpAddress())
+                ipAnonymizer.anonymize(feedback.getIpAddress())
         );
-    }
-    
-    /**
-     * Mask IP address for privacy (show first 3 octets only).
-     */
-    private static String maskIp(String ip) {
-        if (ip == null || ip.isBlank()) return "unknown";
-        int lastDot = ip.lastIndexOf('.');
-        if (lastDot > 0) {
-            return ip.substring(0, lastDot) + ".***";
-        }
-        // IPv6 or other format - just mask last segment
-        int lastColon = ip.lastIndexOf(':');
-        if (lastColon > 0) {
-            return ip.substring(0, lastColon) + ":****";
-        }
-        return "***";
     }
 }

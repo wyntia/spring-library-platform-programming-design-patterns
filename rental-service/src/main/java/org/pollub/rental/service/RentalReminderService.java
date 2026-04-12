@@ -2,6 +2,7 @@ package org.pollub.rental.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.pollub.common.function.RentalReminderBatchReporter;
 import org.pollub.common.mediator.Mediator;
 import org.pollub.rental.mediator.request.SendOverdueReminderNotification;
 import org.pollub.rental.model.RentalHistory;
@@ -57,7 +58,16 @@ public class RentalReminderService {
             }
         }
 
-        log.info("Rental reminder job completed. Sent: {}, Failed: {}", successCount, failCount);
+        //Lab7 : Interfejsy funkcyjne i lambda — użycie 2/3 (rental)
+        reportBatch(
+                successCount,
+                failCount,
+                (ok, fail) ->
+                        log.info("Rental reminder job completed. Sent: {}, Failed: {}", ok, fail));
+    }
+
+    private void reportBatch(int successCount, int failureCount, RentalReminderBatchReporter reporter) {
+        reporter.report(successCount, failureCount);
     }
     //Lab5 Mediator End
 }
