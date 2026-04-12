@@ -15,13 +15,16 @@ public class Branch implements BranchComponent {
     public String getName() { return name; }
     @Override
     public List<BranchComponent> getChildren() { return Collections.emptyList(); }
+    //Lab5 : Liskov 2 Start
     @Override
-    public void addChild(BranchComponent child) {
-        throw new UnsupportedOperationException("Branch (liść) nie obsługuje dzieci");
+    public boolean addChild(BranchComponent child) {
+        // Zamiast rzucać UnsupportedOperationException, bezpiecznie ignorujemy próbę dodania
+        return false;
     }
     @Override
-    public void removeChild(BranchComponent child) {
-        throw new UnsupportedOperationException("Branch (liść) nie obsługuje dzieci");
+    public boolean removeChild(BranchComponent child) {
+        return false;
     }
+    //Lab5 : Liskov 2 End
 }
 //end L2 Composite

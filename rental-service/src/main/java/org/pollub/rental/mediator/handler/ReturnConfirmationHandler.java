@@ -6,8 +6,8 @@ import org.pollub.common.mediator.Mediator;
 import org.pollub.common.mediator.RequestHandler;
 import org.pollub.rental.bridge.INotificationBridge;
 import org.pollub.rental.mediator.request.GetItemTitleRequest;
-import org.pollub.rental.mediator.request.GetUserEmailRequest;
 import org.pollub.rental.mediator.request.SendReturnConfirmationNotification;
+import org.pollub.rental.mediator.support.NotificationUserEmailResolver;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -20,14 +20,19 @@ public class ReturnConfirmationHandler implements RequestHandler<SendReturnConfi
     @Lazy
     private final Mediator mediator;
     private final INotificationBridge notificationBridge;
+    private final NotificationUserEmailResolver notificationUserEmailResolver;
 
     @Override
     public Void handle(SendReturnConfirmationNotification request) {
-        String email = mediator.send(new GetUserEmailRequest(request.userId()));
-        if (email == null) {
-            log.warn("Could not find email for user {}, skipping return confirmation", request.userId());
+        //Lab6 : Brak powtórzeń (DRY) Start
+        var emailOpt = notificationUserEmailResolver.resolveEmail(
+                request.userId(),
+                () -> log.warn("Could not find email for user {}, skipping return confirmation", request.userId()));
+        if (emailOpt.isEmpty()) {
             return null;
         }
+        String email = emailOpt.get();
+        //Lab6 : Brak powtórzeń (DRY) Stop
 
         String itemTitle = mediator.send(new GetItemTitleRequest(request.itemId()));
         notificationBridge.sendReturnConfirmation(email, itemTitle);

@@ -32,6 +32,7 @@ public class ReservationService implements IReservationService, Subject {
     private final Mediator mediator;
     private final List<Observer> observers = new ArrayList<>();
 
+    //Lab6 : Jedna rola funkcji 3 Start
     @Override
     @Transactional
     public void cleanupExpiredReservations() {
@@ -41,32 +42,39 @@ public class ReservationService implements IReservationService, Subject {
         ReservationHistoryIterator iterator = new ReservationHistoryIterator(expired);
         while (iterator.hasNext()) {
             ReservationHistory reservation = iterator.next();
+            expireReservationRecord(reservation);
+            publishExpiredReservationIntegrationEvents(reservation);
+        }
+        //end L3 Iterator
+        log.info("Processed {} expired reservations", expired.size());
+    }
 
-            //L6 Use State Pattern validation
-            reservation.getState().validateForExpiration();
+    private void expireReservationRecord(ReservationHistory reservation) {
+        //L6 Use State Pattern validation
+        reservation.getState().validateForExpiration();
 
-            reservation.setStatus(ReservationStatus.EXPIRED);
-            reservation.setResolvedAt(DateTimeProvider.getInstance().now());
-            reservationRepository.save(reservation);
+        reservation.setStatus(ReservationStatus.EXPIRED);
+        reservation.setResolvedAt(DateTimeProvider.getInstance().now());
+        reservationRepository.save(reservation);
+    }
 
-            //L6 Notify observers about reservation expiration
-            notifyObservers(new ReservationEvent(
+    private void publishExpiredReservationIntegrationEvents(ReservationHistory reservation) {
+        //L6 Notify observers about reservation expiration
+        notifyObservers(new ReservationEvent(
                 "EXPIRED",
                 reservation.getId(),
                 reservation.getItemId(),
                 reservation.getUserId(),
                 DateTimeProvider.getInstance().now()
-            ));
+        ));
 
-            mediator.send(new UpdateCatalogStatusRequest(
+        mediator.send(new UpdateCatalogStatusRequest(
                 reservation.getItemId(),
                 reservation.getBranchId(),
                 "AVAILABLE"
-            ));
-        }
-        //end L3 Iterator
-        log.info("Processed {} expired reservations", expired.size());
+        ));
     }
+    //Lab6 : Jedna rola funkcji 3 Stop
 
     //L6 Observer pattern implementation
 

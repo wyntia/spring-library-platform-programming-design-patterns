@@ -15,5 +15,11 @@ public interface IRentalService {
 
     void returnItem(Long itemId, Long branchId);
 
-    void extendLoan(Long itemId, Long branchId, int days);
+    //Lab6 : Znaczące nazewnictwo 1 Start
+    void extendRental(Long itemId, Long branchId, int days);
+    //Lab6 : Znaczące nazewnictwo 1 Stop
+
+    //Lab5 : Liskov 3 Start
+    java.math.BigDecimal calculateRentalFee(int days, IRentalFeeStrategy feeStrategy);
+    //Lab5 : Liskov 3 End
 }

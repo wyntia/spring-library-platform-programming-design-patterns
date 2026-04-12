@@ -35,7 +35,7 @@ public class CatalogService implements ICatalogService {
     @Override
     public List<LibraryItem> findAll() {
         return dataSourceBridge.findAll();
-    } //L2 Bridge delegation
+    } // L2 Bridge delegation
 
     @Override
     public LibraryItem findById(Long id) {
@@ -43,35 +43,35 @@ public class CatalogService implements ICatalogService {
                 .orElseThrow(() -> new NoSuchElementException("Item not found: " + id));
     }
 
-//    @Override
-//    public List<LibraryItem> findAvailable() {
-//        // An item is considered available if it has at least one available copy
-//        List<Long> availableItemIds = branchInventoryRepository.findAll().stream()
-//                .filter(inv -> inv.getStatus() == CopyStatus.AVAILABLE)
-//                .map(BranchInventory::getItemId)
-//                .distinct()
-//                .toList();
-//
-//        return libraryItemRepository.findAllById(availableItemIds);
-//    }
+    // @Override
+    // public List<LibraryItem> findAvailable() {
+    // // An item is considered available if it has at least one available copy
+    // List<Long> availableItemIds = branchInventoryRepository.findAll().stream()
+    // .filter(inv -> inv.getStatus() == CopyStatus.AVAILABLE)
+    // .map(BranchInventory::getItemId)
+    // .distinct()
+    // .toList();
+    //
+    // return libraryItemRepository.findAllById(availableItemIds);
+    // }
     @Override
     public List<LibraryItem> findAvailable() {
-        return dataSourceBridge.findAvailable();  //L2 Bridge delegation
+        return dataSourceBridge.findAvailable(); // L2 Bridge delegation
     }
 
     @Override
     public List<LibraryItem> findRented() {
-        return dataSourceBridge.findRented();  //L2 Bridge delegation
+        return dataSourceBridge.findRented(); // L2 Bridge delegation
     }
 
     @Override
     public List<LibraryItem> findByUserId(Long userId) {
-        return dataSourceBridge.findByUserId(userId);  //L2 Bridge delegation
+        return dataSourceBridge.findByUserId(userId); // L2 Bridge delegation
     }
 
     @Override
     public List<LibraryItem> findByBranchId(Long branchId) {
-        return dataSourceBridge.findByBranchId(branchId);  //L2 Bridge delegation
+        return dataSourceBridge.findByBranchId(branchId); // L2 Bridge delegation
     }
 
     @Override
@@ -80,16 +80,18 @@ public class CatalogService implements ICatalogService {
         return libraryItemRepository.findAllById(itemIds);
     }
 
+    // Lab5 : Liskov 1 Start
     @Override
     public List<LibraryItem> searchItems(String query) {
-        if (query == null || query.isBlank()) return findAll();
+        if (query == null || query.isBlank())
+            return findAll();
         String q = query.toLowerCase();
         return libraryItemRepository.findAll().stream()
                 .filter(i -> containsIgnoreCase(i.getTitle(), q) || containsIgnoreCase(i.getDescription(), q)
-                        || (i instanceof Book b && containsIgnoreCase(b.getAuthor(), q))
-                        || (i instanceof Book bb && containsIgnoreCase(bb.getIsbn(), q)))
+                        || i.matchesCustomSearch(q))
                 .collect(Collectors.toList());
     }
+    // Lab5 : Liskov 1 End
 
     private boolean containsIgnoreCase(String field, String q) {
         return field != null && field.toLowerCase().contains(q);
@@ -139,7 +141,8 @@ public class CatalogService implements ICatalogService {
         Map<Long, org.pollub.catalog.client.BranchResponse> branchDataMap = new java.util.HashMap<>();
         try {
             if (!branchIds.isEmpty()) {
-                Map<Long, org.pollub.catalog.client.BranchResponse> fetchedBranches = branchServiceClient.getBranchesByIds(branchIds);
+                Map<Long, org.pollub.catalog.client.BranchResponse> fetchedBranches = branchServiceClient
+                        .getBranchesByIds(branchIds);
                 if (fetchedBranches != null) {
                     branchDataMap.putAll(fetchedBranches);
                 }
@@ -156,16 +159,15 @@ public class CatalogService implements ICatalogService {
                 continue;
             }
 
+            // Lab5 : Liskov 1 Start
             String itemTitle = item.getTitle();
-            String itemAuthor = "-";
-            if (item instanceof Book book) {
-                itemAuthor = book.getAuthor() != null ? book.getAuthor() : "-";
-            }
+            String itemAuthor = item.extractAuthorOrCreator();
+            // Lab5 : Liskov 1 End
 
             // Get branch information from the pre-fetched map
             String branchName = "Brak danych";
             String branchAddress = "Brak danych";
-            
+
             org.pollub.catalog.client.BranchResponse branchResponse = branchDataMap.get(inv.getBranchId());
             if (branchResponse != null) {
                 branchName = branchResponse.getName() != null ? branchResponse.getName() : "Brak danych";
