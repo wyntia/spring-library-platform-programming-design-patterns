@@ -140,8 +140,9 @@ public class RentalService implements IRentalService, Subject {
         //Lab5 Mediator End
     }
 
+    //Lab6 : Znaczące nazewnictwo 1 Start
     @Override
-    public void extendLoan(Long itemId, Long branchId, int days) {
+    public void extendRental(Long itemId, Long branchId, int days) {
         RentalHistory rentalHistory = getRentalHistory(itemId, branchId);
 
         //L6 Use State Pattern validation
@@ -149,7 +150,7 @@ public class RentalService implements IRentalService, Subject {
 
         throwIfHaveBeenAlreadyRentedBefore(itemId, rentalHistory);
 
-        extendLoanRecord(days, rentalHistory);
+        extendRentalRecord(days, rentalHistory);
         try{
             rentalHistoryRepository.save(rentalHistory);
 
@@ -171,12 +172,13 @@ public class RentalService implements IRentalService, Subject {
 
     }
 
-    private static void extendLoanRecord(int days, RentalHistory rentalHistory) {
+    private static void extendRentalRecord(int days, RentalHistory rentalHistory) {
         rentalHistory.setDueDate(
                 rentalHistory.getDueDate().plusDays(days)
         );
         rentalHistory.setIsExtended(true);
     }
+    //Lab6 : Znaczące nazewnictwo 1 Stop
 
     private static void throwIfHaveBeenAlreadyRentedBefore(Long itemId, RentalHistory rentalHistory) {
         if (rentalHistory.getIsExtended() == true) {

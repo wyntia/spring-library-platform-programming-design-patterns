@@ -29,25 +29,27 @@ public class LibrarianUserFactory implements IUserFactory {
                     .build())
             .build();
 
+    //Lab6 : Znaczące nazewnictwo 2 Start
     @Override
-    public User createUser(User userDto) {
+    public User createUser(User user) {
         //Lab1 - Prototype 3 Start
         //Lab1 - Builder 4 Start
         return templateLibrarian.clone().toBuilder()
-                .username(userDto.getEmail())
-                .email(userDto.getEmail().toLowerCase())
-                .password(passwordEncoder.encode(userDto.getPassword()))
+                .username(user.getEmail())
+                .email(user.getEmail().toLowerCase())
+                .password(passwordEncoder.encode(user.getPassword()))
                 .readerId(uidGenerator.generateUid())
-                .pesel(userDto.getPesel())
-                .address(userDto.getAddress() != null ? userDto.getAddress() : templateLibrarian.getAddress())
-                .phone(userDto.getPhone())
-                .name(userDto.getName())
-                .surname(userDto.getSurname())
+                .pesel(user.getPesel())
+                .address(user.getAddress() != null ? user.getAddress() : templateLibrarian.getAddress())
+                .phone(user.getPhone())
+                .name(user.getName())
+                .surname(user.getSurname())
                 .mustChangePassword(true)
                 .build();
         //Lab1 End Builder 4
         //Lab1 End Prototype 3
     }
+    //Lab6 : Znaczące nazewnictwo 2 Stop
 
     @Override
     public User createUser(String username, String email, String password, String name, String surname) {

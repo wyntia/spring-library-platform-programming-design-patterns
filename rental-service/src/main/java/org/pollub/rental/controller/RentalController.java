@@ -57,15 +57,17 @@ public class RentalController {
         return ResponseEntity.noContent().build();
     }
 
+    //Lab6 : Znaczące nazewnictwo 1 Start
     @PutMapping("/{itemId}/extend")
-    public ResponseEntity<Void> extendLoan(
+    public ResponseEntity<Void> extendRental(
             @PathVariable Long itemId,
             @RequestParam Long branchId,
             @RequestParam(defaultValue = "7") int days
     ) {
-        rentalService.extendLoan(itemId, branchId, days);
+        rentalService.extendRental(itemId, branchId, days);
         return ResponseEntity.noContent().build();
     }
+    //Lab6 : Znaczące nazewnictwo 1 Stop
 
     //Lab5 : Liskov 3 Start
     @GetMapping("/fee")
