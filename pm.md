@@ -150,9 +150,9 @@ Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 2`.
 
 ### Przykład 3 — email użytkownika (rental-service)
 
-`UserServiceClient.getUserEmail` rzuca `ServiceException` zamiast zwracać `null`; `OverdueReminderHandler`, `RentalConfirmationHandler`, `ReturnConfirmationHandler` łapią `ServiceException` przy `mediator.send(GetUserEmailRequest)` i pomijają powiadomienie z tym samym logiem co przy wcześniejszym `email == null`.
+`UserServiceClient.getUserEmail` rzuca `ServiceException`, gdy nie da się pobrać adresu (wcześniej zwracał `null` i handlery robiły `if (email == null)`). Mediator wywołuje `GetUserEmailHandler`, który woła ten klient — wyjątek leci do góry. **Obsługa** „nie ma emaila → zaloguj ostrzeżenie i nie wysyłaj maila” była najpierw w każdym z trzech handlerów (`try/catch`); w **zadaniu 7 (DRY)** ten sam `try/catch` jest **w jednym miejscu** — `NotificationUserEmailResolver` (handlery tylko przekazują własny komunikat `log.warn` jako `Runnable`).
 
-Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 3`.
+Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 3` (klient); DRY — resolver i handlery (zadanie 7).
 
 ### Commit
 
@@ -164,15 +164,59 @@ Markery: `//Lab6 : Wyjątki zamiast kodów błędów — przykład 3`.
 
 ### Cel
 
-Usunięcie trzykrotnego powtórzenia tego samego wzorca `try/catch (ServiceException)` przy pobieraniu emaila użytkownika dla powiadomień o wypożyczeniu.
+Jeden wspólny fragment logiki zamiast trzech kopii w kodzie (zasada **DRY** — *Don’t Repeat Yourself*).
 
-### Zmiany
+### Co to robi w praktyce (łańcuch wywołań)
 
-- Komponent [NotificationUserEmailResolver](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/rental-service/src/main/java/org/pollub/rental/mediator/support/NotificationUserEmailResolver.java) (`org.pollub.rental.mediator.support`): `resolveEmail(userId, Runnable onServiceFailure)` — `Optional` + wywołanie `onServiceFailure` przy `ServiceException`.
-- `OverdueReminderHandler`, `RentalConfirmationHandler`, `ReturnConfirmationHandler` — ten sam przepływ co wcześniej, z osobnymi komunikatami `log.warn` przekazywanymi jako `Runnable`.
+Powiadomienia e-mail (przypomnienie o terminie, potwierdzenie wypożyczenia, potwierdzenie zwrotu) potrzebują **adresu użytkownika** z **user-service**.
+
+1. Handler (np. `RentalConfirmationHandler`) woła `notificationUserEmailResolver.resolveEmail(userId, ...)`.
+2. Resolver przez **mediator** wysyła `GetUserEmailRequest` → wykonuje się `GetUserEmailHandler` → ten woła [UserServiceClient.getUserEmail](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/rental-service/src/main/java/org/pollub/rental/client/UserServiceClient.java) (HTTP do user-service).
+3. Gdy coś pójdzie nie tak (brak użytkownika, błąd sieci, pusty email), klient rzuca **`ServiceException`** (to jest efekt **zadania 6**, przykład 3 — błąd jako wyjątek, nie jako `null`).
+4. **Resolver** łapie `ServiceException`, wywołuje przekazany **`Runnable`** (w praktyce lambda z `log.warn` z handlera), zwraca **`Optional.empty()`**.
+5. Handler widzi pusty `Optional`, robi `return null` i **nie** wysyła maila — tak samo jak wcześniej po `try/catch` albo po `email == null`.
+
+**Efekt biznesowy:** bez zmian — nadal „albo mamy email i wysyłamy powiadomienie, albo logujemy ostrzeżenie i kończymy”.
+
+### Wcześniej vs teraz
+
+| | **Wcześniej (po zadaniu 6, przed DRY)** | **Teraz (zadanie 7)** |
+|---|----------------------------------------|------------------------|
+| Gdzie jest `try/catch (ServiceException)` | W **każdym** z trzech handlerów osobno (ta sama struktura skopiowana 3×) | **Raz** w `NotificationUserEmailResolver` |
+| Skąd handler bierze email | `try { mediator.send(new GetUserEmailRequest(...)) } catch ...` | `resolveEmail(...)` → `Optional`; jeśli pusty → `return null` |
+| Logi | Każdy handler miał własny `log.warn` w swoim `catch` | Ten sam tekst logu co wcześniej, ale przekazany do resolwera jako **`Runnable`**, żeby nie scalać trzech różnych zdań w jedną wspólną wiadomość |
+
+### Po co `Runnable` w `resolveEmail`?
+
+Trzy handlery muszą nadal pisać **inne** komunikaty (np. „skipping **rental** confirmation” vs „skipping **return** confirmation”). Wspólna metoda nie może na sztywno wypisać jednego stringa — dlatego handler przekazuje **co zalogować przy błędzie** jako `Runnable` (najczęściej `() -> log.warn("...", ...)`).
+
+### Pliki
+
+- [NotificationUserEmailResolver.java](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/rental-service/src/main/java/org/pollub/rental/mediator/support/NotificationUserEmailResolver.java) — wspólna obsługa `ServiceException` + `Optional`.
+- [OverdueReminderHandler.java](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/rental-service/src/main/java/org/pollub/rental/mediator/handler/OverdueReminderHandler.java), [RentalConfirmationHandler.java](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/rental-service/src/main/java/org/pollub/rental/mediator/handler/RentalConfirmationHandler.java), [ReturnConfirmationHandler.java](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/rental-service/src/main/java/org/pollub/rental/mediator/handler/ReturnConfirmationHandler.java) — wywołanie resolwera zamiast powielonego `try/catch`.
 
 Markery: `//Lab6 : Brak powtórzeń (DRY) Start` / `Stop`.
 
 ### Commit
 
 - `Refactor: Brak powtórzeń w kodzie (DRY)`
+
+---
+
+## Eliminacja magicznych liczb (zadanie 8, 1 pkt.)
+
+### Cel
+
+Zastąpienie literałów w kodzie nazwanymi abstrakcjami (stała, `TimeUnit`, `HttpStatus`), żeby **intencja** była czytelna bez zgadywania znaczenia liczby.
+
+### Zmiany
+
+1. **auth-service — [AuthService](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/auth-service/src/main/java/org/pollub/auth/service/AuthService.java):** `expiresIn` — zamiast `/ 1000` metoda `accessTokenExpiresInSeconds()` z `TimeUnit.MILLISECONDS.toSeconds(jwtTokenProvider.getExpirationMs())` (sekundy z ważności JWT bez magicznej „tysiączki”).
+2. **user-service — [BranchServiceClient](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/user-service/src/main/java/org/pollub/user/client/BranchServiceClient.java):** rozpoznanie braku oddziału — `status.isSameCodeAs(HttpStatus.NOT_FOUND)` zamiast `== 404`.
+3. **feedback-service — [AbstractFeedbackModerator](c:/Users/Black/Desktop/spring-library-platform-programming-design-patterns/feedback-service/src/main/java/org/pollub/feedback/service/moderator/AbstractFeedbackModerator.java):** próg długości treści — `MIN_CONTENT_LENGTH_CHARS` zamiast literału `5`.
+
+Markery: `//Lab6 : Magiczne liczby Start` / `Stop`.
+
+### Commit
+
+- `Refactor: Eliminacja magicznych liczb (Lab6)`

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.pollub.common.dto.BranchDto;
 import org.pollub.common.exception.ServiceException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -34,10 +35,12 @@ public class BranchServiceClient implements IBranchServiceClient {
             return Optional.ofNullable(branch);
         } catch (WebClientResponseException e) {
             HttpStatusCode status = e.getStatusCode();
-            if (status.value() == 404) {
+            //Lab6 : Magiczne liczby Start
+            if (status.isSameCodeAs(HttpStatus.NOT_FOUND)) {
                 log.debug("Branch not found for id: {}", id);
                 return Optional.empty();
             }
+            //Lab6 : Magiczne liczby Stop
             log.error("Error fetching branch with id: {}", id, e);
             throw new ServiceException("branch-service", "Failed to get branch " + id, e);
         } catch (Exception e) {
