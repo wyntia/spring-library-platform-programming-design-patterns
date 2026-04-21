@@ -5,9 +5,9 @@ import org.pollub.common.dto.ReservationItemDto;
 
 import java.util.List;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 public record GetItemsForReservationRequest(
         List<Long> itemIds
 ) implements Request<List<ReservationItemDto.Item>> {
 }
-//Lab5 Mediator End
+//L3 Mediator End

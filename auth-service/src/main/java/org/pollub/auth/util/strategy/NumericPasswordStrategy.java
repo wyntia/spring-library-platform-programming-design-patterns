@@ -2,7 +2,7 @@ package org.pollub.auth.util.strategy;
 
 import java.util.Random;
 
-//L6 Strategy Design Pattern - NumericPasswordStrategy implementation
+//L3 Strategy Design Pattern - NumericPasswordStrategy implementation
 /**
  * Numeric strategy generating a simple numeric PIN-like password.
  */
@@ -23,3 +23,4 @@ public class NumericPasswordStrategy implements PasswordGenerationStrategy {
         return password.toString();
     }
 }
+//L3 End Strategy

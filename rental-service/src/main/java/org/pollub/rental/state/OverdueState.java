@@ -1,6 +1,6 @@
 package org.pollub.rental.state;
 
-//L6 State Design Pattern - Concrete State for OVERDUE rental status
+//L3 State Design Pattern - Concrete State for OVERDUE rental status
 /**
  * State implementation for OVERDUE rental status.
  * Rental can be returned but cannot be extended when overdue.
@@ -37,4 +37,4 @@ public class OverdueState implements RentalState {
         return "OVERDUE";
     }
 }
-
+//L3 End State

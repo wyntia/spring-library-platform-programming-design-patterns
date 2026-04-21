@@ -6,7 +6,7 @@ import org.pollub.catalog.mediator.request.UpdateItemInventoryStatusRequest;
 import org.pollub.catalog.service.IBranchInventoryService;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class UpdateItemInventoryStatusHandler implements RequestHandler<UpdateItemInventoryStatusRequest, Void> {
@@ -19,4 +19,4 @@ public class UpdateItemInventoryStatusHandler implements RequestHandler<UpdateIt
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

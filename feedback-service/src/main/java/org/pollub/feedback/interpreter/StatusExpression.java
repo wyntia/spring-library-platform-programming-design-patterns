@@ -5,7 +5,7 @@ import org.pollub.feedback.model.FeedbackStatus;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//start L5 Interpreter
+//start L3 Interpreter
 public class StatusExpression implements FeedbackSearchExpression {
     private final FeedbackStatus status;
 
@@ -21,4 +21,4 @@ public class StatusExpression implements FeedbackSearchExpression {
                 .collect(Collectors.toList());
     }
 }
-//end L5 Interpreter
+//end L3 Interpreter

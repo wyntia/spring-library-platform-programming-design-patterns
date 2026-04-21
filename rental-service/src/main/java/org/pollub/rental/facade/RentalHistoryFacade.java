@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-//Lab1 - Facade 3 Method Start
+//L2 - Facade 3 Method Start
 public class RentalHistoryFacade {
 
     private final IRentalHistoryRepository rentalHistoryRepository;
@@ -74,9 +74,9 @@ public class RentalHistoryFacade {
         final Map<Long, HistoryCatalogResponse> finalCatalogMap = catalogDataMap;
         return history.stream()
                 .map(rental -> mapToDto(rental, finalCatalogMap.getOrDefault(rental.getItemId(),
-                        //Lab1 - Flyweight 2 Method Start
+                        //Lab2 - Flyweight 2 Method Start
                         HistoryCatalogResponse.DEFAULT_UNKNOWN)))
-                        //Lab1 - Flyweight 2 Method End
+                        //Lab2 - Flyweight 2 Method End
                 .collect(Collectors.toList());
     }
 
@@ -94,4 +94,4 @@ public class RentalHistoryFacade {
                 .build();
     }
 }
-//Lab1 - Facade 3 Method End
+//L2 - Facade 3 Method End

@@ -19,7 +19,7 @@ import java.util.List;
  * Dodaje warstwę cachowania dla kosztownych operacji odczytu (gatunki, wydawcy),
  * delegując resztę operacji do prawdziwego BookService.
  */
-//Lab1 - Proxy 1 Start
+//Lab2 - Proxy 1 Start
 @Component
 @Primary
 @Slf4j
@@ -145,4 +145,4 @@ public class CachingBookServiceProxy implements IBookService {
         return bookService.getBookAvailability(id);
     }
 }
-//Lab1 - Proxy 1 End
+//Lab2 - Proxy 1 End

@@ -6,7 +6,7 @@ import org.pollub.rental.client.CatalogServiceClient;
 import org.pollub.rental.mediator.request.MarkAsReturnedRequest;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class MarkAsReturnedHandler implements RequestHandler<MarkAsReturnedRequest, Void> {
@@ -19,4 +19,4 @@ public class MarkAsReturnedHandler implements RequestHandler<MarkAsReturnedReque
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

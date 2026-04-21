@@ -11,7 +11,7 @@ import org.pollub.rental.mediator.request.SendReturnConfirmationNotification;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -34,4 +34,4 @@ public class ReturnConfirmationHandler implements RequestHandler<SendReturnConfi
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

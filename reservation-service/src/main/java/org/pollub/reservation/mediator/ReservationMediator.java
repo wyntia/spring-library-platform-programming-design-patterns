@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 public class ReservationMediator implements Mediator {
 
@@ -46,4 +46,4 @@ public class ReservationMediator implements Mediator {
         return handler.handle(request);
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

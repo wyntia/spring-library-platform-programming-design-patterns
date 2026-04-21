@@ -4,10 +4,10 @@ import org.pollub.common.dto.ItemDto;
 import org.pollub.common.mediator.Request;
 import org.pollub.reservation.model.dto.ReservationDto;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 public record CreateReservationRequest(
         ReservationDto dto,
         Long userId
 ) implements Request<ItemDto> {
 }
-//Lab5 Mediator End
+//L3 Mediator End

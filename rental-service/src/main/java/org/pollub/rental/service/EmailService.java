@@ -59,7 +59,7 @@ public class EmailService {
                 "System Biblioteczny";
     }
 
-    //Lab5 Mediator Start
+    //L3 Mediator Start
     public void sendRentalConfirmationEmail(String email, String itemTitle, LocalDateTime dueDate) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -108,5 +108,5 @@ public class EmailService {
                 "Pozdrawiamy,\n" +
                 "System Biblioteczny";
     }
-    //Lab5 Mediator End
+    //L3 Mediator End
 }

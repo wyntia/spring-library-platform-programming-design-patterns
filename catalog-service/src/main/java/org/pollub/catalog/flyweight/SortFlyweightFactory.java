@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 //Lab1 - Simple Factory 1 Start
-//Lab1 - Flyweight 1 Start
+//Lab2 - Flyweight 1 Start
 /**
  * Flyweight factory for Sort objects.
  * Pre-initializes all Sort variants once and shares immutable instances
@@ -44,5 +44,5 @@ public class SortFlyweightFactory {
         return SORT_CACHE.getOrDefault(sortParam, DEFAULT_SORT);
     }
 }
-//Lab1 - Flyweight 1 End
+//Lab2 - Flyweight 1 End
 //Lab1 - Simple Factory 1 End

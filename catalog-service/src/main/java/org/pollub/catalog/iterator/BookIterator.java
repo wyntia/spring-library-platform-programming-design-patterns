@@ -4,7 +4,7 @@ import org.pollub.catalog.model.Book;
 import java.util.Iterator;
 import java.util.List;
 
-//start L5 Iterator
+//start L3 Iterator
 public class BookIterator implements Iterator<Book> {
     private final List<Book> books;
     private int position = 0;
@@ -23,4 +23,4 @@ public class BookIterator implements Iterator<Book> {
         return books.get(position++);
     }
 }
-//end L5 Iterator
+//end L3 Iterator

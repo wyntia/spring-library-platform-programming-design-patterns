@@ -7,7 +7,7 @@ import org.pollub.reservation.memento.ReservationMemento;
 import org.pollub.common.config.DateTimeProvider;
 import java.nio.file.AccessDeniedException;
 
-//start L5 Command
+//start L3 Command
 public class CancelReservationCommand {
     private final ReservationRepository reservationRepository;
     private final Long id;
@@ -29,18 +29,18 @@ public class CancelReservationCommand {
                     "User " + userId + " is not authorized to cancel reservation " + id
             );
         }
-        //start L5 Memento
+        //start L3 Memento
         this.memento = new ReservationMemento(reservation);
-        //end L5 Memento
+        //end L3 Memento
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservation.setResolvedAt(DateTimeProvider.getInstance().now());
         reservationRepository.save(reservation);
     }
 
-    //start L5 Memento
+    //start L3 Memento
     public ReservationMemento getMemento() {
         return memento;
     }
-    //end L5 Memento
+    //end L3 Memento
 }
-//end L5 Command
+//end L3 Command

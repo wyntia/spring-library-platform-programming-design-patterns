@@ -8,7 +8,7 @@ import org.pollub.catalog.model.dto.BranchInventoryDto;
 import org.pollub.catalog.service.IBranchInventoryService;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class ReserveItemCommandHandler implements RequestHandler<MarkAsReservedRequest, BranchInventoryDto> {
@@ -17,12 +17,12 @@ public class ReserveItemCommandHandler implements RequestHandler<MarkAsReservedR
 
     @Override
     public BranchInventoryDto handle(MarkAsReservedRequest request) {
-        //Lab5 Command 1 Start
+        //L3 Command 1 Start
         ReserveItemCommand command = new ReserveItemCommand(
                 branchInventoryService, request.itemId(), request.dto()
         );
         return command.execute();
-        //Lab5 Command 1 End
+        //L3 Command 1 End
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

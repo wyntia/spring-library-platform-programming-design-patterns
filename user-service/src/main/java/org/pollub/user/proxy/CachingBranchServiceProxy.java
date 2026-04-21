@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Cachuje wyniki getBranchById() w pamięci, eliminując powtarzalne
  * wywołania HTTP do branch-service dla tych samych oddziałów.
  */
-//Lab1 - Proxy 3 Start
+//Lab2 - Proxy 3 Start
 @Component
 @Primary
 @Slf4j
@@ -36,4 +36,4 @@ public class CachingBranchServiceProxy implements IBranchServiceClient {
         });
     }
 }
-//Lab1 - Proxy 3 End
+//Lab2 - Proxy 3 End

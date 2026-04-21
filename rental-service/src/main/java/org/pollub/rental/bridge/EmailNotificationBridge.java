@@ -24,7 +24,7 @@ public class EmailNotificationBridge implements INotificationBridge {
         emailService.sendRentalReminderEmail(recipient, itemTitle, dueDate);
     }
 
-    //Lab5 Mediator Start
+    //L3 Mediator Start
     @Override
     public void sendRentalConfirmation(String recipient, String itemTitle, LocalDateTime dueDate) {
         log.info("Sending rental confirmation email to {} for item: {}", recipient, itemTitle);
@@ -36,7 +36,7 @@ public class EmailNotificationBridge implements INotificationBridge {
         log.info("Sending return confirmation email to {} for item: {}", recipient, itemTitle);
         emailService.sendReturnConfirmationEmail(recipient, itemTitle);
     }
-    //Lab5 Mediator End
+    //L3 Mediator End
 
     @Override
     public String getNotificationType() {

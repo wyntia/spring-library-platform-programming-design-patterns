@@ -4,7 +4,7 @@ import org.pollub.catalog.model.BranchInventory;
 import java.util.Iterator;
 import java.util.List;
 
-//start L5 Iterator
+//start L3 Iterator
 public class BranchInventoryIterator implements Iterator<BranchInventory> {
     private final List<BranchInventory> inventories;
     private int position = 0;
@@ -23,4 +23,4 @@ public class BranchInventoryIterator implements Iterator<BranchInventory> {
         return inventories.get(position++);
     }
 }
-//end L5 Iterator
+//end L3 Iterator

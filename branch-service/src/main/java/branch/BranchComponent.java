@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package branch;
 
 import java.util.List;
@@ -12,4 +12,4 @@ public interface BranchComponent {
     void addChild(BranchComponent child);
     void removeChild(BranchComponent child);
 }
-//end L3 Composite
+//end L2 Composite

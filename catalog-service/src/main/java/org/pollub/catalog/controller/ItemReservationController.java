@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemReservationController {
 
-    //Lab5 Mediator Start
+    //L3 Mediator Start
     private final Mediator mediator;
 
     @PutMapping("/{itemId}/reserve")
@@ -56,5 +56,5 @@ public class ItemReservationController {
         );
         return ResponseEntity.noContent().build();
     }
-    //Lab5 Mediator End
+    //L3 Mediator End
 }

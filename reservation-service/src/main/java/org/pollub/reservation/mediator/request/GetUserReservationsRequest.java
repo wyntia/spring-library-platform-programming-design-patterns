@@ -5,9 +5,9 @@ import org.pollub.common.mediator.Request;
 
 import java.util.List;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 public record GetUserReservationsRequest(
         Long userId
 ) implements Request<List<ReservationItemDto>> {
 }
-//Lab5 Mediator End
+//L3 Mediator End

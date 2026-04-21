@@ -30,14 +30,16 @@ import java.util.Set;
 public class FeedbackController {
 
     private final IFeedbackService feedbackService;
-    private final IpIdentificationStrategy ipStrategy; // L6 Strategy Pattern
+    private final IpIdentificationStrategy ipStrategy; // L3 Strategy Pattern
+    //L3 End Strategy
 
-    // L6 Strategy Pattern - Constructor injection of strategy with configuration for trusted proxies
+    // L3 Strategy Pattern - Constructor injection of strategy with configuration for trusted proxies
     public FeedbackController(IFeedbackService feedbackService,
                               @Value("${app.trusted-proxies:}") Set<String> trustedProxies) {
         this.feedbackService = feedbackService;
-        this.ipStrategy = new ProxyHeaderIpStrategy(trustedProxies); // L6 Strategy initialization
+        this.ipStrategy = new ProxyHeaderIpStrategy(trustedProxies); // L3 Strategy initialization //L3 End Strategy
     }
+    //L3 End Strategy
 
     @PostMapping
     public ResponseEntity<FeedbackResponseDto> submitFeedback(
@@ -45,8 +47,9 @@ public class FeedbackController {
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletRequest request
     ) {
-        //L6 Strategy Pattern - Identify IP using the selected strategy
+        //L3 Strategy Pattern - Identify IP using the selected strategy
         String ipAddress = ipStrategy.identify(request);
+        //L3 End Strategy
 
         Feedback saved = feedbackService.submitFeedback(dto, ipAddress);
 
@@ -86,10 +89,10 @@ public class FeedbackController {
             @PathVariable Long id,
             @RequestParam FeedbackStatus status
     ) {
-        // start L5 Command
+        // start L3 Command
         Command<FeedbackAdminDto> command = new UpdateFeedbackStatusCommand(feedbackService, id, status);
         FeedbackAdminDto dto = command.execute();
-        // end L5 Command
+        // end L3 Command
         return ResponseEntity.ok(dto);
     }
 }

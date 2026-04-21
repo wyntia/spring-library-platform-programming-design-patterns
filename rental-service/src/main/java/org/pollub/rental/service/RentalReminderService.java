@@ -25,7 +25,7 @@ public class RentalReminderService {
 
     private static final int DAYS_BEFORE_DUE = 3;
 
-    //Lab5 Mediator Start
+    //L3 Mediator Start
     private final IRentalHistoryRepository rentalHistoryRepository;
     private final Mediator mediator;
 
@@ -59,5 +59,5 @@ public class RentalReminderService {
 
         log.info("Rental reminder job completed. Sent: {}, Failed: {}", successCount, failCount);
     }
-    //Lab5 Mediator End
+    //L3 Mediator End
 }

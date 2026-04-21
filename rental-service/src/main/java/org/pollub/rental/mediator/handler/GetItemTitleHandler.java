@@ -7,7 +7,7 @@ import org.pollub.rental.client.CatalogServiceClient;
 import org.pollub.rental.mediator.request.GetItemTitleRequest;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -26,4 +26,4 @@ public class GetItemTitleHandler implements RequestHandler<GetItemTitleRequest, 
         }
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

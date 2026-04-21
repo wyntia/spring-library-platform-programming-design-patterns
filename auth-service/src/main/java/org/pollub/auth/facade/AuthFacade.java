@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * Ukrywa złożoność interakcji między IAuthService, JwtTokenProvider
  * oraz logiką tworzenia cookie JWT za jednym spójnym interfejsem.
  */
-//Lab1 - Facade 2 Method Start
+//L2 - Facade 2 Method Start
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -108,4 +108,4 @@ public class AuthFacade {
                 .build();
     }
 }
-//Lab1 - Facade 2 Method End
+//L2 - Facade 2 Method End

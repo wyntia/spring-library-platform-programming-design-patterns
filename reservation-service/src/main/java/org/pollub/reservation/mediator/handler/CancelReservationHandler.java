@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class CancelReservationHandler implements RequestHandler<CancelReservationRequest, Void> {
@@ -62,4 +62,4 @@ public class CancelReservationHandler implements RequestHandler<CancelReservatio
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

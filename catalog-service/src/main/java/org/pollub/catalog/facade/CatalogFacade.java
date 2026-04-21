@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-//Lab1 - Facade 1 Method Start
+//L2 - Facade 1 Method Start
 public class CatalogFacade {
     private final ICatalogService catalogService;
     private final IBranchInventoryService branchInventoryService;
@@ -118,11 +118,11 @@ public class CatalogFacade {
 
 
     private ItemDto toDto(LibraryItem item) {
-        // start L6 Visitor pattern refactor
+        // start L3 Visitor pattern refactor
         ItemDtoMappingVisitor visitor = new ItemDtoMappingVisitor(branchInventoryService);
         item.accept(visitor);
         return visitor.getResult();
-        // end L6 Visitor pattern refactor
+        // end L3 Visitor pattern refactor
     }
 
     private BranchInventoryDto toBranchInventoryDto(BranchInventory inventory) {
@@ -141,5 +141,5 @@ public class CatalogFacade {
                 .build();
     }
 }
-//Lab1 - Facade 1 Method End
+//L2 - Facade 1 Method End
 

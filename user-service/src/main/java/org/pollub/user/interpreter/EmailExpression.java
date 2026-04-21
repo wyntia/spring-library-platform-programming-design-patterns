@@ -4,7 +4,7 @@ import org.pollub.user.model.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
-//start L5 Interpreter
+//start L3 Interpreter
 public class EmailExpression implements UserSearchExpression {
     private final String email;
 
@@ -20,4 +20,4 @@ public class EmailExpression implements UserSearchExpression {
                 .collect(Collectors.toList());
     }
 }
-//end L5 Interpreter
+//end L3 Interpreter

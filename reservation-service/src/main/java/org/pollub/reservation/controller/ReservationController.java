@@ -22,17 +22,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationController {
 
-    //Lab5 Mediator Start
+    //L3 Mediator Start
     private final Mediator mediator;
-    //Lab5 Mediator End
+    //L3 Mediator End
 
     @GetMapping("/my")
     public ResponseEntity<List<ReservationItemDto>> getMyReservations(
             @AuthenticationPrincipal JwtUserDetails user
     ) {
-        //Lab5 Mediator Start
+        //L3 Mediator Start
         List<ReservationItemDto> reservations = mediator.send(new GetUserReservationsRequest(user.getUserId()));
-        //Lab5 Mediator End
+        //L3 Mediator End
         return ResponseEntity.ok(reservations);
     }
 
@@ -41,9 +41,9 @@ public class ReservationController {
             @Valid @RequestBody ReservationDto dto,
             @AuthenticationPrincipal JwtUserDetails user
     ) {
-        //Lab5 Mediator Start
+        //L3 Mediator Start
         ItemDto reservation = mediator.send(new CreateReservationRequest(dto, user.getUserId()));
-        //Lab5 Mediator End
+        //L3 Mediator End
         return ResponseEntity.ok(reservation);
     }
 
@@ -52,9 +52,9 @@ public class ReservationController {
             @PathVariable Long id,
             @AuthenticationPrincipal JwtUserDetails user
     ) {
-        //Lab5 Mediator Start
+        //L3 Mediator Start
         mediator.send(new CancelReservationRequest(id, user.getUserId()));
-        //Lab5 Mediator End
+        //L3 Mediator End
         return ResponseEntity.noContent().build();
     }
 
@@ -66,9 +66,9 @@ public class ReservationController {
     public ResponseEntity<List<ReservationItemDto>> getUserReservations(
             @PathVariable Long userId
     ) {
-        //Lab5 Mediator Start
+        //L3 Mediator Start
         List<ReservationItemDto> reservations = mediator.send(new GetUserReservationsRequest(userId));
-        //Lab5 Mediator End
+        //L3 Mediator End
         return ResponseEntity.ok(reservations);
     }
 
@@ -82,9 +82,9 @@ public class ReservationController {
             @RequestParam Long branchId,
             @RequestParam Long userId
     ) {
-        //Lab5 Mediator Start
+        //L3 Mediator Start
         mediator.send(new FulfillReservationRequest(itemId, branchId, userId));
-        //Lab5 Mediator End
+        //L3 Mediator End
         return ResponseEntity.ok().build();
     }
 }

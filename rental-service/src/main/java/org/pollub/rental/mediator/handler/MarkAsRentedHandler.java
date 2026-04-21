@@ -7,7 +7,7 @@ import org.pollub.rental.client.CatalogServiceClient;
 import org.pollub.rental.mediator.request.MarkAsRentedRequest;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class MarkAsRentedHandler implements RequestHandler<MarkAsRentedRequest, ReservationResponse> {
@@ -19,4 +19,4 @@ public class MarkAsRentedHandler implements RequestHandler<MarkAsRentedRequest, 
         return catalogServiceClient.markAsRented(request.rentalHistoryDto());
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

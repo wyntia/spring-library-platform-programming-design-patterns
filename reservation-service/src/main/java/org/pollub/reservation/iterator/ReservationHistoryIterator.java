@@ -4,7 +4,7 @@ import org.pollub.reservation.model.ReservationHistory;
 import java.util.Iterator;
 import java.util.List;
 
-//start L5 Iterator
+//start L3 Iterator
 public class ReservationHistoryIterator implements Iterator<ReservationHistory> {
     private final List<ReservationHistory> reservations;
     private int position = 0;
@@ -23,4 +23,4 @@ public class ReservationHistoryIterator implements Iterator<ReservationHistory> 
         return reservations.get(position++);
     }
 }
-//end L5 Iterator
+//end L3 Iterator

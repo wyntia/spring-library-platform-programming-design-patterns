@@ -1,6 +1,6 @@
 package org.pollub.common.mediator;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 /**
  * Interface for handling a specific request type.
  *
@@ -10,4 +10,4 @@ package org.pollub.common.mediator;
 public interface RequestHandler<R extends Request<T>, T> {
     T handle(R request);
 }
-//Lab5 Mediator End
+//L3 Mediator End

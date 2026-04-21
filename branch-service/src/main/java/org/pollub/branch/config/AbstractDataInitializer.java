@@ -7,7 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 
 import java.util.List;
 
-// L6 Template Method Design Pattern
+// L3 Template Method Design Pattern
 /**
  * Abstract class defining the skeleton algorithm for data initialization.
  */
@@ -49,3 +49,4 @@ public abstract class AbstractDataInitializer implements CommandLineRunner {
      */
     protected abstract List<LibraryBranch> fetchData();
 }
+//L3 End Template

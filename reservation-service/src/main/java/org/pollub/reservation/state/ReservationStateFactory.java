@@ -1,6 +1,6 @@
 package org.pollub.reservation.state;
 
-//L6 State Design Pattern - Factory for creating ReservationState instances based on ReservationStatus
+//L3 State Design Pattern - Factory for creating ReservationState instances based on ReservationStatus
 import org.pollub.reservation.model.ReservationStatus;
 
 public class ReservationStateFactory {
@@ -16,3 +16,4 @@ public class ReservationStateFactory {
         };
     }
 }
+//L3 End State

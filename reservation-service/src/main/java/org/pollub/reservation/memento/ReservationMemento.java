@@ -2,7 +2,7 @@ package org.pollub.reservation.memento;
 
 import org.pollub.reservation.model.ReservationHistory;
 
-//start L5 Memento
+//start L3 Memento
 public class ReservationMemento {
     private final ReservationHistory reservationSnapshot;
 
@@ -22,4 +22,4 @@ public class ReservationMemento {
         return reservationSnapshot;
     }
 }
-//end L5 Memento
+//end L3 Memento

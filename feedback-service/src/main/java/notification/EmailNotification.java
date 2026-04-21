@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package notification;
 
 /**
@@ -14,7 +14,8 @@ public class EmailNotification implements NotificationComponent {
 
     @Override
     public void accept(NotificationVisitor visitor) {
-        visitor.visitEmail(this); // L6 Visitor double dispatch
+        visitor.visitEmail(this); // L3 Visitor double dispatch
+        // End Visitor
     }
 }
-//end L3 Composite
+//end L2 Composite

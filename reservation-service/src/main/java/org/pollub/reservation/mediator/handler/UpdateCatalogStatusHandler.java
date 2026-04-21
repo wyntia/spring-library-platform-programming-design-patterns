@@ -6,7 +6,7 @@ import org.pollub.reservation.client.CatalogServiceClient;
 import org.pollub.reservation.mediator.request.UpdateCatalogStatusRequest;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class UpdateCatalogStatusHandler implements RequestHandler<UpdateCatalogStatusRequest, Void> {
@@ -19,4 +19,4 @@ public class UpdateCatalogStatusHandler implements RequestHandler<UpdateCatalogS
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

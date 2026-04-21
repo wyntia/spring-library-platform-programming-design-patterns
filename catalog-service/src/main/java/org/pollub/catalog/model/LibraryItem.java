@@ -79,8 +79,9 @@ public abstract class LibraryItem implements Cloneable {
         }
     }
 
-    //L6 Visitor Design Pattern - accept method for visitor
+    //L3 Visitor Design Pattern - accept method for visitor
     public abstract void accept(LibraryItemVisitor visitor);
+    // End Visitor
 }
 //Lab1 End Prototype
 

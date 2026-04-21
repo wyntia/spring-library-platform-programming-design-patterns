@@ -12,7 +12,7 @@ import org.pollub.reservation.service.ReservationService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -47,4 +47,4 @@ public class FulfillReservationHandler implements RequestHandler<FulfillReservat
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

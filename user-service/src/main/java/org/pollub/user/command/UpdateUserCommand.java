@@ -4,7 +4,7 @@ import org.pollub.user.model.User;
 import org.pollub.user.memento.UserMemento;
 import org.pollub.user.service.UserService;
 
-//start L5 Command
+//start L3 Command
 public class UpdateUserCommand {
     private final UserService userService;
     private final Long id;
@@ -19,16 +19,16 @@ public class UpdateUserCommand {
 
     public User execute() {
         User before = userService.findById(id);
-        //start L5 Memento
+        //start L3 Memento
         this.memento = new UserMemento(before);
-        //end L5 Memento
+        //end L3 Memento
         return userService.updateUser(id, newUserData);
     }
 
-    //start L5 Memento
+    //start L3 Memento
     public UserMemento getMemento() {
         return memento;
     }
-    //end L5 Memento
+    //end L3 Memento
 }
-//end L5 Command
+//end L3 Command

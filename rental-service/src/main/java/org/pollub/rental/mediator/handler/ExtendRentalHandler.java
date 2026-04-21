@@ -6,7 +6,7 @@ import org.pollub.rental.client.CatalogServiceClient;
 import org.pollub.rental.mediator.request.ExtendRentalRequest;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class ExtendRentalHandler implements RequestHandler<ExtendRentalRequest, Void> {
@@ -19,4 +19,4 @@ public class ExtendRentalHandler implements RequestHandler<ExtendRentalRequest, 
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

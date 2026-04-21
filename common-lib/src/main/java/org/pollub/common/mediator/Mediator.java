@@ -1,6 +1,6 @@
 package org.pollub.common.mediator;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 /**
  * Mediator interface for dispatching requests to their registered handlers.
  */
@@ -12,4 +12,4 @@ public interface Mediator {
      */
     <T> T send(Request<T> request);
 }
-//Lab5 Mediator End
+//L3 Mediator End

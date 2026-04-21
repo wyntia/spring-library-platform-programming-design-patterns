@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-//L6 Strategy Design Pattern - Default search strategy using JPQL query across all fields
+//L3 Strategy Design Pattern - Default search strategy using JPQL query across all fields
 /**
  * Default strategy - searches branches by name, city, address or branch number.
  * Preserves the existing repository JPQL query logic.
@@ -23,3 +23,4 @@ public class DefaultBranchSearchStrategy implements BranchSearchStrategy {
         return branchRepository.searchBranches(query);
     }
 }
+//L3 End Strategy

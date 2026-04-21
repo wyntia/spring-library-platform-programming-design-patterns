@@ -1,6 +1,6 @@
 package org.pollub.catalog.state;
 
-//start L6 State Design Pattern - State interface for Copy Status
+//start L3 State Design Pattern - State interface for Copy Status
 /**
  * State interface for Copy Status state machine.
  * Represents different states of a book copy (AVAILABLE, RENTED, RESERVED).

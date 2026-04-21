@@ -37,7 +37,7 @@ public class ReservationService implements IReservationService, Subject {
     public void cleanupExpiredReservations() {
         List<ReservationHistory> expired = reservationRepository
             .findByExpiresAtBeforeAndStatus(DateTimeProvider.getInstance().now(), ReservationStatus.ACTIVE);
-        //start L5 Iterator
+        //start L3 Iterator
         ReservationHistoryIterator iterator = new ReservationHistoryIterator(expired);
         while (iterator.hasNext()) {
             ReservationHistory reservation = iterator.next();
@@ -64,11 +64,11 @@ public class ReservationService implements IReservationService, Subject {
                 "AVAILABLE"
             ));
         }
-        //end L5 Iterator
+        //end L3 Iterator
         log.info("Processed {} expired reservations", expired.size());
     }
 
-    //L6 Observer pattern implementation
+    //L3 Observer pattern implementation
 
     @Override
     public void attach(Observer observer) {
@@ -91,5 +91,5 @@ public class ReservationService implements IReservationService, Subject {
             observer.update(this, event);
         }
     }
-
+//L3 End Observer
 }

@@ -62,11 +62,12 @@ public class MovieDisc extends LibraryItem {
         return (MovieDisc) super.clone();
     }
 
-    //L6 Visitor pattern - accept method for visitor
+    //L3 Visitor pattern - accept method for visitor
     @Override
     public void accept(LibraryItemVisitor visitor) {
         visitor.visit(this);
     }
+    // End Visitor
 }
 //Lab1 End Prototype
 

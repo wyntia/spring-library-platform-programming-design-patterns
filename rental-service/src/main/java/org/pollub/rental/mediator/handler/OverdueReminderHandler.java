@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.pollub.rental.repository.IRentalHistoryRepository;
 import org.springframework.stereotype.Component;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -43,4 +43,4 @@ public class OverdueReminderHandler implements RequestHandler<SendOverdueReminde
         return null;
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

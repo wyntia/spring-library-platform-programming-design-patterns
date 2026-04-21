@@ -14,7 +14,7 @@ public interface INotificationBridge {
      */
     void sendRentalReminder(String recipient, String itemTitle, LocalDateTime dueDate);
 
-    //Lab5 Mediator Start
+    //L3 Mediator Start
     /**
      * Send rental confirmation notification.
      */
@@ -24,7 +24,7 @@ public interface INotificationBridge {
      * Send return confirmation notification.
      */
     void sendReturnConfirmation(String recipient, String itemTitle);
-    //Lab5 Mediator End
+    //L3 Mediator End
 
     /**
      * Get notification type.

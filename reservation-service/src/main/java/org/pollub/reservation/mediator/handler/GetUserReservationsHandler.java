@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class GetUserReservationsHandler implements RequestHandler<GetUserReservationsRequest, List<ReservationItemDto>> {
@@ -29,10 +29,10 @@ public class GetUserReservationsHandler implements RequestHandler<GetUserReserva
     public List<ReservationItemDto> handle(GetUserReservationsRequest request) {
         List<ReservationHistory> allReservations = reservationRepository.findByUserId(request.userId());
 
-        //start L5 Interpreter
+        //start L3 Interpreter
         ReservationSearchExpression expr = new StatusReservationExpression(ReservationStatus.ACTIVE);
         List<ReservationHistory> reservations = expr.interpret(allReservations);
-        //end L5 Interpreter
+        //end L3 Interpreter
 
         List<Long> itemIds = reservations.stream()
             .map(ReservationHistory::getItemId)
@@ -63,4 +63,4 @@ public class GetUserReservationsHandler implements RequestHandler<GetUserReserva
             .toList();
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

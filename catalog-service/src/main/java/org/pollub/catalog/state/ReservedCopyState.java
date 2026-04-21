@@ -1,5 +1,5 @@
 package org.pollub.catalog.state;
-//L6 State Implementation for Copy Status - RESERVED state
+//L3 State Implementation for Copy Status - RESERVED state
 /**
  * State implementation for RESERVED copy status.
  * Copy can only be returned to available state when reserved.
@@ -51,4 +51,4 @@ public class ReservedCopyState implements CopyState {
         return "RESERVED";
     }
 }
-
+//L3 End State

@@ -1,6 +1,6 @@
 package org.pollub.common.mediator;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 /**
  * Marker interface for requests handled by the Mediator.
  *
@@ -8,4 +8,4 @@ package org.pollub.common.mediator;
  */
 public interface Request<T> {
 }
-//Lab5 Mediator End
+//L3 Mediator End

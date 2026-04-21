@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package notification;
 
 /**
@@ -7,8 +7,8 @@ package notification;
 public interface NotificationComponent {
     void send(String message);
 
-    // start L6 Visitor
+    // start L3 Visitor
     void accept(NotificationVisitor visitor);
-    // end L6 Visitor
+    // end L3 Visitor
 }
-//end L3 Composite
+//end L2 Composite

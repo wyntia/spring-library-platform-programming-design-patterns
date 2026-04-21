@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package notification;
 
 import java.util.ArrayList;
@@ -21,10 +21,11 @@ public class NotificationGroup implements NotificationComponent {
 
     @Override
     public void accept(NotificationVisitor visitor) {
-        // L6 Visitor propagation through composite structure
+        // L3 Visitor propagation through composite structure
         for (NotificationComponent child : children) {
             child.accept(visitor);
         }
+        // End Visitor
     }
 }
-//end L3 Composite
+//end L2 Composite

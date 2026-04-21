@@ -66,11 +66,11 @@ public class FeedbackService implements IFeedbackService, Subject {
                 .status(FeedbackStatus.NEW)
                 .build();
 
-        // start L6 Visitor pattern refactor
+        // start L3 Visitor pattern refactor
         // Use visitor to sanitize data instead of a private method
         SecuritySanitizationVisitor sanitizer = new SecuritySanitizationVisitor();
         feedback.accept(sanitizer);
-        // end L6 Visitor pattern refactor
+        // end L3 Visitor pattern refactor
 
         Feedback saved = feedbackRepository.save(feedback);
         log.info("Feedback submitted: id={}, category={}",
@@ -114,11 +114,11 @@ public class FeedbackService implements IFeedbackService, Subject {
 
     @Override
     public List<Feedback> getFeedbacksByStatus(FeedbackStatus status) {
-        //start L5 Interpreter
+        //start L3 Interpreter
         List<Feedback> allFeedbacks = feedbackRepository.findAllByOrderByCreatedAtDesc();
         FeedbackSearchExpression expr = new StatusExpression(status);
         List<Feedback> filtered = expr.interpret(allFeedbacks);
-        //end L5 Interpreter
+        //end L3 Interpreter
         return filtered;
     }
 

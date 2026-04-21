@@ -2,7 +2,7 @@ package org.pollub.catalog.state;
 
 import org.pollub.catalog.model.CopyStatus;
 
-//L6 State Design Pattern - Factory for creating CopyState instances based on CopyStatus
+//L3 State Design Pattern - Factory for creating CopyState instances based on CopyStatus
 /**
  * Factory for creating CopyState instances based on CopyStatus enum.
  * Ensures consistent state instantiation throughout the application.
@@ -24,4 +24,5 @@ public class CopyStateFactory {
         };
     }
 }
+//L3 End State
 

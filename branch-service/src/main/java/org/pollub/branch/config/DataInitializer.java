@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 
-// L6 Template Method - Concrete implementation
+// L3 Template Method - Concrete implementation
 /**
  * Concrete implementation of the data initializer that provides hardcoded legacy data.
  */
@@ -51,3 +51,4 @@ public class DataInitializer extends AbstractDataInitializer {
         return branch;
     }
 }
+//L3 End Template

@@ -37,9 +37,9 @@ public class RentalService implements IRentalService, Subject {
     private final IRentalHistoryRepository rentalHistoryRepository;
     private final IRentalValidator rentalValidator;
     private final IValidationBridge validationBridge;
-    //Lab5 Mediator Start
+    //L3 Mediator Start
     private final Mediator mediator;
-    //Lab5 Mediator End
+    //L3 Mediator End
     private final List<Observer> observers = new ArrayList<>();
 
     public List<ItemDto> getActiveRentals(Long userId) {
@@ -86,7 +86,7 @@ public class RentalService implements IRentalService, Subject {
             log.error("Error saving rental history for itemId: {}, userId: {}. Error: {}", itemId, userId, e.getMessage());
             throw e;
         }
-        //Lab5 Mediator Start
+        //L3 Mediator Start
         try {
             mediator.send(new SendRentalConfirmationNotification(
                     userId, itemId, rentalHistory.getDueDate()
@@ -94,7 +94,7 @@ public class RentalService implements IRentalService, Subject {
         } catch (Exception e) {
             log.warn("Failed to send rental confirmation notification: {}", e.getMessage());
         }
-        //Lab5 Mediator End
+        //L3 Mediator End
         return mediator.send(new MarkAsRentedRequest(
                 toRentalCatalogRequestDto(rentalHistory)
         ));
@@ -129,7 +129,7 @@ public class RentalService implements IRentalService, Subject {
 
         mediator.send(new MarkAsReturnedRequest(itemId, branchId));
 
-        //Lab5 Mediator Start
+        //L3 Mediator Start
         try {
             mediator.send(new SendReturnConfirmationNotification(
                     rentalHistory.getUserId(), itemId
@@ -137,7 +137,7 @@ public class RentalService implements IRentalService, Subject {
         } catch (Exception e) {
             log.warn("Failed to send return confirmation notification: {}", e.getMessage());
         }
-        //Lab5 Mediator End
+        //L3 Mediator End
     }
 
     @Override
@@ -206,7 +206,7 @@ public class RentalService implements IRentalService, Subject {
                 .build();
     }
 
-    //L6 Observer pattern implementation
+    //L3 Observer pattern implementation
 
     @Override
     public void attach(Observer observer) {
@@ -229,5 +229,6 @@ public class RentalService implements IRentalService, Subject {
             observer.update(this, event);
         }
     }
+    //L3 End Observer
 }
 

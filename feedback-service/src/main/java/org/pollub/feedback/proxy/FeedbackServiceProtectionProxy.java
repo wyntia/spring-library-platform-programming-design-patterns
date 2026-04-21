@@ -19,7 +19,7 @@ import java.util.List;
  * Dodaje warstwę kontroli dostępu (rate limiting, IP blacklist)
  * przed delegowaniem do prawdziwego FeedbackService.
  */
-//Lab1 - Proxy 2 Start
+//Lab2 - Proxy 2 Start
 @Component
 @Primary
 @Slf4j
@@ -80,4 +80,4 @@ public class FeedbackServiceProtectionProxy implements IFeedbackService {
         return "***";
     }
 }
-//Lab1 - Proxy 2 End
+//Lab2 - Proxy 2 End

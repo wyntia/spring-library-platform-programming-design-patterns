@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 public class GetActiveRentalsHandler implements RequestHandler<GetActiveRentalsRequest, List<ItemDto>> {
@@ -21,4 +21,4 @@ public class GetActiveRentalsHandler implements RequestHandler<GetActiveRentalsR
         return catalogServiceClient.getItemsByUser(request.userId());
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End

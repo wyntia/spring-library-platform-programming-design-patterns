@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-//Lab5 Mediator Start
+//L3 Mediator Start
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -82,4 +82,4 @@ public class CreateReservationHandler implements RequestHandler<CreateReservatio
         ));
     }
 }
-//Lab5 Mediator End
+//L3 Mediator End
