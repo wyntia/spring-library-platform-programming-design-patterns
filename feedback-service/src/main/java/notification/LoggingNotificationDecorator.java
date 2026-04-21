@@ -1,4 +1,4 @@
-//start L3 Decorator
+//start L2 Decorator
 package notification;
 
 /**
@@ -16,4 +16,4 @@ public class LoggingNotificationDecorator implements NotificationComponent {
         System.out.println("[LOG] Powiadomienie wysłane: " + message);
     }
 }
-//end L3 Decorator
+//end L2 Decorator

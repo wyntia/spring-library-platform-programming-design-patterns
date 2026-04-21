@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ItemController {
 
-    //Lab1 - Facade 1 Method Start
+    //Lab2 - Facade 1 Method Start
     private final CatalogFacade catalogFacade;
     
     @GetMapping
@@ -91,5 +91,5 @@ public class ItemController {
     public ResponseEntity<Map<Long, HistoryCatalogResponse>> getHistoryCatalogData(@RequestBody List<Long> itemIds) {
         return ResponseEntity.ok(catalogFacade.getHistoryCatalogData(itemIds));
     }
-    //Lab1 - Facade 1 Method End
+    //Lab2 - Facade 1 Method End
 }

@@ -12,13 +12,13 @@ public class HistoryCatalogResponse {
     private String branchName;
     private String branchAddress;
 
-    //Lab1 - Flyweight 2 Method Start
+    //Lab2 - Flyweight 2 Method Start
     public static final HistoryCatalogResponse DEFAULT_UNKNOWN = HistoryCatalogResponse.builder()
             .itemTitle("Brak danych")
             .itemAuthor("-")
             .branchName("Brak danych")
             .branchAddress("Brak danych")
             .build();
-    //Lab1 - Flyweight 2 Method End
+    //Lab2 - Flyweight 2 Method End
 
 }

@@ -1,4 +1,4 @@
-//start L3 Decorator Config
+//start L2 Decorator Config
 package org.pollub.catalog.config;
 
 import org.pollub.catalog.service.BookService;
@@ -20,4 +20,4 @@ public class BookServiceConfig {
         return new BookServiceCachingDecorator(bookService);
     }
 }
-//end L3 Decorator Config
+//end L2 Decorator Config

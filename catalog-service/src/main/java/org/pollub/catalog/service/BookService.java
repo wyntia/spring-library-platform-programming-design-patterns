@@ -144,9 +144,9 @@ public class BookService implements IBookService {
 
     @Override
     public List<String> getAllStatuses() {
-        //Lab1 - Flyweight 3 Method Start
+        //Lab2 - Flyweight 3 Method Start
         return CopyStatus.ALL_NAMES;
-        //Lab1 - Flyweight 3 Method End
+        //Lab2 - Flyweight 3 Method End
     }
 
     @Override

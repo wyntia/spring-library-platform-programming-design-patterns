@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RentalHistoryExportService implements IRentalHistoryExportService {
 
-    //Lab1 - Facade 3 Method Start
+    //Lab2 - Facade 3 Method Start
     private final RentalHistoryFacade rentalHistoryFacade;
     private final IExportAdapter exportAdapter;
 
@@ -33,5 +33,5 @@ public class RentalHistoryExportService implements IRentalHistoryExportService {
         // L2 Adapter: Delegowanie eksportu do adaptera
         return exportAdapter.export(historyDtos);
     }
-    //Lab1 - Facade 3 Method End
+    //Lab2 - Facade 3 Method End
 }

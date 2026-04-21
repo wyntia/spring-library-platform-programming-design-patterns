@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package branch;
 
 import java.util.ArrayList;
@@ -21,4 +21,4 @@ public class BranchGroup implements BranchComponent {
     @Override
     public void removeChild(BranchComponent child) { children.remove(child); }
 }
-//end L3 Composite
+//end L2 Composite

@@ -13,12 +13,12 @@ public enum CopyStatus {
     RENTED,
     RESERVED;
 
-    //Lab1 - Flyweight 3 Method Start
+    //Lab2 - Flyweight 3 Method Start
     public static final List<String> ALL_NAMES = Collections.unmodifiableList(
             Arrays.stream(values())
                     .map(Enum::name)
                     .sorted()
                     .collect(Collectors.toList())
     );
-    //Lab1 - Flyweight 3 Method End
+    //Lab2 - Flyweight 3 Method End
 }

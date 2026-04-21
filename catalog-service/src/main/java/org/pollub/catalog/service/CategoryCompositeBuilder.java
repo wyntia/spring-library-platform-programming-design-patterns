@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package org.pollub.catalog.service;
 
 import org.pollub.catalog.model.Book;
@@ -41,4 +41,4 @@ public class CategoryCompositeBuilder {
         return root;
     }
 }
-//end L3 Composite
+//end L2 Composite

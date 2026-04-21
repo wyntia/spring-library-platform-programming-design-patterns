@@ -1,4 +1,4 @@
-//start L3 Decorator
+//start L2 Decorator
 package org.pollub.branch.service;
 
 import org.pollub.branch.model.LibraryBranch;
@@ -60,4 +60,4 @@ public class BranchServiceLoggingDecorator implements IBranchService {
         return delegate.getBranchesByIds(branchIds);
     }
 }
-//end L3 Decorator
+//end L2 Decorator

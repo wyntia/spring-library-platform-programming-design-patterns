@@ -1,4 +1,4 @@
-//start L3 Composite
+//start L2 Composite
 package notification;
 
 /**
@@ -12,4 +12,4 @@ public class EmailNotification implements NotificationComponent {
         System.out.println("Wysyłam e-mail do: " + email + " | Treść: " + message);
     }
 }
-//end L3 Composite
+//end L2 Composite

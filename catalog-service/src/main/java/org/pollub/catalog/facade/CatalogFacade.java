@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-//Lab1 - Facade 1 Method Start
+//Lab2 - Facade 1 Method Start
 public class CatalogFacade {
 
     private final ICatalogService catalogService;
@@ -159,5 +159,5 @@ public class CatalogFacade {
                 .build();
     }
 }
-//Lab1 - Facade 1 Method End
+//Lab2 - Facade 1 Method End
 

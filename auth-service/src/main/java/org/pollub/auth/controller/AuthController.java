@@ -26,7 +26,7 @@ import static org.springframework.security.core.context.SecurityContextHolder.ge
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
-    //Lab1 - Facade 2 Method Start
+    //Lab2 - Facade 2 Method Start
     private final AuthFacade authFacade;
 
 
@@ -94,6 +94,6 @@ public class AuthController {
     public ResponseEntity<ResetPasswordResponseDto> resetPassword(@Valid @RequestBody ResetPasswordRequestDto request) {
         return ResponseEntity.ok(authFacade.resetPassword(request));
     }
-    //Lab1 - Facade 2 Method End
+    //Lab2 - Facade 2 Method End
 
 }

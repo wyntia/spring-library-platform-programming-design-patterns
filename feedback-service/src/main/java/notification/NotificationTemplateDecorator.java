@@ -1,4 +1,4 @@
-//start L3 Decorator
+//start L2 Decorator
 package notification;
 /**
  * A template decorator for NotificationComponent.
@@ -20,4 +20,4 @@ public class NotificationTemplateDecorator implements NotificationComponent {
         delegate.send(formatted);
     }
 }
-//end L3 Decorator
+//end L2 Decorator

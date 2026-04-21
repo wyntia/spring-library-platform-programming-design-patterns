@@ -1,4 +1,4 @@
-//start L3 Decorator
+//start L2 Decorator
 package org.pollub.catalog.service;
 
 import org.pollub.catalog.model.Book;
@@ -80,4 +80,4 @@ public class BookServiceCachingDecorator implements IBookService {
     @Override public List<Book> getPopularBooks(int limit) { return delegate.getPopularBooks(limit); }
     @Override public BookAvailabilityDto getBookAvailability(Long id) { return delegate.getBookAvailability(id); }
 }
-//end L3 Decorator
+//end L2 Decorator
