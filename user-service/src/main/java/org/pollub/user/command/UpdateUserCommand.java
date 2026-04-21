@@ -2,27 +2,27 @@ package org.pollub.user.command;
 
 import org.pollub.user.model.User;
 import org.pollub.user.memento.UserMemento;
-import org.pollub.user.service.UserService;
+import org.pollub.user.facade.UserFacade;
 
 //start L3 Command
 public class UpdateUserCommand {
-    private final UserService userService;
+    private final UserFacade userFacade;
     private final Long id;
     private final User newUserData;
     private UserMemento memento; //obiekt Memento
 
-    public UpdateUserCommand(UserService userService, Long id, User newUserData) {
-        this.userService = userService;
+    public UpdateUserCommand(UserFacade userFacade, Long id, User newUserData) {
+        this.userFacade = userFacade;
         this.id = id;
         this.newUserData = newUserData;
     }
 
     public User execute() {
-        User before = userService.findById(id);
+        User before = userFacade.findById(id);
         //start L3 Memento
         this.memento = new UserMemento(before);
         //end L3 Memento
-        return userService.updateUser(id, newUserData);
+        return userFacade.updateUser(id, newUserData);
     }
 
     //start L3 Memento

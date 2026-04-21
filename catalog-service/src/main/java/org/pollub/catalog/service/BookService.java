@@ -15,6 +15,7 @@ import org.pollub.catalog.model.dto.BookCreateDto;
 import org.pollub.catalog.repository.IBranchInventoryRepository;
 import org.pollub.catalog.repository.IBookRepository;
 import org.pollub.common.exception.ResourceNotFoundException;
+import org.pollub.common.function.SearchQueryNormalizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,17 +38,16 @@ public class BookService implements IBookService {
     private final IBookRepository bookRepository;
     private final IBranchInventoryRepository inventoryRepository;
 
-
     @Override
     public List<Book> findAll() {
         List<Book> books = bookRepository.findAll();
-        //start L3 Iterator
+        // start L3 Iterator
         BookIterator iterator = new BookIterator(books);
         while (iterator.hasNext()) {
             Book book = iterator.next();
             System.out.println("Znaleziono książkę: " + book.getTitle() + " (Autor: " + book.getAuthor() + ")");
         }
-        //end L3 Iterator
+        // end L3 Iterator
         return books;
     }
 
@@ -116,7 +116,7 @@ public class BookService implements IBookService {
         book.setIsbn(dto.getIsbn());
         book.setDescription(dto.getDescription());
     }
-    
+
     private Book saveOrThrow(Book book) {
         Book savedBook = bookRepository.save(book);
         return Optional.of(savedBook)
@@ -126,17 +126,27 @@ public class BookService implements IBookService {
     @Override
     public Page<Book> searchBooks(SearchCriteria criteria) {
 
-        //Lab1 - Simple Factory 2 Start
+        // Lab1 - Simple Factory 2 Start
         Sort sortSpec = SortFlyweightFactory.getSort(criteria.getSort());
-        //Lab1 End Simple Factory 2
+        // Lab1 End Simple Factory 2
 
         Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(), sortSpec);
 
-        String queryParam = (criteria.getQuery() != null && !criteria.getQuery().isBlank()) ? criteria.getQuery() : null;
-        String publisherParam = (criteria.getPublisher() != null && !criteria.getPublisher().isBlank()) ? criteria.getPublisher() : null;
-        String genresParam = (criteria.getGenres() != null && !criteria.getGenres().isEmpty()) ? criteria.getGenres() : null;
+        // Lab7 : Interfejsy funkcyjne i lambda — użycie 1/3 (catalog)
+        String queryParam = resolveSearchQuery(
+                criteria.getQuery(),
+                raw -> (raw != null && !raw.isBlank()) ? raw : null);
+        String publisherParam = (criteria.getPublisher() != null && !criteria.getPublisher().isBlank())
+                ? criteria.getPublisher()
+                : null;
+        String genresParam = (criteria.getGenres() != null && !criteria.getGenres().isEmpty()) ? criteria.getGenres()
+                : null;
 
         return bookRepository.searchBooksWithoutStatus(queryParam, publisherParam, genresParam, pageable);
+    }
+
+    private static String resolveSearchQuery(String raw, SearchQueryNormalizer normalizer) {
+        return normalizer.normalize(raw);
     }
 
     @Override
@@ -156,9 +166,9 @@ public class BookService implements IBookService {
 
     @Override
     public List<String> getAllStatuses() {
-        //Lab1 - Flyweight 3 Method Start
+        // Lab1 - Flyweight 3 Method Start
         return CopyStatus.ALL_NAMES;
-        //Lab1 - Flyweight 3 Method End
+        // Lab1 - Flyweight 3 Method End
     }
 
     @Override
@@ -169,7 +179,7 @@ public class BookService implements IBookService {
 
     @Override
     public List<Book> getPopularBooks(int limit) {
-        // Since we are in microservices, we cannot access rental history directly here 
+        // Since we are in microservices, we cannot access rental history directly here
         // without an inter-service call or data replication.
         // For now, fallback to recent books.
         return getRecentBooks(limit);
@@ -179,7 +189,7 @@ public class BookService implements IBookService {
     public BookAvailabilityDto getBookAvailability(Long id) {
         Book book = findById(id);
         List<BranchInventory> inventories = inventoryRepository.findByItemId(id);
-        //start L3 Iterator
+        // start L3 Iterator
         BranchInventoryIterator iterator = new BranchInventoryIterator(inventories);
         Integer daysUntilDue = null;
         Set<Long> availableBranches = new HashSet<>();
@@ -187,29 +197,28 @@ public class BookService implements IBookService {
         while (iterator.hasNext()) {
             BranchInventory inv = iterator.next();
             if (inv.getStatus() == CopyStatus.AVAILABLE) {
-            availableBranches.add(inv.getBranchId());
+                availableBranches.add(inv.getBranchId());
             }
             if (rentedCopy == null && inv.getStatus() == CopyStatus.RENTED && inv.getDueDate() != null) {
-            rentedCopy = inv;
+                rentedCopy = inv;
             }
         }
         if (rentedCopy != null && rentedCopy.getDueDate() != null) {
             long days = java.time.temporal.ChronoUnit.DAYS.between(
-                java.time.LocalDate.now(),
-                rentedCopy.getDueDate().toLocalDate()
-            );
+                    java.time.LocalDate.now(),
+                    rentedCopy.getDueDate().toLocalDate());
             daysUntilDue = (int) Math.max(0, days);
         }
         String overallStatus = availableBranches.isEmpty() ? "UNAVAILABLE" : "AVAILABLE";
-        //end L3 Iterator
+        // end L3 Iterator
         return BookAvailabilityDto.builder()
-            .id(book.getId())
-            .title(book.getTitle())
-            .author(book.getAuthor())
-            .status(overallStatus)
-            .imageUrl(book.getImageUrl())
-            .daysUntilDue(daysUntilDue)
-            .availableAtBranches(availableBranches)
-            .build();
+                .id(book.getId())
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .status(overallStatus)
+                .imageUrl(book.getImageUrl())
+                .daysUntilDue(daysUntilDue)
+                .availableAtBranches(availableBranches)
+                .build();
     }
 }

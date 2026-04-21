@@ -18,6 +18,7 @@ import java.util.List;
 public class RentalController {
     
     private final IRentalService rentalService;
+    private final List<org.pollub.rental.service.IRentalFeeStrategy> feeStrategies;
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ItemDto>> getUserActiveRentals(@PathVariable Long userId) {
@@ -56,16 +57,31 @@ public class RentalController {
         return ResponseEntity.noContent().build();
     }
 
+    //Lab6 : Znaczące nazewnictwo 1 Start
     @PutMapping("/{itemId}/extend")
-    public ResponseEntity<Void> extendLoan(
+    public ResponseEntity<Void> extendRental(
             @PathVariable Long itemId,
             @RequestParam Long branchId,
             @RequestParam(defaultValue = "7") int days
     ) {
-        rentalService.extendLoan(itemId, branchId, days);
+        rentalService.extendRental(itemId, branchId, days);
         return ResponseEntity.noContent().build();
     }
+    //Lab6 : Znaczące nazewnictwo 1 Stop
 
+    //Lab5 : Liskov 3 Start
+    @GetMapping("/fee")
+    public ResponseEntity<java.math.BigDecimal> calculateRentalFee(
+            @RequestParam int days,
+            @RequestParam(defaultValue = "STANDARD") String type
+    ) {
+        org.pollub.rental.service.IRentalFeeStrategy strategy = feeStrategies.stream()
+                .filter(s -> s.supports(type))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported fee type: " + type));
 
+        return ResponseEntity.ok(rentalService.calculateRentalFee(days, strategy));
+    }
+    //Lab5 : Liskov 3 End
 
 }

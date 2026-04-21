@@ -22,6 +22,13 @@ public class BranchController {
     
     private final IBranchService branchService;
     
+    //Lab5 : Liskov 2 Start
+    @GetMapping("/hierarchy")
+    public ResponseEntity<Map<String, Object>> getBranchHierarchy() {
+        return ResponseEntity.ok(branchService.getBranchHierarchy());
+    }
+    //Lab5 : Liskov 2 End
+
     @GetMapping
     public ResponseEntity<List<BranchDto>> getAllBranches() {
         List<BranchDto> branches = branchService.getAllBranches().stream()
