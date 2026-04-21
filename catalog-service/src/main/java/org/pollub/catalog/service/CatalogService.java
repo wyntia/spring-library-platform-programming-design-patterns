@@ -151,39 +151,39 @@ public class CatalogService implements ICatalogService {
             log.warn("Failed to fetch branch data in batch", e);
         }
 
-        // Map to HistoryCatalogResponse with itemId as key
-        Map<Long, HistoryCatalogResponse> result = new java.util.HashMap<>();
-        for (BranchInventory inv : branchInventories) {
-            LibraryItem item = libraryItemRepository.findById(inv.getItemId()).orElse(null);
-            if (item == null) {
-                continue;
-            }
-
-            // Lab5 : Liskov 1 Start
-            String itemTitle = item.getTitle();
-            String itemAuthor = item.extractAuthorOrCreator();
-            // Lab5 : Liskov 1 End
-
-            // Get branch information from the pre-fetched map
-            String branchName = "Brak danych";
-            String branchAddress = "Brak danych";
-
-            org.pollub.catalog.client.BranchResponse branchResponse = branchDataMap.get(inv.getBranchId());
-            if (branchResponse != null) {
-                branchName = branchResponse.getName() != null ? branchResponse.getName() : "Brak danych";
-                branchAddress = (branchResponse.getAddress() != null ? branchResponse.getAddress() : "Brak danych") +
-                        ", " +
-                        (branchResponse.getCity() != null ? branchResponse.getCity() : "Brak danych");
-            }
-
-            result.put(inv.getItemId(), HistoryCatalogResponse.builder()
-                    .itemId(inv.getItemId())
-                    .itemTitle(itemTitle)
-                    .itemAuthor(itemAuthor)
-                    .branchName(branchName)
-                    .branchAddress(branchAddress)
-                    .build());
-        }
+        // Lab7 : Programowanie funkcyjne — strumienie na kolekcjach 1/3 (catalog) Start
+        Map<Long, HistoryCatalogResponse> result = branchInventories.stream()
+                .filter(inv -> libraryItemRepository.findById(inv.getItemId()).isPresent())
+                .collect(Collectors.toMap(
+                        BranchInventory::getItemId,
+                        inv -> {
+                            LibraryItem item = libraryItemRepository.findById(inv.getItemId()).orElseThrow();
+                            // Lab5 : Liskov 1 Start
+                            String itemTitle = item.getTitle();
+                            String itemAuthor = item.extractAuthorOrCreator();
+                            // Lab5 : Liskov 1 End
+                            org.pollub.catalog.client.BranchResponse branchResponse = branchDataMap
+                                    .get(inv.getBranchId());
+                            String branchName = branchResponse != null && branchResponse.getName() != null
+                                    ? branchResponse.getName()
+                                    : "Brak danych";
+                            String branchAddress = branchResponse != null
+                                    ? (branchResponse.getAddress() != null ? branchResponse.getAddress()
+                                            : "Brak danych")
+                                            + ", "
+                                            + (branchResponse.getCity() != null ? branchResponse.getCity()
+                                                    : "Brak danych")
+                                    : "Brak danych";
+                            return HistoryCatalogResponse.builder()
+                                    .itemId(inv.getItemId())
+                                    .itemTitle(itemTitle)
+                                    .itemAuthor(itemAuthor)
+                                    .branchName(branchName)
+                                    .branchAddress(branchAddress)
+                                    .build();
+                        },
+                        (existing, replacement) -> existing));
+        // Lab7 : Programowanie funkcyjne — strumienie na kolekcjach 1/3 (catalog) End
 
         return result;
     }

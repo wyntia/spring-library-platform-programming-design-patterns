@@ -66,15 +66,15 @@ public class FeedbackRateLimitService implements IFeedbackRateLimitService {
         return FeedbackRateLimitRuleDictionary.getAuthenticatedRule();
     }
 
+    // Lab7 : Programowanie funkcyjne — strumienie na kolekcjach 3/3 (feedback) Start
     private FeedbackRateLimitRuleDictionary.RateLimitRule resolveRoleSpecificRateLimitRuleUsingDictionaryMappings(Set<String> normalizedRoles) {
-        for (String normalizedRole : normalizedRoles) {
-            FeedbackRateLimitRuleDictionary.RateLimitRule roleSpecificRule = FeedbackRateLimitRuleDictionary.getRoleSpecificRule(normalizedRole);
-            if (roleSpecificRule != null) {
-                return roleSpecificRule;
-            }
-        }
-        return null;
+        return normalizedRoles.stream()
+                .map(FeedbackRateLimitRuleDictionary::getRoleSpecificRule)
+                .filter(rule -> rule != null)
+                .findFirst()
+                .orElse(null);
     }
+    // Lab7 : Programowanie funkcyjne — strumienie na kolekcjach 3/3 (feedback) End
 
     private Set<String> extractNormalizedRoles(Authentication authentication) {
         if (authentication == null || authentication.getAuthorities() == null) {

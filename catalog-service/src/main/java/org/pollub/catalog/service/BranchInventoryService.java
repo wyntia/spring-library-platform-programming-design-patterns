@@ -24,7 +24,8 @@ import java.util.List;
 
 /**
  * Service for managing per-branch inventory of library items.
- * Implements Observer pattern to notify observers about inventory state changes.
+ * Implements Observer pattern to notify observers about inventory state
+ * changes.
  */
 @Service
 @Transactional
@@ -34,20 +35,22 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
     private final IBranchInventoryRepository inventoryRepository;
     private final ReservationServiceClient reservationServiceClient;
-    //Lab4 OCP Start
+    // Lab4 OCP Start
     private final InventoryTransitionPolicy inventoryTransitionPolicy;
-    //Lab4 OCP End
+    // Lab4 OCP End
     private final List<Observer> observers = new ArrayList<>();
 
-    //Lab6 : Długość metod 3 Start
-    //Lab6 : Maksymalnie 3 argumenty 1 Start
-    private record RentCopyParties(Long itemId, Long branchId, Long userId) {}
+    // Lab6 : Długość metod 3 Start
+    // Lab6 : Maksymalnie 3 argumenty 1 Start
+    private record RentCopyParties(Long itemId, Long branchId, Long userId) {
+    }
 
     private record PendingRentPersistence(
             BranchInventory inventory,
             RentCopyParties parties,
             boolean wasReserved,
-            RentalHistoryDto rentalHistoryDto) {}
+            RentalHistoryDto rentalHistoryDto) {
+    }
 
     @Override
     public ReservationResponse rentCopy(Long itemId, RentalHistoryDto rentalHistoryDto) {
@@ -70,8 +73,7 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
                 inventory,
                 inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RENT),
                 new RentAssignmentDetails(
-                        parties.userId(), rentalHistoryDto.getRentedAt(), rentalHistoryDto.getDueDate())
-        );
+                        parties.userId(), rentalHistoryDto.getRentedAt(), rentalHistoryDto.getDueDate()));
         clearReservationInfo(inventory);
     }
 
@@ -98,12 +100,12 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
                 parties.itemId(),
                 parties.branchId(),
                 parties.userId(),
-                DateTimeProvider.getInstance().now()
-        ));
+                DateTimeProvider.getInstance().now()));
     }
 
     private void fulfillReservationIfWasReserved(boolean wasReserved, RentCopyParties parties) {
-        // If the book was reserved, mark the reservation as fulfilled in reservation-service
+        // If the book was reserved, mark the reservation as fulfilled in
+        // reservation-service
         if (wasReserved) {
             reservationServiceClient.fulfillReservation(
                     parties.itemId(), parties.branchId(), parties.userId());
@@ -121,8 +123,8 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
                 .status(CopyStatus.RENTED.name())
                 .build();
     }
-    //Lab6 : Maksymalnie 3 argumenty 1 Stop
-    //Lab6 : Długość metod 3 Stop
+    // Lab6 : Maksymalnie 3 argumenty 1 Stop
+    // Lab6 : Długość metod 3 Stop
 
     private static void clearReservationInfo(BranchInventory inventory) {
         inventory.setReservedByUserId(null);
@@ -130,8 +132,9 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
         inventory.setReservationExpiresAt(null);
     }
 
-    //Lab6 : Maksymalnie 3 argumenty 2 Start
-    private record RentAssignmentDetails(Long userId, LocalDateTime rentedAt, LocalDateTime dueDate) {}
+    // Lab6 : Maksymalnie 3 argumenty 2 Start
+    private record RentAssignmentDetails(Long userId, LocalDateTime rentedAt, LocalDateTime dueDate) {
+    }
 
     private static void updateInventoryRecordWithRentData(
             BranchInventory inventory, CopyStatus rented, RentAssignmentDetails assignment) {
@@ -141,7 +144,7 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
         inventory.setDueDate(assignment.dueDate());
         inventory.setRentExtended(false);
     }
-    //Lab6 : Maksymalnie 3 argumenty 2 Stop
+    // Lab6 : Maksymalnie 3 argumenty 2 Stop
 
     private BranchInventory getBranchInventoryOrThrow(Long itemId, Long branchId) {
         BranchInventory inventory = inventoryRepository.findByItemIdAndBranchId(itemId, branchId)
@@ -156,24 +159,18 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
             throw new IllegalStateException(
                     "Copy is reserved by another user. Reserved by userId: "
-                            + inventory.getReservedByUserId()
-            );
+                            + inventory.getReservedByUserId());
         }
     }
 
     private void validateAvailabilityForRent(BranchInventory inventory) {
-        //Lab4 OCP Start
+        // Lab4 OCP Start
         inventoryTransitionPolicy.throwIfOperationNotAllowed(
-            inventory.getStatus(),
-            InventoryOperation.RENT,
-            "Copy is not available for rent. Current status: "
-        );
-        //Lab4 OCP End
+                inventory.getStatus(),
+                InventoryOperation.RENT,
+                "Copy is not available for rent. Current status: ");
+        // Lab4 OCP End
     }
-
-
-
-
 
     @Override
     public void returnCopy(Long itemId, Long branchId) {
@@ -182,35 +179,31 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
         BranchInventory inventory = getBranchInventoryOrThrow(itemId, branchId);
 
         inventoryTransitionPolicy.throwIfOperationNotAllowed(
-            inventory.getStatus(),
-            InventoryOperation.RETURN,
-            "Copy is not rented. Current status: "
-        );
+                inventory.getStatus(),
+                InventoryOperation.RETURN,
+                "Copy is not rented. Current status: ");
 
         Long rentedByUserId = inventory.getRentedByUserId();
         updateInventoryRecordWithRentData(
-            inventory,
-            inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RETURN),
-            new RentAssignmentDetails(null, null, null)
-        );
+                inventory,
+                inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RETURN),
+                new RentAssignmentDetails(null, null, null));
 
         try {
             inventoryRepository.save(inventory);
 
             // Notify observers about return
             notifyObservers(new BranchInventoryEvent(
-                "RETURN",
-                itemId,
-                branchId,
-                rentedByUserId,
-                DateTimeProvider.getInstance().now()
-            ));
+                    "RETURN",
+                    itemId,
+                    branchId,
+                    rentedByUserId,
+                    DateTimeProvider.getInstance().now()));
         } catch (Exception e) {
             log.error("Error returning copy of item {} at branch {}: {}", itemId, branchId, e.getMessage());
             throw e;
         }
     }
-
 
     @Override
     public BranchInventoryDto reserveCopy(Long itemId, ReservationCatalogRequestDto reservationCatalogRequestDto) {
@@ -219,30 +212,27 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
         BranchInventory inventory = getBranchInventoryOrThrow(itemId, branchId);
 
         inventoryTransitionPolicy.throwIfOperationNotAllowed(
-            inventory.getStatus(),
-            InventoryOperation.RESERVE,
-            "Copy is not available for reservation. Current status: "
-        );
+                inventory.getStatus(),
+                InventoryOperation.RESERVE,
+                "Copy is not available for reservation. Current status: ");
 
         inventory.setStatus(inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.RESERVE));
         Long userId = reservationCatalogRequestDto.getUserId();
         inventory.setReservedByUserId(userId);
         inventory.setReservedAt(DateTimeProvider.getInstance().now());
         inventory.setReservationExpiresAt(
-                reservationCatalogRequestDto.getExpiresAt()
-        );
+                reservationCatalogRequestDto.getExpiresAt());
 
         try {
             BranchInventory savedInventory = inventoryRepository.save(inventory);
 
             // Notify observers about reservation
             notifyObservers(new BranchInventoryEvent(
-                "RESERVE",
-                itemId,
-                branchId,
-                userId,
-                DateTimeProvider.getInstance().now()
-            ));
+                    "RESERVE",
+                    itemId,
+                    branchId,
+                    userId,
+                    DateTimeProvider.getInstance().now()));
 
             return toDto(savedInventory);
         } catch (Exception e) {
@@ -258,10 +248,9 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
         BranchInventory inventory = getBranchInventoryOrThrow(itemId, branchId);
 
         inventoryTransitionPolicy.throwIfOperationNotAllowed(
-            inventory.getStatus(),
-            InventoryOperation.CANCEL_RESERVATION,
-            "Copy is not reserved. Current status: "
-        );
+                inventory.getStatus(),
+                InventoryOperation.CANCEL_RESERVATION,
+                "Copy is not reserved. Current status: ");
 
         Long reservedByUserId = inventory.getReservedByUserId();
         inventory.setStatus(inventoryTransitionPolicy.resolveTargetStatus(InventoryOperation.CANCEL_RESERVATION));
@@ -271,23 +260,21 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
         // Notify observers about reservation cancellation
         notifyObservers(new BranchInventoryEvent(
-            "CANCEL_RESERVATION",
-            itemId,
-            branchId,
-            reservedByUserId,
-            DateTimeProvider.getInstance().now()
-        ));
+                "CANCEL_RESERVATION",
+                itemId,
+                branchId,
+                reservedByUserId,
+                DateTimeProvider.getInstance().now()));
 
         return savedInventory;
     }
 
-    //L6 Use State Pattern validation for rental extension
+    // L6 Use State Pattern validation for rental extension
     private void throwIfNotRented(BranchInventory inventory) {
         inventoryTransitionPolicy.throwIfOperationNotAllowed(
                 inventory.getStatus(),
                 InventoryOperation.EXTEND,
-                "Copy is not rented. Current status: "
-        );
+                "Copy is not rented. Current status: ");
     }
 
     @Override
@@ -301,10 +288,10 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
         throwIfHaveAlreadyBeenExtended(inventory);
 
-        LocalDateTime newDueDate = inventory.getDueDate() != null 
+        LocalDateTime newDueDate = inventory.getDueDate() != null
                 ? inventory.getDueDate().plusDays(additionalDays)
                 : DateTimeProvider.getInstance().now().plusDays(additionalDays);
-        
+
         inventory.setDueDate(newDueDate);
         inventory.setRentExtended(true);
 
@@ -313,12 +300,11 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
             // Notify observers about rental extension
             notifyObservers(new BranchInventoryEvent(
-                "EXTEND",
-                itemId,
-                branchId,
-                inventory.getRentedByUserId(),
-                DateTimeProvider.getInstance().now()
-            ));
+                    "EXTEND",
+                    itemId,
+                    branchId,
+                    inventory.getRentedByUserId(),
+                    DateTimeProvider.getInstance().now()));
         } catch (Exception e) {
             log.error("Error extending rental for item {} at branch {}: {}", itemId, branchId, e.getMessage());
             throw e;
@@ -330,7 +316,6 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
             throw new IllegalStateException("Rental has already been extended once.");
         }
     }
-
 
     @Override
     public List<BranchInventoryDto> getInventoryForItem(Long itemId) {
@@ -403,12 +388,11 @@ public class BranchInventoryService implements IBranchInventoryService, Subject 
 
         // Notify observers about status change
         notifyObservers(new BranchInventoryEvent(
-            "STATUS_CHANGED",
-            itemId,
-            branchId,
-            null,
-            DateTimeProvider.getInstance().now()
-        ));
+                "STATUS_CHANGED",
+                itemId,
+                branchId,
+                null,
+                DateTimeProvider.getInstance().now()));
     }
 
     private BranchInventoryDto toDto(BranchInventory inventory) {

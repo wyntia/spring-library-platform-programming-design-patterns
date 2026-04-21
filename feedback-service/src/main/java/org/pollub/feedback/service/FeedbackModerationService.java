@@ -14,15 +14,15 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-//Lab5 : ISP 3 Start
-public class FeedbackModerationService implements IFeedbackQueryService, IFeedbackStatusModerationService{
-//Lab5 : ISP 3 End
+// Lab5 : ISP 3 Start
+public class FeedbackModerationService implements IFeedbackQueryService, IFeedbackStatusModerationService {
+    // Lab5 : ISP 3 End
 
     private final IFeedbackRepository feedbackRepository;
     private final FeedbackEventPublisher feedbackEventPublisher;
-    //L4 - OCP 3 Start
+    // L4 - OCP 3 Start
     private final FeedbackModerationDataDrivenProperties feedbackModerationDataDrivenProperties;
-    //L4 - OCP 3 END
+    // L4 - OCP 3 END
 
     public List<Feedback> getAllFeedbacks() {
         return feedbackRepository.findAllByOrderByCreatedAtDesc();
@@ -44,11 +44,11 @@ public class FeedbackModerationService implements IFeedbackQueryService, IFeedba
                 this.oldStatus = feedback.getStatus().name();
                 feedback.setStatus(newStatus);
 
-                //L4 - OCP 3 Start
+                // L4 - OCP 3 Start
                 if (feedbackModerationDataDrivenProperties.getResolveAtStatuses().contains(newStatus)) {
                     feedback.setResolvedAt(DateTimeProvider.getInstance().now());
                 }
-                //L4 - OCP 3 END
+                // L4 - OCP 3 END
             }
 
             @Override
@@ -59,4 +59,4 @@ public class FeedbackModerationService implements IFeedbackQueryService, IFeedba
         }.execute(feedbackId);
     }
 }
-//SRP3 End
+// SRP3 End
